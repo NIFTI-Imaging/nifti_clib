@@ -1,0 +1,79 @@
+
+			niftijlib
+
+
+niftijlib is a simple Java class to read and write datasets
+in the nifti-1 file format.
+
+Nift1Dataset.java. is the main i/o class.
+EndianCorrectInputStream.java and EndianCorrectOutputStream.java
+are support classes to deal with writing little-endian.
+TestNifti1Api.java is a sample driver program that shows how to use
+the methods in Nift1Dataset.
+
+
+Prerequisites:
+--------------------------
+niftijlib was written under java 1.4.
+
+
+To build:
+--------------------------
+Edit the Makefile to set the correct paths for your Java utilities,
+e.g. javac.
+
+make jar
+
+niftijlib.jar will be created.
+
+
+To run the sample program:
+--------------------------
+Make sure niftijlib.jar is in your CLASSPATH, e.g.
+setenv CLASSPATH .
+
+java TestNifti1Api
+
+This will display the help message for TestNifti1Api:
+
+Usage: TestNifti1Api <command> <dataset> [params]
+
+
+	print <dataset>
+		print dataset header fields
+	peek <dataset> X Y Z T
+		print value at voxel location X Y Z T (0-based index)
+	timecourse <dataset> X Y Z
+		print timecourse at voxel location X Y Z (0-based index)
+	copy <dataset> <dataset2>
+		disk copy of dataset to dataset2 
+	create <new dataset> <datatype> X Y Z T <A|B|X>
+		create a new dataset of dimension XYZT.
+		Voxel values are determined by last param.
+		A -- volumes are constant val, equal to their T index.
+		B -- each volume has voxels set from 0 to n, where n=(X*Y*Z)-1
+		X -- voxels are 0
+	extend <dataset> <extension_file> <code>
+		take <extension_file> and stuff it into the header of <dataset>
+		as an extension of type <code>
+		<code> is an identifying code for the extension type (ask Bob).
+
+
+
+To use Nifti1Dataset methods:
+------------------------------
+You can run
+make docs
+netscape doc/index.html &
+to generate the API documentation, or, look at the documentation
+on the niftilib SourceForge website:
+http://niftilib.sourceforge.net/
+
+You can also use the TestNifti1Api.java program as a sample to
+get started.
+
+
+Contact: 
+--------------------------
+Kate Fissell, University of Pittsburgh, fissell@pitt.edu
+
