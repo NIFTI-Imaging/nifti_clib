@@ -10,6 +10,9 @@ UTILS		=	utils
 UTILS_PROGS	=	nifti_stats nifti_tool nifti1_test
 THIS_DIR	=	`basename ${PWD}`
 
+## Note the TARFILE_NAME embeds the release version number
+TARFILE_NAME	=	nifticlib-0.1
+
 
 ## Compiler  defines
 cc		=	gcc
@@ -157,8 +160,13 @@ doc_clean:
 	($(RM) -fr docs/html;)
 
 tar:
-	(cd ..; $(TAR) -cvf $(THIS_DIR).tar $(THIS_DIR); cd $(THIS_DIR);)
-	@echo tar file ../$(THIS_DIR).tar created
+	(cd .. ; ln -s $(THIS_DIR) ${TARFILE_NAME} ; \
+	tar --exclude=CVS -cf ${TARFILE_NAME}.tar ${TARFILE_NAME}/*; \
+	rm -f ${TARFILE_NAME});
+	@echo ''
+	@echo 'tar file ../${TARFILE_NAME}.tar has been created.'
+	@echo ''
+
 
 help:
 	@echo "\n"
