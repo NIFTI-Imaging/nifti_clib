@@ -3,6 +3,7 @@ include ../Makefile
 PROJNAME = znzlib
 
 INCFLAGS = $(ZLIB_INC)
+USEZLIB = -DHAVE_ZLIB
 
 SRCS=znzlib.c
 OBJS=znzlib.o
@@ -19,6 +20,9 @@ depend.mk:
 lib: libznz.a
 
 test: ${TESTXFILES}
+
+znzlib.o: znzlib.c znzlib.h
+	$(CC) -c $(CFLAGS) $(USEZLIB) $(INCFLAGS) $<
 
 libznz.a: ${OBJS}
 	${AR} -r libznz.a ${OBJS}
