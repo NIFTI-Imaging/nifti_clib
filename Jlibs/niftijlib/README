@@ -2,8 +2,13 @@
 			niftijlib
 
 
+Beta release niftijlib-0.1 March 11, 2005.
+
+
 niftijlib is a simple Java class to read and write datasets
 in the nifti-1 file format.
+
+niftijlib is released into the public domain.
 
 Nift1Dataset.java. is the main i/o class.
 EndianCorrectInputStream.java and EndianCorrectOutputStream.java
@@ -12,13 +17,18 @@ TestNifti1Api.java is a sample driver program that shows how to use
 the methods in Nift1Dataset.
 
 
+
 Prerequisites:
 --------------------------
 niftijlib was written under java 1.4.
 
 
+
 To build:
 --------------------------
+Note that the jar file niftijlib.jar is included in the distribution,
+so, you do not need to build, you can run the sample program directly.
+
 Edit the Makefile to set the correct paths for your Java utilities,
 e.g. javac.
 
@@ -26,11 +36,15 @@ make jar
 
 niftijlib.jar will be created.
 
+make help
+for other build options
+
+
 
 To run the sample program:
 --------------------------
 Make sure niftijlib.jar is in your CLASSPATH, e.g.
-setenv CLASSPATH .
+setenv CLASSPATH niftijlib.jar
 
 java TestNifti1Api
 
