@@ -30,6 +30,10 @@
     To compile with gcc, for example:
 
     gcc -O3 -ffast-math -o nifti_stats nifti_stats.c -lm
+
+    To avoid compilation of the main() program, define OMIT_MAIN, as in
+
+    gcc -O3 -ffast-math -c nifti_stats.c -DOMIT_MAIN
  ........................................................................*/
 
 #include "nifti1.h"   /* for the NIFTI_INTENT_* constants */
@@ -10896,8 +10900,8 @@ static double invgauss_pq2s( pqpair pq , double c )
 
 /*--------------------------------------------------------------------------*/
 /*! Given a value, calculate both its cdf and reversed cdf (1.0-cdf).
-    If an error occurs, you'll probably get back {0.0,1.0}.
-    All the actual work is done in utility functions for each distribution.
+    - If an error occurs, you'll probably get back {0.0,1.0}.
+    - All the actual work is done in utility functions for each distribution.
 ----------------------------------------------------------------------------*/
 
 static pqpair stat2pq( double val, int code, double p1,double p2,double p3 )
@@ -10943,9 +10947,15 @@ static pqpair stat2pq( double val, int code, double p1,double p2,double p3 )
      case NIFTI_INTENT_UNIFORM:
                     if( p2 > p1  ) pq = uniform_s2pq((val-p1)/(p2-p1)); break;
 
-     /* this case is trivial */
+     /* these cases are trivial (note what is called 'p' is really 'q') */
 
-     case NIFTI_INTENT_PVAL:       pq.p = 1.0-val ; pq.q = val        ; break;
+     case NIFTI_INTENT_PVAL:
+                        if( val >= 0.0 && val <= 1.0 ) pq.q = val ;
+                                                       pq.p = 1.0-pq.q; break;
+     case NIFTI_INTENT_LOGPVAL:
+                            pq.q = exp(-abs(val))    ; pq.p = 1.0-pq.q; break;
+     case NIFTI_INTENT_LOG10PVAL:
+                            pq.q = pow(10.,-abs(val)); pq.p = 1.0-pq.q; break;
    }
 
    return pq ;
@@ -10953,8 +10963,10 @@ static pqpair stat2pq( double val, int code, double p1,double p2,double p3 )
 
 /*--------------------------------------------------------------------------*/
 /*! Given a pq value (cdf and 1-cdf), compute the value that gives this.
-    If an error occurs, you'll probably get back a BIGG number.
-    All the actual work is done in utility functions for each distribution.
+    - If an error occurs, you'll probably get back a BIGG number.
+    - All the actual work is done in utility functions for each distribution.
+    - Note that for the LOGPVAL and LOG10PVAL cases, the returned value
+      will be -log(q) and -log10(q).
 ----------------------------------------------------------------------------*/
 
 static double pq2stat( pqpair pq, int code, double p1,double p2,double p3 )
@@ -11002,9 +11014,13 @@ static double pq2stat( pqpair pq, int code, double p1,double p2,double p3 )
      case NIFTI_INTENT_UNIFORM:
                     if( p2 > p1  ) val = p1+(p2-p1)*uniform_pq2s(pq)   ; break;
 
-     /* this case is trivial */
+     /* these cases are trivial */
 
      case NIFTI_INTENT_PVAL:       val = pq.q                          ; break;
+     case NIFTI_INTENT_LOGPVAL:    val = (pq.q > 0.0) ? -log(pq.q)
+                                                      : BIGG           ; break;
+     case NIFTI_INTENT_LOG10PVAL:  val = (pq.q > 0.0) ? -log10(pq.q)
+                                                      : BIGG           ; break;
    }
 
    return val ;
@@ -11042,6 +11058,8 @@ static double pq2stat( pqpair pq, int code, double p1,double p2,double p3 )
      NIFTI_INTENT_LAPLACE    = Laplace distribution
      NIFTI_INTENT_UNIFORM    = Uniform distribution
      NIFTI_INTENT_PVAL       = "p-value"
+     NIFTI_INTENT_LOGPVAL    = -ln(p)
+     NIFTI_INTENT_LOG10PVAL  = -log10(p)
 *****************************************************************************/
 
 static char *inam[]={ NULL , NULL ,
@@ -11050,7 +11068,7 @@ static char *inam[]={ NULL , NULL ,
                        "POISSON"  , "NORMAL"  , "FTEST_NONC" , "CHISQ_NONC" ,
                        "LOGISTIC" , "LAPLACE" , "UNIFORM"    , "TTEST_NONC" ,
                        "WEIBULL"  , "CHI"     , "INVGAUSS"   , "EXTVAL"     ,
-                       "PVAL"     ,
+                       "PVAL"     , "LOGPVAL" , "LOG10PVAL"  ,
                      NULL } ;
 
 #include <ctype.h>
@@ -11058,7 +11076,8 @@ static char *inam[]={ NULL , NULL ,
 
 /*--------------------------------------------------------------------------*/
 /*! Given a string name for a statistic, return its integer code.
-    Returns -1 if not found.
+    - Input string can be any case.
+    - Returns -1 if name isn't found in the table.
 ----------------------------------------------------------------------------*/
 
 int nifti_intent_code( char *name )
@@ -11184,6 +11203,7 @@ double nifti_stat2hzscore( double val, int code, double p1,double p2,double p3 )
 /* Sample program to test the above functions.  Otherwise unimportant.
 ----------------------------------------------------------------------------*/
 
+#ifndef OMIT_MAIN
 int main( int argc , char *argv[] )
 {
    double val , p , q , p1=0.0,p2=0.0,p3=0.0 ;
@@ -11272,3 +11292,4 @@ int main( int argc , char *argv[] )
 
    exit(0) ;
 }
+#endif /* OMIT_MAIN */
