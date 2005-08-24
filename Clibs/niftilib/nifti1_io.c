@@ -258,8 +258,10 @@ static char gni_history[] =
   "1.12 17 August 2005 [rickr] - comment (doxygen) updates\n"
   "   - updated comments for most functions (2 updates from Cinly Ooi)\n"
   "   - added nifti_type_and_names_match()\n"
+  "\n"
+  "1.12a 24 August 2005 [rickr] - remove all tabs from Clibs/*/*.[ch]\n"
   "----------------------------------------------------------------------\n";
-static char gni_version[] = "nifti library version 1.12 (Aug 17, 2005)";
+static char gni_version[] = "nifti library version 1.12a (Aug 24, 2005)";
 
 /*! global nifti options structure */
 static nifti_global_options g_opts = { 1 };
@@ -3095,10 +3097,10 @@ nifti_image* nifti_convert_nhdr2nim(struct nifti_1_header nhdr, char* fname)
      /* determine name of image, if not already set */
      if (nim->iname==NULL) {
        if (is_onefile) {
-	 iname = nifti_strdup(nim->fname);
+         iname = nifti_strdup(nim->fname);
        } else {
-	 iname = nifti_findimgname(nim->fname,nim->nifti_type);
-	 if (iname==NULL)  { ERREX("bad filename"); }
+         iname = nifti_findimgname(nim->fname,nim->nifti_type);
+         if (iname==NULL)  { ERREX("bad filename"); }
        }
        /* don't free iname, as now nim->iname is using this storage */
        nim->iname        = iname ;          /* save image filename */
@@ -4148,11 +4150,11 @@ size_t nifti_read_buffer(znzFile fp, void* dataptr, size_t ntot,
   if( ii < ntot ){ 
     if( g_opts.debug > 0 )
        fprintf(stderr,"++ WARNING: nifti_read_buffer(%s):\n"
-	       "   data bytes needed = %u\n"
-	       "   data bytes input  = %u\n"
-	       "   number missing    = %u (set to 0)\n",
-	       nim->iname , (unsigned int)ntot ,
-	       (unsigned int)ii , (unsigned int)(ntot-ii) ) ;
+               "   data bytes needed = %u\n"
+               "   data bytes input  = %u\n"
+               "   number missing    = %u (set to 0)\n",
+               nim->iname , (unsigned int)ntot ,
+               (unsigned int)ii , (unsigned int)(ntot-ii) ) ;
     /* memset( (char *)(dataptr)+ii , 0 , ntot-ii ) ;  now failure [rickr] */
     return -1 ;
   }
@@ -4791,7 +4793,7 @@ znzFile nifti_image_write_hdr_img2( nifti_image *nim , int write_opts ,
          free(nim->iname) ; nim->iname = NULL ;
        }
        if( nim->iname == NULL ){ /* then make a new one */
-	 nim->iname = nifti_makeimgname(nim->fname,nim->nifti_type,0,0);
+         nim->iname = nifti_makeimgname(nim->fname,nim->nifti_type,0,0);
          if( nim->iname == NULL ) return NULL;  
        }
    }
