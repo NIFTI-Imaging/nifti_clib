@@ -1,6 +1,6 @@
 /** \file znzlib.c
     \brief Low level i/o interface to compressed and noncompressed files.
-	Written by Mark Jenkinson, FMRIB
+        Written by Mark Jenkinson, FMRIB
 
 This library provides an interface to both compressed (gzip/zlib) and
 uncompressed (normal) file IO.  The functions are written to have the
