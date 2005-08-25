@@ -11087,7 +11087,8 @@ int nifti_intent_code( char *name )
 
    if( name == NULL || *name == '\0' ) return -1 ;
 
-   unam = strdup(name) ;
+   unam = (char *)malloc(strlen(name)+1);
+   strcpy(unam,name);
    for( upt=unam ; *upt != '\0' ; upt++ ) *upt = (char)toupper(*upt) ;
 
    for( ii=NIFTI_FIRST_STATCODE ; ii <= NIFTI_LAST_STATCODE ; ii++ )
