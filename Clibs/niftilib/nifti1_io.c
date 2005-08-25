@@ -260,8 +260,9 @@ static char gni_history[] =
   "   - added nifti_type_and_names_match()\n"
   "\n"
   "1.12a 24 August 2005 [rickr] - remove all tabs from Clibs/*/*.[ch]\n"
+  "1.12b 25 August 2005 [rickr] - changes by Hans Johnson\n"
   "----------------------------------------------------------------------\n";
-static char gni_version[] = "nifti library version 1.12a (Aug 24, 2005)";
+static char gni_version[] = "nifti library version 1.12b (Aug 25, 2005)";
 
 /*! global nifti options structure */
 static nifti_global_options g_opts = { 1 };
@@ -4449,7 +4450,7 @@ nifti_image* nifti_simple_init_nim(void)
    nhdr.pixdim[1] = 1.0 ; nhdr.pixdim[2] = 1.0 ;
    nhdr.pixdim[3] = 1.0 ;
 
-   nhdr.datatype = NIFTI_TYPE_FLOAT32 ;
+   nhdr.datatype = DT_FLOAT32 ;
    nifti_datatype_sizes( nhdr.datatype , &nbyper, &swapsize );
    nhdr.bitpix   = 8 * nbyper ;
 
