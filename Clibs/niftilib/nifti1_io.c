@@ -141,7 +141,7 @@ static char * gni_history[] =
   "   - in int_force_positive(), check for (!list)\n"
   "   - in swap_nifti_header(), swap sizeof_hdr, and reorder to struct order\n"
   "   - change get_filesize functions to signed ( < 0 is no file or error )\n",
-  "   - in nifti_valid_filename(), lose redundant (len < 0) check\n"
+  "   - in nifti_validfilename(), lose redundant (len < 0) check\n"
   "   - make print_hex_vals() static\n"
   "   - in disp_nifti_1_header, restrict string field widths\n"
   "\n",
@@ -2110,7 +2110,7 @@ int nifti_fileexists(const char* fname)
 *//*--------------------------------------------------------------------*/
 int nifti_validfilename(const char* fname)
 {
-   char * ext;
+   char const * ext;
 
    /* check input file(s) for sanity */
    if( fname == NULL || *fname == '\0' ){
@@ -2120,6 +2120,9 @@ int nifti_validfilename(const char* fname)
    }
 
    ext = nifti_find_file_extension(fname);
+   if ( ext == NULL ) { /*Invalid extension given */
+       return 0;
+   }
 
    if ( ext && ext == fname ) {   /* then no filename prefix */
       if ( g_opts.debug > 0 )
@@ -2139,9 +2142,9 @@ int nifti_validfilename(const char* fname)
 
     \return a pointer to the extension (within the filename), or NULL
 *//*--------------------------------------------------------------------*/
-char * nifti_find_file_extension( const char * name )
+char const * nifti_find_file_extension( const char * name )
 {
-   char * ext;
+   char const * ext;
    int    len;
 
    if ( ! name ) return NULL;
@@ -2149,7 +2152,7 @@ char * nifti_find_file_extension( const char * name )
    len = strlen(name);
    if ( len < 4 ) return NULL;
 
-   ext = (char *)name + len - 4;
+   ext = name + len - 4;
 
    if ( (strcmp(ext, ".hdr") == 0) || (strcmp(ext, ".img") == 0) ||
         (strcmp(ext, ".nia") == 0) || (strcmp(ext, ".nii") == 0) )
@@ -2158,7 +2161,7 @@ char * nifti_find_file_extension( const char * name )
 #ifdef HAVE_ZLIB
    if ( len < 7 ) return NULL;
 
-   ext = (char *)name + len - 7;
+   ext = name + len - 7;
 
    if ( (strcmp(ext, ".hdr.gz") == 0) || (strcmp(ext, ".img.gz") == 0) ||
         (strcmp(ext, ".nia.gz") == 0) || (strcmp(ext, ".nii.gz") == 0) )
@@ -2197,13 +2200,16 @@ int nifti_is_gzfile(const char* fname)
 *//*--------------------------------------------------------------------*/
 char * nifti_makebasename(const char* fname)
 {
-   char *basename, *ext;
+   char *basename;
+   char const * ext;
 
    basename=nifti_strdup(fname);
 
    ext = nifti_find_file_extension(basename);
-   if ( ext ) *ext = '\0';  /* clear out extension */
-   
+   if ( ext )
+       {
+       basename[strlen(basename)-strlen(ext)]='\0';
+       }
    return basename;  /* in either case */
 }
 
@@ -2231,7 +2237,8 @@ void nifti_set_debug_level( int level )
 *//*-------------------------------------------------------------------*/
 char * nifti_findhdrname(const char* fname)
 {
-   char *basename, *hdrname, *ext;
+   char *basename, *hdrname;
+   char const *ext;
    char  elist[2][5] = { ".hdr", ".nii" };
    int   efirst;
 
@@ -2375,7 +2382,8 @@ char * nifti_findimgname(const char* fname , int nifti_type)
 char * nifti_makehdrname(const char * prefix, int nifti_type, int check,
                          int comp)
 {
-   char * iname, * ext;
+   char * iname;
+   char const * ext;
 
    if( !nifti_validfilename(prefix) ) return NULL;
 
@@ -2387,7 +2395,7 @@ char * nifti_makehdrname(const char * prefix, int nifti_type, int check,
    /* use any valid extension */
    if( (ext = nifti_find_file_extension(iname)) != NULL ){
       if( strncmp(ext,".img",4) == 0 )
-         memcpy(ext,".hdr",4);   /* then convert img name to hdr */
+         memcpy(&(iname[strlen(iname)-strlen(ext)]),".hdr",4);   /* then convert img name to hdr */
    }
    /* otherwise, make one up an */
    else if( nifti_type == NIFTI_FTYPE_NIFTI1_1 ) strcat(iname, ".nii");
@@ -2428,7 +2436,8 @@ char * nifti_makehdrname(const char * prefix, int nifti_type, int check,
 char * nifti_makeimgname(const char * prefix, int nifti_type, int check,
                          int comp)
 {
-   char * iname, * ext;
+   char * iname;
+   char const * ext;
 
    if( !nifti_validfilename(prefix) ) return NULL;
 
@@ -2440,7 +2449,7 @@ char * nifti_makeimgname(const char * prefix, int nifti_type, int check,
    /* use any valid extension */
    if( (ext = nifti_find_file_extension(iname)) != NULL ){
       if( strncmp(ext,".hdr",4) == 0 )
-         memcpy(ext,".img",4);   /* then convert hdr name to img */
+         memcpy(&(iname[strlen(iname)-strlen(ext)]),".img",4);   /* then convert hdr name to img */
    }
    /* otherwise, make one up */
    else if( nifti_type == NIFTI_FTYPE_NIFTI1_1 ) strcat(iname, ".nii");
@@ -2535,7 +2544,8 @@ int nifti_set_filenames( nifti_image * nim, const char * prefix, int check,
 int nifti_type_and_names_match( nifti_image * nim, int show_warn )
 {
    char func[] = "nifti_type_and_names_match";
-   char * ext_h, * ext_i;  /* header and image filename extensions */
+   char const * ext_h; /* header filename extensions */
+   char const * ext_i; /* image filename extensions */
    int  errs = 0;          /* error counter */
 
    /* sanity checks */
