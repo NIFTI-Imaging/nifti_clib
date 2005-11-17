@@ -2769,7 +2769,7 @@ int is_nifti_file( const char *hname )
 {
    struct nifti_1_header nhdr ;
    znzFile fp ;
-   int ii ;
+   unsigned int ii ;
    char *tmpname;
 
    /* bad input name? */
@@ -3244,7 +3244,7 @@ nifti_1_header * nifti_read_header(const char * hname, int * swapped, int check)
 {
    nifti_1_header   nhdr, * hptr;
    znzFile          fp;
-   int              bytes, lswap;
+   unsigned int     bytes, lswap;
    char           * hfile;
    char             fname[] = { "nifti_read_header" };
    
@@ -4406,7 +4406,7 @@ int nifti_write_all_data(znzFile fp, nifti_image * nim,
       }
 
       ss = nifti_write_buffer(fp,nim->data,nim->nbyper * nim->nvox);
-      if (ss < (nim->nbyper * nim->nvox)){
+      if (ss < (size_t) (nim->nbyper * nim->nvox)){
          fprintf(stderr,
             "** ERROR: NWAD: wrote only %d of %d bytes to file\n",
             (int)ss, nim->nbyper * nim->nvox);
@@ -4424,7 +4424,7 @@ int nifti_write_all_data(znzFile fp, nifti_image * nim,
 
       for( bnum = 0; bnum < NBL->nbricks; bnum++ ){
          ss = nifti_write_buffer(fp, NBL->bricks[bnum], NBL->bsize);
-         if( ss < NBL->bsize ){
+         if( ss < (size_t) NBL->bsize ){
             fprintf(stderr,
                "** NWAD ERROR: wrote %d of %d bytes of brick %d of %d to file",
                (int)ss, NBL->bsize, bnum+1, NBL->nbricks);
