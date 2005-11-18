@@ -2058,7 +2058,7 @@ S120:
 /*
      S
 */
-    if(!( ( *s < 0.0e0 || *which != 3 ) && ( *s > *xn ))) goto S160;
+    if(!( *s < 0.0e0 || ( *which != 3 && *s > *xn ))) goto S160;
     if(!(*s < 0.0e0)) goto S140;
     *bound = 0.0e0;
     goto S150;
