@@ -1,8 +1,8 @@
 
 
-JAVAC	=       /usr/java2/bin/javac
-JAVADOC	=       /usr/java2/bin/javadoc
-JAR	=       /usr/java2/bin/jar
+JAVAC	=       /usr/java/bin/javac
+JAVADOC	=       /usr/java/bin/javadoc
+JAR	=       /usr/java/bin/jar
 
 SRCS	=	Nifti1Dataset.java EndianCorrectInputStream.java EndianCorrectOutputStream.java
 

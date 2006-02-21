@@ -74,6 +74,12 @@ import java.util.zip.*;
 	* <li>
 	* 3/1/2005 KF  Alpha version put into SourceForge CVS
 	* </li>
+	* <li>
+	* 10/2006 KF  added copyHdr() routine
+	* </li>
+	* <li>
+	* 2/20/2006 KF  Bug fix for endian setting, thanks to Jason Dai.
+	* </li>
 	* </ul>
 	*
 	*/
@@ -196,7 +202,7 @@ public class Nifti1Dataset {
 	String 		ds_datname;	// file name for data
 	public boolean 	ds_is_nii;	// does dataset use single file .nii 
 	public boolean		big_endian;	// does hdr appear to have BE format
-	short		XDIM,YDIM,ZDIM,TDIM,DIM5,DIM6,DIM7;	// from dim[] field
+	public short		XDIM,YDIM,ZDIM,TDIM,DIM5,DIM6,DIM7;	// from dim[] field
 	public short		freq_dim,phase_dim,slice_dim;  // unpack dim_info
 	public short		xyz_unit_code, t_unit_code;	// unpack xyzt_units;
 	public short		qfac;				// unpack pixdim[0]
@@ -306,6 +312,8 @@ public class Nifti1Dataset {
 		dis.close();
 		if ((s < 1) || (s > 7))
 			big_endian = false;
+		else
+			big_endian = true;
 
 
 		///// get input stream that will flip bytes if necessary 
@@ -436,6 +444,87 @@ public class Nifti1Dataset {
 	ecs.close();
 
 	return;	
+	}
+
+	////////////////////////////////////////////////////////////////////
+	//
+	// Copy all in memory header field settings from datset A to this dataset
+	// Extension data not set, fields set to no extension
+	//
+	////////////////////////////////////////////////////////////////////
+	public void copyHdr(Nifti1Dataset A) {
+
+	int i;
+
+	ds_hdrname = 	new String(A.ds_hdrname);  
+	ds_datname = 	new String(A.ds_datname);
+	ds_is_nii = 	A.ds_is_nii;
+	big_endian = 	A.big_endian;
+	sizeof_hdr = 	A.sizeof_hdr;
+	data_type_string = new StringBuffer(A.data_type_string.toString());
+	db_name = new StringBuffer(A.db_name.toString());
+	extents = 	A.extents;
+	session_error =	A.session_error;
+	regular = new StringBuffer(A.regular.toString());
+	dim_info = new StringBuffer(A.dim_info.toString());
+	freq_dim=A.freq_dim; 
+	phase_dim=A.phase_dim; 
+	slice_dim=A.slice_dim;
+	for (i=0; i<8; i++)
+		dim[i] = A.dim[i];
+	XDIM=A.XDIM; YDIM=A.YDIM; ZDIM=A.ZDIM; TDIM=A.TDIM;
+	DIM5=A.DIM5; DIM6=A.DIM6; DIM7=A.DIM7;
+	for (i=0; i<3; i++)
+		intent[i] = A.intent[i];
+	intent_code = A.intent_code;
+	datatype = A.datatype;
+	bitpix = A.bitpix;	
+	slice_start = A.slice_start;
+	qfac = 1;
+	for (i=0; i<8; i++)
+		pixdim[i] = A.pixdim[i];
+	
+	vox_offset = A.vox_offset;
+	scl_slope = A.scl_slope;
+	scl_inter = A.scl_inter;
+	slice_end = A.slice_end;
+	slice_code = A.slice_code;
+	xyzt_units = A.xyzt_units;
+	xyz_unit_code = A.xyz_unit_code;
+	t_unit_code = A.t_unit_code;
+
+	cal_max = A.cal_max;
+	cal_min = A.cal_min;
+	slice_duration = A.slice_duration;
+	toffset = A.toffset;
+	glmax = A.glmax;
+	glmin = A.glmin;
+
+	descrip = new StringBuffer(A.descrip.toString());
+	aux_file = new StringBuffer(A.aux_file.toString());
+
+	qform_code = A.qform_code;
+	sform_code = A.sform_code;
+
+	for (i=0; i<3; i++) {
+		quatern[i] = A.quatern[i];
+		qoffset[i] = A.qoffset[i];
+	}
+
+	for (i=0; i<4; i++) {
+		srow_x[i] = A.srow_x[i];
+		srow_y[i] = A.srow_y[i];
+		srow_z[i] = A.srow_z[i];
+	}
+
+	intent_name = new StringBuffer(A.intent_name.toString());
+
+	magic = new StringBuffer(A.magic.toString());
+
+	for (i=0; i<4; i++)
+		extension[i] = (byte)0;
+
+	return;
 	}
 
 
