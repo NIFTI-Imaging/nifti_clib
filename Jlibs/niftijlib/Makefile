@@ -6,7 +6,7 @@ JAR	=       /usr/java/bin/jar
 
 SRCS	=	Nifti1Dataset.java EndianCorrectInputStream.java EndianCorrectOutputStream.java
 
-VERSION = 0.1
+VERSION = 0.2
 
 all: jar
 

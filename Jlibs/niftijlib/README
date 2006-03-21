@@ -2,7 +2,19 @@
 			niftijlib
 
 
-Beta release niftijlib-0.1 March 11, 2005.
+Beta release niftijlib-0.2 March 20, 2006.
+------------------------------------------------------
+
+Changes from Beta release niftijlib-0.1 March 11, 2005:
+
+-- Bug fix to readHeader() for reading wrong-endian datasets, thanks
+   to Jason Dai for pointing this out.
+-- New copyHeader() function added.
+-- Small update to readNiiExt() called from readHeader() to check if a
+   malformed extension appears to overrun image data.
+
+
+------------------------------------------------------
 
 
 niftijlib is a simple Java class to read and write datasets

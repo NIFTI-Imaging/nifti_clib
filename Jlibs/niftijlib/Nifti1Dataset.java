@@ -75,10 +75,15 @@ import java.util.zip.*;
 	* 3/1/2005 KF  Alpha version put into SourceForge CVS
 	* </li>
 	* <li>
-	* 10/2006 KF  added copyHdr() routine
+	* 10/2005 KF  added copyHeader() routine
 	* </li>
 	* <li>
-	* 2/20/2006 KF  Bug fix for endian setting, thanks to Jason Dai.
+	* 2/20/2006 KF  Bug fix in readHeader() for endian setting, thanks to 
+	* Jason Dai.
+	* </li>
+	* <li>
+	* 3/2006 KF added a little code to readNiiExt() to check if extensions 
+	* overrun image data.
 	* </li>
 	* </ul>
 	*
@@ -452,7 +457,7 @@ public class Nifti1Dataset {
 	// Extension data not set, fields set to no extension
 	//
 	////////////////////////////////////////////////////////////////////
-	public void copyHdr(Nifti1Dataset A) {
+	public void copyHeader(Nifti1Dataset A) {
 
 	int i;
 
@@ -570,11 +575,19 @@ public class Nifti1Dataset {
 				extension_blobs.add(eblob);
 				}
 				catch (IOException ex) {
+					printHeader();
 					throw new EOFException("Error: i/o error reading extension data for extension "+(extensions_list.size()+1)+" on header file "+ds_hdrname+": "+ex.getMessage());
 				}
 
 				extensions_list.add(size_code);
 				start_addr += (size_code[0]);
+
+				// check if extensions appeared to overrun data blob
+				// when extensions are done, start_addr should == vox_offset
+				if (start_addr > (int) vox_offset) {
+					printHeader();
+					throw new IOException("Error: Data  for extension "+(extensions_list.size())+" on header file "+ds_hdrname+" appears to overrun start of image data.");
+				}
 			} // while not yet at data blob
 
 		}	// if there are extensions
