@@ -16,10 +16,10 @@ and gpl.txt files in the distribution.
 2. Install/Build
 
 The nifti1 matlab i/o code was written to run under MATLAB version 6.5 or higher.
-To install, just make sure that the niftimlib/matlab directory is in your MATLAB
-path.  For example. in matlab you can run the path command:
-path(path, '/usr/local/pkg/niftimlib/matlab')
-Or, you can copy the contents of the niftimlib/matlab directory to your <home>/matlab directory.
+To install, just make sure that the niftimatlib/matlab directory is in your MATLAB
+path.  For example. in matlab you can run the addpath command:
+addpath('/usr/local/pkg/niftimatlib/matlab')
+Or, you can copy the contents of the niftimatlib/matlab directory to your <home>/matlab directory.
 There are two C program files included in the distribution: file2mat.c and mat2file.c
 to handle file i/o.  These need to be compiled into MATLAB mex files.  
 Precompiled mex files are included in this distribution for the following platforms: PCWIN, 
