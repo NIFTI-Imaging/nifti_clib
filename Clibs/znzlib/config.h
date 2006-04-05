@@ -25,7 +25,7 @@ This file contains all the configuration variables for znzlib
 
 
 /* comment out the following line if compression support is not wanted */
-/* #define HAVE_ZLIB   -- this is now defined via -DHAVE_ZLIB in Makefile */
+#define HAVE_ZLIB
 
 /* uncomment the following line is fdopen() exists for your compiler and compiler options */
 /* #define HAVE_FDOPEN */

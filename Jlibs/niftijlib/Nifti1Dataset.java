@@ -50,7 +50,6 @@ import java.util.zip.*;
 	* Will need to change read/writeVol methods to call read/write
 	* slice methds b/c blob_size has to be an int but should be a long.
 	* 32 bit int only allows max volume 1625^3 which is too small.
-	* Think about the writeVol for writing UINT8 as byte.
 	* </li>
 	*
 	* <li>
@@ -74,17 +73,6 @@ import java.util.zip.*;
 	* <ul>
 	* <li>
 	* 3/1/2005 KF  Alpha version put into SourceForge CVS
-	* </li>
-	* <li>
-	* 10/2005 KF  added copyHeader() routine
-	* </li>
-	* <li>
-	* 2/20/2006 KF  Bug fix in readHeader() for endian setting, thanks to 
-	* Jason Dai.
-	* </li>
-	* <li>
-	* 3/2006 KF added a little code to readNiiExt() to check if extensions 
-	* overrun image data.
 	* </li>
 	* </ul>
 	*
@@ -208,7 +196,7 @@ public class Nifti1Dataset {
 	String 		ds_datname;	// file name for data
 	public boolean 	ds_is_nii;	// does dataset use single file .nii 
 	public boolean		big_endian;	// does hdr appear to have BE format
-	public short		XDIM,YDIM,ZDIM,TDIM,DIM5,DIM6,DIM7;	// from dim[] field
+	short		XDIM,YDIM,ZDIM,TDIM,DIM5,DIM6,DIM7;	// from dim[] field
 	public short		freq_dim,phase_dim,slice_dim;  // unpack dim_info
 	public short		xyz_unit_code, t_unit_code;	// unpack xyzt_units;
 	public short		qfac;				// unpack pixdim[0]
@@ -318,8 +306,6 @@ public class Nifti1Dataset {
 		dis.close();
 		if ((s < 1) || (s > 7))
 			big_endian = false;
-		else
-			big_endian = true;
 
 
 		///// get input stream that will flip bytes if necessary 
@@ -452,87 +438,6 @@ public class Nifti1Dataset {
 	return;	
 	}
 
-	////////////////////////////////////////////////////////////////////
-	//
-	// Copy all in memory header field settings from datset A to this dataset
-	// Extension data not set, fields set to no extension
-	//
-	////////////////////////////////////////////////////////////////////
-	public void copyHeader(Nifti1Dataset A) {
-
-	int i;
-
-	ds_hdrname = 	new String(A.ds_hdrname);  
-	ds_datname = 	new String(A.ds_datname);
-	ds_is_nii = 	A.ds_is_nii;
-	big_endian = 	A.big_endian;
-	sizeof_hdr = 	A.sizeof_hdr;
-	data_type_string = new StringBuffer(A.data_type_string.toString());
-	db_name = new StringBuffer(A.db_name.toString());
-	extents = 	A.extents;
-	session_error =	A.session_error;
-	regular = new StringBuffer(A.regular.toString());
-	dim_info = new StringBuffer(A.dim_info.toString());
-	freq_dim=A.freq_dim; 
-	phase_dim=A.phase_dim; 
-	slice_dim=A.slice_dim;
-	for (i=0; i<8; i++)
-		dim[i] = A.dim[i];
-	XDIM=A.XDIM; YDIM=A.YDIM; ZDIM=A.ZDIM; TDIM=A.TDIM;
-	DIM5=A.DIM5; DIM6=A.DIM6; DIM7=A.DIM7;
-	for (i=0; i<3; i++)
-		intent[i] = A.intent[i];
-	intent_code = A.intent_code;
-	datatype = A.datatype;
-	bitpix = A.bitpix;	
-	slice_start = A.slice_start;
-	qfac = 1;
-	for (i=0; i<8; i++)
-		pixdim[i] = A.pixdim[i];
-	
-	vox_offset = A.vox_offset;
-	scl_slope = A.scl_slope;
-	scl_inter = A.scl_inter;
-	slice_end = A.slice_end;
-	slice_code = A.slice_code;
-	xyzt_units = A.xyzt_units;
-	xyz_unit_code = A.xyz_unit_code;
-	t_unit_code = A.t_unit_code;
-
-	cal_max = A.cal_max;
-	cal_min = A.cal_min;
-	slice_duration = A.slice_duration;
-	toffset = A.toffset;
-	glmax = A.glmax;
-	glmin = A.glmin;
-
-	descrip = new StringBuffer(A.descrip.toString());
-	aux_file = new StringBuffer(A.aux_file.toString());
-
-	qform_code = A.qform_code;
-	sform_code = A.sform_code;
-
-	for (i=0; i<3; i++) {
-		quatern[i] = A.quatern[i];
-		qoffset[i] = A.qoffset[i];
-	}
-
-	for (i=0; i<4; i++) {
-		srow_x[i] = A.srow_x[i];
-		srow_y[i] = A.srow_y[i];
-		srow_z[i] = A.srow_z[i];
-	}
-
-	intent_name = new StringBuffer(A.intent_name.toString());
-
-	magic = new StringBuffer(A.magic.toString());
-
-	for (i=0; i<4; i++)
-		extension[i] = (byte)0;
-
-	return;
-	}
-
 
 	//////////////////////////////////////////////////////////////////
 	/**
@@ -576,19 +481,11 @@ public class Nifti1Dataset {
 				extension_blobs.add(eblob);
 				}
 				catch (IOException ex) {
-					printHeader();
 					throw new EOFException("Error: i/o error reading extension data for extension "+(extensions_list.size()+1)+" on header file "+ds_hdrname+": "+ex.getMessage());
 				}
 
 				extensions_list.add(size_code);
 				start_addr += (size_code[0]);
-
-				// check if extensions appeared to overrun data blob
-				// when extensions are done, start_addr should == vox_offset
-				if (start_addr > (int) vox_offset) {
-					printHeader();
-					throw new IOException("Error: Data  for extension "+(extensions_list.size())+" on header file "+ds_hdrname+" appears to overrun start of image data.");
-				}
 			} // while not yet at data blob
 
 		}	// if there are extensions
@@ -1150,11 +1047,8 @@ public class Nifti1Dataset {
 				ds_hdrname = ds_hdrname + NI1_EXT;
 		}
 		else {
-			if (! ds_hdrname.endsWith(ANZ_HDR_EXT)) {
-				if (ds_hdrname.endsWith(ANZ_DAT_EXT))
-					ds_hdrname = ds_hdrname.substring(0,ds_hdrname.length()-ANZ_DAT_EXT.length());
+			if (! ds_hdrname.endsWith(ANZ_HDR_EXT))
 				ds_hdrname = ds_hdrname + ANZ_HDR_EXT;
-			}
 		}
 	return;
 	}
@@ -1182,11 +1076,8 @@ public class Nifti1Dataset {
 				ds_datname = ds_datname + NI1_EXT;
 		}
 		else {
-			if (! ds_datname.endsWith(ANZ_DAT_EXT)) {
-				if (ds_datname.endsWith(ANZ_HDR_EXT))
-					ds_datname = ds_datname.substring(0,ds_datname.length()-ANZ_HDR_EXT.length());
+			if (! ds_datname.endsWith(ANZ_DAT_EXT))
 				ds_datname = ds_datname + ANZ_DAT_EXT;
-			}
 		}
 
 	return;
@@ -2011,19 +1902,8 @@ public class Nifti1Dataset {
 
 	switch (datatype) {
 
-		// note: should add check for overflow on type cast
 		case NIFTI_TYPE_INT8:
 		case NIFTI_TYPE_UINT8:
-			for (k=0; k<ZZZ; k++)
-			for (j=0; j<YDIM; j++)
-			for (i=0; i<XDIM; i++) {
-				if (scl_slope == 0)
-					ecs.writeByte((byte)(data[k][j][i]));
-				else
-					ecs.writeByte((byte)((data[k][j][i] - scl_inter) / scl_slope));
-			}
-			break;
-
 		case NIFTI_TYPE_INT16:
 		case NIFTI_TYPE_UINT16:
 			for (k=0; k<ZZZ; k++)

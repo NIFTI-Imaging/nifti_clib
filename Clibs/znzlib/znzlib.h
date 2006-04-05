@@ -66,10 +66,8 @@ struct znzptr {
 typedef struct znzptr * znzFile;
 
 
-/* int znz_isnull(znzFile f); */
-/* int znzclose(znzFile f); */
-#define znz_isnull(f) ((f) == NULL)
-#define znzclose(f)   Xznzclose(&(f))
+int znz_isnull(znzFile file);
+void znz_setnull(znzFile file);
 
 /* Note extra argument (use_compression) where 
    use_compression==0 is no compression
@@ -80,11 +78,11 @@ znzFile znzopen(const char *path, const char *mode, int use_compression);
 
 znzFile znzdopen(int fd, const char *mode, int use_compression);
 
-int Xznzclose(znzFile * file);
+int znzclose(znzFile file);
 
 size_t znzread(void* buf, size_t size, size_t nmemb, znzFile file);
 
-size_t znzwrite(const void* buf, size_t size, size_t nmemb, znzFile file);
+size_t znzwrite(void* buf, size_t size, size_t nmemb, znzFile file);
 
 long znzseek(znzFile file, long offset, int whence);
 
@@ -92,7 +90,7 @@ int znzrewind(znzFile stream);
 
 long znztell(znzFile file);
 
-int znzputs(const char *str, znzFile file);
+int znzputs(char *str, znzFile file);
 
 char * znzgets(char* str, int size, znzFile file);
 

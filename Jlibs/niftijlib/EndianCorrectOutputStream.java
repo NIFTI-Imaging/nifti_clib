@@ -25,7 +25,7 @@ public class EndianCorrectOutputStream extends DataOutputStream {
 
     /**
      * Constructor for an OutputStream.
-     * @param os OutputStream to write data to
+     * @param is OutputStream to write data to
      * @param be -- endian flag: if be (big endian) is false bytes will be flipped on write
      * @exception FileNotFoundException
      */
