@@ -45,6 +45,9 @@ unknown:
 all:
 	@ make `uname`
 
+help:
+	@echo "make all to compile the file2mat and mat2file mex libraries"
+	@echo ""
 
 
 ## Platforms
