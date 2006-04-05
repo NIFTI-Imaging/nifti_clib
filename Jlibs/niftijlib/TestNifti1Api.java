@@ -146,7 +146,7 @@ public class TestNifti1Api {
 	short xx,yy,zz,tt;
 	if (args[0].equals("create")) {
 		if (args.length != 8) {
-			System.out.println("\nError, create command takes exactly seven parameters: create <new dataset name> <datatype> X Y Z T <A|B|X>");
+			System.out.println("\nError, create command takes exactly seven parameters: create <new dataset name> <datatype> X Y Z T <A|B|X|R>");
 			return;
 		}
 		Nifti1Dataset nds = new Nifti1Dataset();
@@ -159,7 +159,13 @@ public class TestNifti1Api {
 			nds.setHeaderFilename(args[1]);
 			nds.setDataFilename(args[1]);
 			nds.setDatatype(Short.parseShort(args[2]));
-			nds.setDims((short)4,xx,yy,zz,tt,(short)0,(short)0,(short)0);
+			nds.pixdim[1] = (float)3.0;
+			nds.pixdim[2] = (float)3.0;
+			nds.pixdim[3] = (float)3.0;
+			if (tt == 0)
+				nds.setDims((short)3,xx,yy,zz,tt,(short)0,(short)0,(short)0);
+			else
+				nds.setDims((short)4,xx,yy,zz,tt,(short)0,(short)0,(short)0);
 			nds.descrip = new StringBuffer("Created by TestNifti1Api");
 			nds.writeHeader();
 
@@ -167,6 +173,8 @@ public class TestNifti1Api {
 
 			data = new double[zz][yy][xx];
 			int ctr = 0;
+			if (tt == 0)
+				tt = 1;
 			for (l=0; l<tt; l++) {
 				
 				ctr = 0;
@@ -179,6 +187,9 @@ public class TestNifti1Api {
 					}
 					else if (args[7].equals("B")) {
 						data[k][j][i] = ctr++;
+					}
+					else if (args[7].equals("R")) {
+						data[k][j][i] = j;
 					}
 					else {
 						data[k][j][i] = 0;
@@ -211,11 +222,12 @@ public class TestNifti1Api {
 	System.out.println("\tcopy <dataset> <dataset2>");
 	System.out.println("\t\tdisk copy of dataset to dataset2 ");
 
-	System.out.println("\tcreate <new dataset> <datatype> X Y Z T <A|B|X>");
+	System.out.println("\tcreate <new dataset> <datatype> X Y Z T <A|B|X|R>");
 	System.out.println("\t\tcreate a new dataset of dimension XYZT.");
 	System.out.println("\t\tVoxel values are determined by last param.");
 	System.out.println("\t\tA -- volumes are constant val, equal to their T index.");
 	System.out.println("\t\tB -- each volume has voxels set from 0 to n, where n=(X*Y*Z)-1");
+	System.out.println("\t\tR -- each volume has voxels set to their row number");
 	System.out.println("\t\tX -- voxels are 0");
 
 	System.out.println("\textend <dataset> <extension_file> <code>");

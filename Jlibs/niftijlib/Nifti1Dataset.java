@@ -50,6 +50,7 @@ import java.util.zip.*;
 	* Will need to change read/writeVol methods to call read/write
 	* slice methds b/c blob_size has to be an int but should be a long.
 	* 32 bit int only allows max volume 1625^3 which is too small.
+	* Think about the writeVol for writing UINT8 as byte.
 	* </li>
 	*
 	* <li>
@@ -1149,8 +1150,11 @@ public class Nifti1Dataset {
 				ds_hdrname = ds_hdrname + NI1_EXT;
 		}
 		else {
-			if (! ds_hdrname.endsWith(ANZ_HDR_EXT))
+			if (! ds_hdrname.endsWith(ANZ_HDR_EXT)) {
+				if (ds_hdrname.endsWith(ANZ_DAT_EXT))
+					ds_hdrname = ds_hdrname.substring(0,ds_hdrname.length()-ANZ_DAT_EXT.length());
 				ds_hdrname = ds_hdrname + ANZ_HDR_EXT;
+			}
 		}
 	return;
 	}
@@ -1178,8 +1182,11 @@ public class Nifti1Dataset {
 				ds_datname = ds_datname + NI1_EXT;
 		}
 		else {
-			if (! ds_datname.endsWith(ANZ_DAT_EXT))
+			if (! ds_datname.endsWith(ANZ_DAT_EXT)) {
+				if (ds_datname.endsWith(ANZ_HDR_EXT))
+					ds_datname = ds_datname.substring(0,ds_datname.length()-ANZ_HDR_EXT.length());
 				ds_datname = ds_datname + ANZ_DAT_EXT;
+			}
 		}
 
 	return;
@@ -2004,8 +2011,19 @@ public class Nifti1Dataset {
 
 	switch (datatype) {
 
+		// note: should add check for overflow on type cast
 		case NIFTI_TYPE_INT8:
 		case NIFTI_TYPE_UINT8:
+			for (k=0; k<ZZZ; k++)
+			for (j=0; j<YDIM; j++)
+			for (i=0; i<XDIM; i++) {
+				if (scl_slope == 0)
+					ecs.writeByte((byte)(data[k][j][i]));
+				else
+					ecs.writeByte((byte)((data[k][j][i] - scl_inter) / scl_slope));
+			}
+			break;
+
 		case NIFTI_TYPE_INT16:
 		case NIFTI_TYPE_UINT16:
 			for (k=0; k<ZZZ; k++)
