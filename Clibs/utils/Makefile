@@ -11,17 +11,18 @@ ZNZ_LIBS	=	-L/usr/lib -L../lib -lznz -lm -lz
 
 
 
+#### Platform specific redefines ##################
+
 ## SGI 32bit
-ifeq ($(ARCH),SGI)
 ZNZ_INCS	=	-I/usr/freeware/include
 ZNZ_LIBS	=	-L/usr/freeware/lib32 -L../lib -lznz -lm -lz
-endif
-
 
 
 ## Redhat Fedora Linux
 ##ZNZ_INCS	=	-I/usr/include
 ##ZNZ_LIBS	=	-L/usr/lib -L../lib -lznz -lm -lz
+
+####################################################
 
 
 UTILS_PROGS     =       nifti_stats nifti_tool nifti1_test
