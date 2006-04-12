@@ -14,8 +14,8 @@ ZNZ_LIBS	=	-L/usr/lib -L../lib -lznz -lm -lz
 #### Platform specific redefines ##################
 
 ## SGI 32bit
-ZNZ_INCS	=	-I/usr/freeware/include
-ZNZ_LIBS	=	-L/usr/freeware/lib32 -L../lib -lznz -lm -lz
+##ZNZ_INCS	=	-I/usr/freeware/include
+##ZNZ_LIBS	=	-L/usr/freeware/lib32 -L../lib -lznz -lm -lz
 
 
 ## Redhat Fedora Linux
