@@ -48,9 +48,9 @@ ZLIB_LIBS 	= 	$(ZLIB_PATH) -lm -lz
 ## Platform specific redefines
 
 ## SGI 32bit
-ZLIB_INC	=	-I/usr/freeware/include
-ZLIB_PATH	=	-L/usr/freeware/lib32
-RANLIB		=	echo "ranlib not needed"
+##ZLIB_INC	=	-I/usr/freeware/include
+##ZLIB_PATH	=	-L/usr/freeware/lib32
+##RANLIB		=	echo "ranlib not needed"
 
 
 ## RedHat Fedora Linux
