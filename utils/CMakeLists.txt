@@ -34,7 +34,7 @@ ADD_TEST(${PACKAGE_PREFIX}nifti_tool_diff_hdr ${NIFTIUTILS_BINARY_DIR}/${PACKAGE
 ADD_TEST(${PACKAGE_PREFIX}nifti_tool_diff_nims ${NIFTIUTILS_BINARY_DIR}/${PACKAGE_PREFIX}nifti_tool -diff_nim -infile ${NIFTIUTILS_BINARY_DIR}/zn1 ${NIFTIUTILS_BINARY_DIR}/zn1 )
 
 ADD_TEST(${PACKAGE_PREFIX}nifti_tool_copy_brick_list ${NIFTIUTILS_BINARY_DIR}/${PACKAGE_PREFIX}nifti_tool -cbl -prefix cbl_zn1.nii -infile ${NIFTIUTILS_BINARY_DIR}/zn1.nii.gz[0,1])
-ADD_TEST(${PACKAGE_PREFIX}nifti_tool_copy_collapsed_image /bin/sh ${NIFTI_SOURCE_DIR}/utils/rmthenrun cci_zn1.nii ${NIFTIUTILS_BINARY_DIR}/${PACKAGE_PREFIX}nifti_tool -cci 2 2 2 -1 -1 -1 -1 -prefix cci_zn1.nii -infile ${NIFTIUTILS_BINARY_DIR}/zn1.nii.gz )
+#ADD_TEST(${PACKAGE_PREFIX}nifti_tool_copy_collapsed_image /bin/sh ${NIFTI_SOURCE_DIR}/utils/rmthenrun cci_zn1.nii ${NIFTIUTILS_BINARY_DIR}/${PACKAGE_PREFIX}nifti_tool -cci 2 2 2 -1 -1 -1 -1 -prefix cci_zn1.nii -infile ${NIFTIUTILS_BINARY_DIR}/zn1.nii.gz )
 ADD_TEST(${PACKAGE_PREFIX}nifti_tool_disp_ci ${NIFTIUTILS_BINARY_DIR}/${PACKAGE_PREFIX}nifti_tool -disp_ci 2 2 2 -1 0 0 0  -infile ${NIFTIUTILS_BINARY_DIR}/zn1.nii.gz )
 ADD_TEST(${PACKAGE_PREFIX}nifti_tool_disp_ts ${NIFTIUTILS_BINARY_DIR}/${PACKAGE_PREFIX}nifti_tool -disp_ts 2 2 2 -infile ${NIFTIUTILS_BINARY_DIR}/zn1.nii.gz )
 ADD_TEST(${PACKAGE_PREFIX}nifti_tool_strip_extras ${NIFTIUTILS_BINARY_DIR}/${PACKAGE_PREFIX}nifti_tool -strip_extras -infile ${NIFTIUTILS_BINARY_DIR}/zn1.nii.gz )
