@@ -5125,7 +5125,7 @@ nifti_image * nifti_copy_nim_info(const nifti_image * src)
   if( src->fname ) dest->fname = nifti_strdup(src->fname);
   if( src->iname ) dest->iname = nifti_strdup(src->iname);
   dest->num_ext = 0;
-  dest->ext_list = 0;
+  dest->ext_list = NULL;
   /* errors will be printed in NCE(), continue in either case */
   (void)nifti_copy_extensions(dest, src);
 
