@@ -306,7 +306,7 @@ public class Nifti1Dataset {
 		byte bb[];
 		int i;
 
-		if (ds_hdrname.endsWith(".gz"))
+		if (ds_hdrname.endsWith(".gz")) 
 			dis = new DataInputStream(new GZIPInputStream(new FileInputStream(ds_hdrname)));
 		else
 			dis = new DataInputStream(new FileInputStream(ds_hdrname));
@@ -785,6 +785,7 @@ public class Nifti1Dataset {
 
 		EndianCorrectOutputStream ecs;
 		ByteArrayOutputStream baos;
+		DataOutputStream dos;
 		FileOutputStream fos;
 		short s, ss[];
 		byte b, bb[], ext_blob[];
@@ -801,7 +802,12 @@ public class Nifti1Dataset {
 		try {
 
 		baos = new ByteArrayOutputStream(hsize);
-		fos = new FileOutputStream(ds_hdrname);
+
+		if (ds_hdrname.endsWith(".gz")) 
+			dos = new DataOutputStream(new GZIPOutputStream(new FileOutputStream(ds_hdrname)));
+		else
+			dos = new DataOutputStream(new FileOutputStream(ds_hdrname));
+
 
 		ecs = new EndianCorrectOutputStream(baos,big_endian);
 
@@ -906,7 +912,7 @@ public class Nifti1Dataset {
 		}
 
 		/** write the header blob to disk */
-		baos.writeTo(fos);
+		baos.writeTo(dos);
 
 		}
 		catch (IOException ex) {
@@ -929,16 +935,16 @@ public class Nifti1Dataset {
 				// write size, code
 				ecs.writeIntCorrect(extlist[i][0]);
 				ecs.writeIntCorrect(extlist[i][1]);
-				baos.writeTo(fos);
+				baos.writeTo(dos);
 				baos.reset();
 
 				// write data blob
 				ext_blob = (byte[]) extension_blobs.get(i);
-				fos.write(ext_blob,0,extlist[i][0]-EXT_KEY_SIZE);
+				dos.write(ext_blob,0,extlist[i][0]-EXT_KEY_SIZE);
 			}
 		}
 
-		fos.close();
+		dos.close();
 		}
 
 		catch (IOException ex) {
@@ -1139,6 +1145,14 @@ public class Nifti1Dataset {
 	*/
 	public void setHeaderFilename(String s) {
 		
+		boolean zip=false;
+
+		// strip off .gz suffix
+		if (s.endsWith(GZIP_EXT)) {
+			s = s.substring(0,s.length()-GZIP_EXT.length());
+			zip = true;
+		}
+
 		if (s.endsWith(NI1_EXT))
 			setToNii();
 		else
@@ -1156,6 +1170,10 @@ public class Nifti1Dataset {
 				ds_hdrname = ds_hdrname + ANZ_HDR_EXT;
 			}
 		}
+
+		if (zip)
+			ds_hdrname = ds_hdrname + GZIP_EXT;
+
 	return;
 	}
 
@@ -1176,6 +1194,15 @@ public class Nifti1Dataset {
 	* @param s filename for the dataset data file
 	*/
 	public void setDataFilename(String s) {
+
+		boolean zip=false;
+
+		// strip off .gz suffix
+		if (s.endsWith(GZIP_EXT)) {
+			s = s.substring(0,s.length()-GZIP_EXT.length());
+			zip = true;
+		}
+
 		ds_datname = s;
 		if (ds_is_nii) {
 			if (! ds_datname.endsWith(NI1_EXT))
@@ -1188,6 +1215,9 @@ public class Nifti1Dataset {
 				ds_datname = ds_datname + ANZ_DAT_EXT;
 			}
 		}
+
+		if (zip)
+			ds_datname = ds_datname + GZIP_EXT;
 
 	return;
 	}
@@ -1613,6 +1643,7 @@ public class Nifti1Dataset {
 	//
 	// name: the string the user gave as input file
 	//
+	// This method sets class variables ds_hdrname and ds_datname
 	//
 	////////////////////////////////////////////////////////////////////
 	private void checkName(String name) {
@@ -1675,11 +1706,13 @@ public class Nifti1Dataset {
 
 		/// add gz suffix if gzipped file exists
 		f = new File(ds_hdrname+GZIP_EXT);
-		if (f.exists())
+		if (f.exists()) {
 			ds_hdrname = ds_hdrname+GZIP_EXT;
+		}
 		f = new File(ds_datname+GZIP_EXT);
-		if (f.exists())
+		if (f.exists()) {
 			ds_datname = ds_datname+GZIP_EXT;
+		}
 		
 	return;
 	}

@@ -1,6 +1,9 @@
 
 Updates to the niftijlib code
 
+5/06    KF updated handling of gzipped datasets a little bit.  Can deal
+        with gzipped headers, but still cannot write gzipped data because
+        I can't find a Java gzip writer that deals with random access files
 
 4/5/06	KF fixed bug in writeVol() in which writes of INT8 UINT8 were
 	writing shorts not bytes.
@@ -10,3 +13,8 @@ Updates to the niftijlib code
 
 4/5/06	KF added ramp along Y axis as option in TestNifti1Api "create"
 	option.
+
+3/2006 KF added a little code to readNiiExt() to check if extensions 
+	overrun image data.
+
+2/20/2006 KF  Bug fix in readHeader() for endian setting, thanks to Jason Dai.
