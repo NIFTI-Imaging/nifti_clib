@@ -238,7 +238,7 @@ int    nifti_validfilename(const char* fname);
 
 int    disp_nifti_1_header(const char * info, const nifti_1_header * hp ) ;
 void   nifti_set_debug_level( int level ) ;
-/***void   nifti_set_skip_blank_ext( int skip ) ;***/
+void   nifti_set_skip_blank_ext( int skip ) ;
 
 int    valid_nifti_brick_list(nifti_image * nim , int nbricks,
                               const int * blist, int disp_error);
