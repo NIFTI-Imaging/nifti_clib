@@ -25,6 +25,6 @@ ELSE("${ITK_VERSION_MAJOR}" GREATER 0.0)
   SET(INCLUDE_INSTALL_DIR "/include")
 
   #Needs an if clause and more work before testing can take place.
-  SUBDIRS(Testing utils fsliolib examples)
+  SUBDIRS(Testing fsliolib examples)
   ENABLE_TESTING()
 ENDIF("${ITK_VERSION_MAJOR}" GREATER 0.0)
