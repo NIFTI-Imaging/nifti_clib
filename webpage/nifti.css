@@ -1,0 +1,105 @@
+body {
+    padding: 10px;
+    background-color: #ffffff;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12pt;
+  }
+
+h1
+{
+    color: white;
+    font-size: 22pt;
+    padding: 10px;
+    margin: -10px;
+    margin-bottom: 20px;
+    border-bottom: 5px solid #822;
+    background-color: #335;
+    text-align:center;
+  }
+
+h2
+{
+    color: #335;
+    font-weight: bold;
+    font-size: 14pt;
+    padding-top: 6px;    
+    padding-bottom: 2px;
+    border-bottom: 1px dashed silver;
+  }
+
+h3
+{
+    color: #733;
+    font-size: 13pt;
+  }
+
+h3::before
+{
+    content: url(pics/item.jpg);
+    padding-right: 5px;
+  }
+
+div,p {
+    margin-top:0;
+  }
+
+img {
+    border: none;
+  }
+
+thead {
+    background-color:#333;
+    color:#ddd;
+    text-align: center;
+  }
+
+/* Classes for certain page areas. */
+
+#footer {
+    border-top: 5px solid #822;
+    padding: 20px 10px 10px 10px;
+    margin-left: -10px;
+    margin-right: -10px;
+    margin-top: 50px;
+  }
+
+/* sidebar */
+#side {
+    background-color: #fff;
+    color: #000;
+    font-family: Helvetica, serif;
+    vertical-align:top;
+  }
+
+#side ul {
+    padding: 10px;
+    padding-left: 20px;
+    list-style-image: url(pics/item.jpg);
+  }
+
+#side a {
+    color: #000;
+    text-decoration: none;
+}
+
+#side a:hover {
+    color: #882222;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+
+.code
+{
+    white-space: pre;
+    font-size: 10pt;
+    font-family: monospaced;
+    border: 1px dotted gray;
+    background-color: #ddd;
+    padding: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top:5px;  
+  }
+
