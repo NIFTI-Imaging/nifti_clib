@@ -24,9 +24,9 @@ endif
 # set date and output dir (based on grind)
 set date = `date +%Y_%m_%d_%H%M`
 if ( $grind ) then
-    set odir = vg_results_$prog_$date
+    set odir = vg_results_${prog}_${date}
 else
-    set odir = results_$prog_$date
+    set odir = results_${prog}_${date}
 endif
 
 # note command files (in commands dir)
