@@ -54,3 +54,8 @@ Newer updates
     - KF added upper level packaging directory and put Andy Loenings's 
          rpm spec file in it
 
+-----------------------------------------------------------------
+Updated in version 0.6 August 22, 2007
+   - HJ Changed default installation path of header files into include/nifti from CMakeLists.txt
+   - HJ/KW Added exposing Analyze75 orientation codes
+   - HJ/KW Added function to allow any sized subregion of the image to be read from disk
