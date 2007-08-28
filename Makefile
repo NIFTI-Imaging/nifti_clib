@@ -31,7 +31,7 @@ CFLAGS		=	$(ANSI_FLAGS)
 RM		=	rm
 MV		=	mv
 CP		=	cp
-TAR		=	/usr/freeware/bin/tar
+TAR		=	/usr/local/pkg/gnu/bin/tar
 
 
 ## Installation
