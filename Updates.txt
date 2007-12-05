@@ -70,4 +70,5 @@ Updated in version 1.0 December 6, 2007
     - RR added RGBA32 type nad NIFTI_ECODE_FREESURFER macros
     - RR added 5 NIFTI_INTENT codes for GIFTI
     - RR added nifti_datatype_to_string and similar functionality
-
+    - MH Simplified CMake configuration to apply same shared library version
+         to all libraries.
