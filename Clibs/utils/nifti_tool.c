@@ -2035,6 +2035,9 @@ int act_rm_ext( nt_opts * opts )
       nim = nt_image_read( opts, opts->infiles.list[fc], 1 );
       if( !nim ) return 1;  /* errors come from the library */
 
+      /* note the number of extensions for later */
+      num_ext = nim->num_ext;
+
       /* now remove the extensions */
       if( remove_ext_list(nim, opts->elist.list, opts->elist.len) )
          return 1;
