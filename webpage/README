@@ -13,7 +13,7 @@ This directory can be accessed directly/interactively
 shell.sourceforge.net
 
 Files can be uploaded to this directory by using scp, e.g.:
-scp index.html fissell@shell.sourceforge.net:/home/groups/n/ni/niftilib/htdocs
+scp index.html  fissell,niftilib@web.sourceforge.net:/home/groups/n/ni/niftilib/htdocs
 Note that you only need to upload the 8 files listed
 below, not everything in the webpage directory.
 
@@ -49,7 +49,7 @@ To update the API documentation for the C libraries:
 3. scp the docs in the html directory that doxygen made to the 
    c_api_html webpage directory: 
    cd html
-   scp * fissell@shell.sourceforge.net:/home/groups/n/ni/niftilib/htdocs/c_api_html
+   scp * fissell,niftilib@web.sourceforge.net:/home/groups/n/ni/niftilib/htdocs/c_api2_html
 4. Then, I would just delete the html dir
    cd ..
    rm -rf html
