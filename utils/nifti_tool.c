@@ -2159,6 +2159,7 @@ int remove_ext_list( nifti_image * nim, char ** elist, int len )
       nim->ext_list = NULL;
    }
 
+   free(marks);
    return 0;
 }
 

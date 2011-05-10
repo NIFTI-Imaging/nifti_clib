@@ -106,3 +106,8 @@ Updated in version 2.0.0 July 20, 2010
 
 -----------------------------------------------------------------
 Recent Updates
+
+    - HJ Merged ITK and official nifti branch for code compatibility
+         across many compilers by removing compiler warnings
+    - HJ added a few free() calls in failure cases
+
