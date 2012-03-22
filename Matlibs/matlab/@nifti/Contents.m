@@ -1,4 +1,3 @@
-%
 % NIFTI Object
 %
 %   create     - Create a NIFTI-1 file
@@ -75,8 +74,11 @@
 % imagesc(M.dat(:,:,12));
 %
 % _______________________________________________________________________
-% Copyright (C) 2005 Wellcome Department of Imaging Neuroscience
+% Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 %
-% $Id$
+% Id: Contents.m 2696 2009-02-05 20:29:48Z guillaume 
 
+%
+% niftilib $Id$
+%

@@ -1,10 +1,14 @@
 function disp(obj)
 % Disp a NIFTI-1 object
 % _______________________________________________________________________
-% Copyright (C) 2005 Wellcome Department of Imaging Neuroscience
+% Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 %
-% $Id$
+% Id: disp.m 4136 2010-12-09 22:22:28Z guillaume 
+
+%
+% niftilib $Id$
+%
 
 
 sz = size(obj);
@@ -18,6 +22,6 @@ else
     fprintf('%d\n',sz(end));
 end;
 if prod(sz)==1,
-    display(structn(obj))
+    disp(structn(obj))
 end;
 return;

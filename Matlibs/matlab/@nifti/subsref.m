@@ -36,10 +36,14 @@ function varargout = subsref(opt,subs)
 % cal         - a two-element vector containing cal_min and cal_max
 % aux_file    - name of an auxiliary file
 % _______________________________________________________________________
-% Copyright (C) 2005 Wellcome Department of Imaging Neuroscience
+% Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 %
-% $Id$
+% Id: subsref.m 4136 2010-12-09 22:22:28Z guillaume 
+
+%
+% niftilib $Id$
+%
 
 
 varargout = rec(opt,subs);
@@ -51,7 +55,7 @@ case {'.'},
     c = {};
     opts = struct(opt);
     for ii=1:numel(opts)
-        opt = class(opts(ii),'nifti');
+        opt = nifti(opts(ii));
         %if ~isstruct(opt)
         %    error('Attempt to reference field of non-structure array.');
         %end;
@@ -228,12 +232,12 @@ case {'()'},
     if length(subs)>1
         c = {};
         for i=1:numel(t),
-            ti = class(t(i),'nifti');
+            ti = nifti(t(i));
             ti = rec(ti,subs(2:end));
             c  = {c{:}, ti{:}};
         end;
     else
-        c    = {class(t,'nifti')};
+        c    = {nifti(t)};
     end;
 
 otherwise

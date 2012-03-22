@@ -11,6 +11,8 @@ The nifti1 matlab code was provided by John Ashburner, Functional
 Imaging Laboratory, Wellcome Department of Imaging Neuroscience, London.  
 This code is released under the GNU public license, see the license.txt 
 and gpl.txt files in the distribution.
+This niftimatlib release was pulled in March 2012 from the spm8  
+release: "Version 4667 (SPM8) 27-Feb-12"
 
 
 2. Install/Build
@@ -26,30 +28,46 @@ Precompiled mex files are included in this distribution for the following platfo
 MAC, SOL2, LNX86, GLNXA64, IRIX.  So, you may not need to do the mex compile.  If you do,
 a Makefile is in the matlab directory.  Instructions are in the Makefile, a simple
 "make all" should work.  Note that you must have a MATLAB version 6.5 or higher mex compiler.
+Optional C code for a mex interface to Robert Cox's (NIH) nifti_stats.c code is provided
+in the @nifti/private/src directory.
 
 
 3. Tiny Example
 
 Short example for those who want to see something in a hurry (longer example below):
+For access to the avg152T1_LR_nifti.nii image see
+http://nifti.nimh.nih.gov/nifti-1/data
+
 
 To open an existing nifti1 file:
 
->> f = nifti('newsirp_final_XML.nii');
+>> % be sure to rmpath any paths that point to any spm version
+>> % after removing spm paths, clear all, then add niftimatlib path
+>> % eg:
+>> rmpath(genpath('/usr/local/pkg/spm8'))
+>> clear all
+>> addpath /usr/local/pkg/Matlibs/matlab
+
+
+>> f = nifti('avg152T1_LR_nifti.nii');
 >> disp(f)
 NIFTI object: 1-by-1
-            dat: [4-D file_array]
-            mat: [4x4 double]
-     mat_intent: 'Scanner'
-           mat0: [4x4 double]
-    mat0_intent: 'Scanner'
-         timing: [1x1 struct]
-        descrip: 'FSL3.2beta'
-            cal: [0 5000]
+           dat: [91x109x91 file_array]
+           mat: [4x4 double]
+    mat_intent: 'MNI152'
+          mat0: [4x4 double]
+        timing: [1x1 struct]
+       descrip: 'FSL3.2beta'
+           cal: [0 255]
+      aux_file: 'none'
+
+
 
 >> size(f.dat)
-ans =
-    64    64    35   147
 
+ans =
+
+    91   109    91
 
 
 3. nifti1 i/o Class Structures
@@ -148,7 +166,7 @@ ans =
   dat         = file_array;
   dat.fname   = 'junk.nii';
   dat.dim     = [64 64 32];
-  dat.dtype   = 'FLOAT64-BE';
+  dat.dtype   = 'FLOAT64-LE';
   dat.offset  = ceil(348/8)*8;
 
   % alternatively:

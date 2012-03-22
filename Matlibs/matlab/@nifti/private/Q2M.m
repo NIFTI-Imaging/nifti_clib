@@ -3,10 +3,15 @@ function M = Q2M(Q)
 % where Q = [x y z], and w = 1-x^2-y^2-z^2.
 % See: http://skal.planet-d.net/demo/matrixfaq.htm
 % _______________________________________________________________________
-% Copyright (C) 2005 Wellcome Department of Imaging Neuroscience
+% Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 %
-% $Id$
+% Id: Q2M.m 1143 2008-02-07 19:33:33Z spm 
+
+%
+% niftilib $Id$
+%
+
 
 
 Q = Q(1:3); % Assume rigid body

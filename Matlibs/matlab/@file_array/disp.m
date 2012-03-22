@@ -1,10 +1,15 @@
 function disp(obj)
 % Display a file_array object
 % _______________________________________________________________________
-% Copyright (C) 2005 Wellcome Department of Imaging Neuroscience
+% Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 %
-% $Id$
+% Id: disp.m 4136 2010-12-09 22:22:28Z guillaume 
+
+%
+% niftilib $Id$
+%
+
 
 
 if numel(struct(obj))>1,
@@ -19,7 +24,7 @@ if numel(struct(obj))>1,
         fprintf('%d\n',sz(end));
     end;
 else
-    display(mystruct(obj))
+    disp(mystruct(obj))
 end;
 return;
 %=======================================================================

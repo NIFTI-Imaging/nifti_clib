@@ -1,10 +1,14 @@
 function h = nifti(varargin)
 % Create a NIFTI-1 object
 % _______________________________________________________________________
-% Copyright (C) 2005 Wellcome Department of Imaging Neuroscience
+% Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 %
-% $Id$
+% Id: nifti.m 4270 2011-03-29 16:26:26Z john 
+
+%
+% niftilib $Id$
+%
 
 
 switch nargin
@@ -59,7 +63,7 @@ case 1
         dim   = double(vol.hdr.dim);
         dim   = dim(2:(dim(1)+1));
         dt    = double(vol.hdr.datatype);
-        offs  = double(vol.hdr.vox_offset);
+        offs  = max(double(vol.hdr.vox_offset),0);
 
         if ~vol.hdr.scl_slope && ~vol.hdr.scl_inter,
             vol.hdr.scl_slope = 1;

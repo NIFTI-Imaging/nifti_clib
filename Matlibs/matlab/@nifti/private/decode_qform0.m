@@ -1,10 +1,14 @@
 function M = decode_qform0(hdr)
 % Decode qform info from NIFTI-1 headers.
 % _______________________________________________________________________
-% Copyright (C) 2005 Wellcome Department of Imaging Neuroscience
+% Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 %
-% $Id$
+% Id: decode_qform0.m 3131 2009-05-18 15:54:10Z guillaume 
+
+%
+% niftilib $Id$
+%
 
 
 dim    = double(hdr.dim);
@@ -15,9 +19,9 @@ if ~isfield(hdr,'magic') || hdr.qform_code <= 0,
     %disp('The images are in a form whereby it is not possible to');
     %disp('tell the left and right sides of the brain apart.');
     %if flp,
-    %    disp('They are assumed to be stored right-handed.');
-    %else
     %    disp('They are assumed to be stored left-handed.');
+    %else
+    %    disp('They are assumed to be stored right-handed.');
     %end;
     %disp('------------------------------------------------------');
 

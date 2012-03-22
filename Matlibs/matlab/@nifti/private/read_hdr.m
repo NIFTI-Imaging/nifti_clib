@@ -4,16 +4,21 @@ function vol = read_hdr(fname)
 % fname - filename of image
 % vol   - various bits of information
 % _______________________________________________________________________
-% Copyright (C) 2005 Wellcome Department of Imaging Neuroscience
+% Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 %
-% $Id$
+% Id: read_hdr.m 1143 2008-02-07 19:33:33Z spm 
+
+%
+% niftilib $Id$
+%
+
 
 
 persistent d
 if isempty(d), d = getdict; end;
 
-[pth,nam,ext] = fileparts(fname);
+[pth,nam,ext,num] = spm_fileparts(fname);
 switch ext
 case '.hdr'
     hname = fullfile(pth,[nam '.hdr']);

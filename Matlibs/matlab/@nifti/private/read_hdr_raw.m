@@ -5,10 +5,15 @@ function [hdr,be] = read_hdr_raw(fname)
 % hdr   - a structure containing hdr info
 % be    - whether big-endian or not
 % _______________________________________________________________________
-% Copyright (C) 2005 Wellcome Department of Imaging Neuroscience
+% Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 %
-% $Id$
+% Id: read_hdr_raw.m 1143 2008-02-07 19:33:33Z spm 
+
+%
+% niftilib $Id$
+%
+
 
 
 hdr = [];
@@ -35,7 +40,7 @@ end;
 
 % Sort out endian issues of header
 [unused,unused,mach] = fopen(fp);
-if strcmp(mach,'ieee-be')
+if strcmp(mach,'ieee-be') || strcmp(mach,'ieee-be.l64')
     be = true;
 else
     be = false;

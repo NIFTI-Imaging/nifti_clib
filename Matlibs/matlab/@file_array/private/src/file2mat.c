@@ -1,5 +1,10 @@
 /*
- * $Id$
+ * Id: file2mat.c 4136 2010-12-09 22:22:28Z guillaume 
+ * John Ashburner
+ */
+
+/* 
+ * niftilib $Id$ 
  */
 
 /*
@@ -7,26 +12,64 @@ Memory mapping is used by this module. For more information on this, see:
 http://www.mathworks.com/company/newsletters/digest/mar04/memory_map.html
 */
 
+#define _FILE_OFFSET_BITS 64
+
 #include <math.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <string.h>
+#include <stdio.h>
 #include "mex.h"
 
 #ifdef SPM_WIN32
 #include <windows.h>
 #include <memory.h>
+#include <io.h>
 HANDLE hFile, hMapping;
 typedef char *caddr_t;
+#if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS == 64
+#define stat _stati64
+#define fstat _fstati64
+#define open _open
+#define close _close
+#if defined _MSC_VER
+#define size_t __int64
+#else
+#define size_t unsigned long long
+#endif
+#endif
 #else
 #include <sys/mman.h>
 #include <unistd.h>
+#include <errno.h>
+#define size_t unsigned long long
 #endif
+
+/*
+http://en.wikipedia.org/wiki/Page_(computing)#Determining_the_page_size_in_a_program
+http://msdn.microsoft.com/en-us/library/aa366763(VS.85).aspx
+*/
+int page_size()
+{
+int size = 0;
+
+#if defined (_WIN32) || defined (_WIN64)
+    SYSTEM_INFO info;
+    GetSystemInfo (&info);
+    size = (int)info.dwAllocationGranularity;
+#else
+    size = sysconf(_SC_PAGESIZE);
+#endif 
+
+return size;
+}
+
 
 #define MXDIMS 256
 
-static int icumprod[MXDIMS], ocumprod[MXDIMS];
+static long long icumprod[MXDIMS], ocumprod[MXDIMS];
 
 static void get_1_sat(int ndim, int idim[], int *iptr[], unsigned char idat[], int odim[], unsigned char odat[], int indi, int indo)
 {
@@ -204,10 +247,10 @@ void get_w64(int ndim, int idim[], int *iptr[], unsigned long long idat[],
     }
 }
 
-void swap8(int n, unsigned char d[])
+void swap8(long long n, unsigned char d[])
 { /* DO NOTHING */}
 
-void swap16(int n, unsigned char d[])
+void swap16(long long n, unsigned char d[])
 {
     unsigned char tmp, *de;
     for(de=d+2*n; d<de; d+=2)
@@ -216,7 +259,7 @@ void swap16(int n, unsigned char d[])
     }
 }
 
-void swap32(int n, unsigned char d[])
+void swap32(long long n, unsigned char d[])
 {
     unsigned char tmp, *de;
     for(de=d+4*n; d<de; d+=4)
@@ -226,7 +269,7 @@ void swap32(int n, unsigned char d[])
     }
 }
 
-void swap64(int n, unsigned char d[])
+void swap64(long long n, unsigned char d[])
 {
     unsigned char tmp, *de;
     for(de=d+8*n; d<de; d+=8)
@@ -268,20 +311,58 @@ typedef struct mtype {
     int     swap;
     caddr_t addr;
     size_t  len;
-    int     off;
+#ifdef SPM_WIN32
+    ULONGLONG off;
+#else
+    off_t   off;
+#endif
     void   *data;
 } MTYPE;
 
+#ifdef SPM_WIN32
+void werror(char *where, DWORD last_error)
+{
+    char buf[512];
+    char s[1024];
+    int i;
+    i = FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM,
+                       NULL,
+                       last_error,
+                       0,
+                       buf,
+                       512/sizeof(TCHAR),
+                       NULL );
+    buf[i-2] =  '\0'; /* remove \r\n */
+    (void)sprintf(s,"%s: %s", where, buf);
+    mexErrMsgTxt(s);
+    return;
+}
+#else
+void werror(char *where, int last_error)
+{
+    char s[1024];
+    
+    (void)sprintf(s,"%s: %s", where, strerror(last_error));
+    mexErrMsgTxt(s);
+    return;
+}
+#endif
+
 void do_unmap_file(MTYPE *map)
 {
+    int sts;
     if (map->addr)
     {
 #ifdef SPM_WIN32
-        (void)UnmapViewOfFile((LPVOID)(map->addr));
+        sts = UnmapViewOfFile((LPVOID)(map->addr));
+        if (sts == 0)
+            werror("Memory Map (UnmapViewOfFile)",GetLastError());
 #else
-        (void)munmap(map->addr, map->len);
+        sts = munmap(map->addr, map->len);
+        if (sts == -1)
+            werror("Memory Map (munmap)",errno);
 #endif
-        map->addr=0;
+        map->addr = NULL;
     }
 }
 
@@ -331,9 +412,14 @@ void do_map_file(const mxArray *ptr, MTYPE *map)
 {
     int n;
     int i, dtype;
+#ifdef SPM_WIN32
+    ULONGLONG offset = 0;
+#else
+    off_t offset = 0;
+#endif
     const double *pr;
     mxArray *arr;
-    unsigned int siz;
+    size_t siz;
     if (!mxIsStruct(ptr)) mexErrMsgTxt("Not a structure.");
 
     dtype = (int)(getpr(ptr, "dtype", 1, &n)[0]);
@@ -360,15 +446,23 @@ void do_map_file(const mxArray *ptr, MTYPE *map)
         siz = (map->dtype->bytes*siz+7)/8;
     else
         siz = siz*(map->dtype->bytes/8);
+    
+    /* On 32bit platforms, cannot map more than 2^31-1 bytes */
+    if ((sizeof(map->data) == 4) && (siz > 2147483647ULL))
+         mexErrMsgTxt("The total number of bytes mapped is too large.");
 
     pr       = getpr(ptr, "be",1, &n);
-#ifdef BIGENDIAN
+#ifdef SPM_BIGENDIAN
     map->swap = (int)pr[0]==0;
 #else
     map->swap = (int)pr[0]!=0;
 #endif
     pr       = getpr(ptr, "offset",1, &n);
-    map->off = (int)pr[0];
+#ifdef SPM_WIN32
+    map->off = (ULONGLONG)pr[0];
+#else
+    map->off = (off_t)pr[0];
+#endif
     if (map->off < 0) map->off = 0;
 
     arr = mxGetField(ptr,0,"fname");
@@ -397,14 +491,15 @@ void do_map_file(const mxArray *ptr, MTYPE *map)
             mxFree(buf);
             mexErrMsgTxt("Cant get file size.");
         }
-        map->len = stbuf.st_size;
-        if (map->len < siz + map->off)
+        if (stbuf.st_size < siz + map->off)
         {
             (void)close(fd);
             mxFree(buf);
             mexErrMsgTxt("File is smaller than the dimensions say it should be.");
         }
-
+        offset = map->off % page_size();
+        map->len = siz + (size_t)offset;
+        map->off = map->off - offset;
 #ifdef SPM_WIN32
         (void)close(fd);
 
@@ -420,7 +515,7 @@ void do_map_file(const mxArray *ptr, MTYPE *map)
             NULL);
         mxFree(buf);
         if (hFile == NULL)
-            mexErrMsgTxt("Cant open file.  It may be locked by another program.");
+            werror("Memory Map (CreateFile)",GetLastError());
 
         /* http://msdn.microsoft.com/library/default.asp?
                url=/library/en-us/fileio/base/createfilemapping.asp */
@@ -433,20 +528,19 @@ void do_map_file(const mxArray *ptr, MTYPE *map)
             NULL);
         (void)CloseHandle(hFile);
         if (hMapping == NULL)
-            mexErrMsgTxt("Cant create file mapping.  It may be locked by another program.");
+            werror("Memory Map (CreateFileMapping)",GetLastError());
 
         /* http://msdn.microsoft.com/library/default.asp?
                url=/library/en-us/fileio/base/mapviewoffile.asp */
-        map->addr    = (caddr_t)MapViewOfFileEx(
+        map->addr    = (caddr_t)MapViewOfFile(
             hMapping,
             FILE_MAP_READ,
-            0,
-            0,
-            map->len,
-            0);
+            (DWORD)(map->off >> 32),
+            (DWORD)(map->off),
+            map->len);
         (void)CloseHandle(hMapping);
         if (map->addr == NULL)
-            mexErrMsgTxt("Cant map view of file.  It may be locked by another program.");
+            werror("Memory Map (MapViewOfFile)",GetLastError());
 #else
         map->addr = mmap(
             (caddr_t)0,
@@ -454,17 +548,14 @@ void do_map_file(const mxArray *ptr, MTYPE *map)
             PROT_READ,
             MAP_SHARED,
             fd,
-            (off_t)0);
+            map->off);
         (void)close(fd);
         mxFree(buf);
-        if (map->addr == (caddr_t)-1)
-        {
-            (void)perror("Memory Map");
-            mexErrMsgTxt("Cant map image file.");
-        }
+        if (map->addr == (void *)-1)
+            werror("Memory Map (mmap)",errno);
 #endif
     }
-    map->data = (void *)((char *)map->addr + map->off);
+    map->data = (void *)((caddr_t)map->addr + offset);
 }
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -497,7 +588,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             mexErrMsgTxt("Indices must be int32.");
         }
         odim[i] = mxGetM(prhs[i+1])*mxGetN(prhs[i+1]);
-        iptr[i] = (int *)mxGetPr(prhs[i+1]);
+        iptr[i] = (int *)mxGetData(prhs[i+1]);
         for(j=0; j<odim[i]; j++)
             if (iptr[i][j]<1 || iptr[i][j]>((i<ndim)?idim[i]:1))
             {
@@ -522,8 +613,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     ocumprod[0] = 1;
     for(i=0; i<ndim; i++)
     {
-        icumprod[i+1] = icumprod[i]*idim[i];
-        ocumprod[i+1] = ocumprod[i]*odim[i];
+        icumprod[i+1] = icumprod[i]*(long long)idim[i];
+        ocumprod[i+1] = ocumprod[i]*(long long)odim[i];
 
         /* Fix for each plane of 1 bit Analyze images being
            padded out to a whole number of bytes */

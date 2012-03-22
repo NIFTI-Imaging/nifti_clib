@@ -1,15 +1,15 @@
-function varargout = scl_slope(varargin)
+function varargout = permission(varargin)
 % Format
 % For getting the value
-% dat = scl_slope(obj)
+% dat = permission(obj)
 %
 % For setting the value
-% obj = scl_slope(obj,dat)
+% obj = permission(obj,dat)
 % _______________________________________________________________________
 % Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 %
-% Id: scl_slope.m 1143 2008-02-07 19:33:33Z spm 
+% Id: permission.m 1340 2008-04-09 17:11:23Z john 
 
 % 
 % niftilib $Id$
@@ -28,13 +28,21 @@ end;
 return;
 
 function dat = ref(obj)
-dat = obj.scl_slope;
+dat = obj.permission;
 return;
 
 function obj = asgn(obj,dat)
-if isnumeric(dat), % && numel(dat)<=1,
-    obj.scl_slope = double(dat);
+if ischar(dat)
+    tmp = lower(deblank(dat(:)'));
+    switch tmp,
+    case 'ro',
+    case 'rw',
+    otherwise,
+        error('Permission must be either "ro" or "rw"');
+    end
+    obj.permission = tmp;
 else
-    error('"scl_slope" must be numeric.');
+    error('"permission" must be a character string.');
 end;
 return;
+

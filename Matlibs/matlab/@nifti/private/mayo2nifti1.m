@@ -1,10 +1,15 @@
 function hdr = mayo2nifti1(ohdr,mat)
 % Convert from an ANALYZE to a NIFTI-1 header
 % _______________________________________________________________________
-% Copyright (C) 2005 Wellcome Department of Imaging Neuroscience
+% Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 %
-% $Id$
+% Id: mayo2nifti1.m 1143 2008-02-07 19:33:33Z spm 
+
+%
+% niftilib $Id$
+%
+
 
 
 if isfield(ohdr,'magic'),
@@ -38,10 +43,16 @@ if nargin<2,
     if any(ohdr.origin(1:3)), origin = double(ohdr.origin(1:3));
     else                      origin = (double(ohdr.dim(2:4))+1)/2; end;
     vox    = double(ohdr.pixdim(2:4));
+    if vox(1)<0,
+        % Assume FSL orientation
+        flp    = 0;
+    else
+        % Assume SPM or proper Analyze
+        flp    = spm_flip_analyze_images;
+    end;
     if all(vox == 0), vox = [1 1 1]; end;
     off    = -vox.*origin;
     mat    = [vox(1) 0 0 off(1) ; 0 vox(2) 0 off(2) ; 0 0 vox(3) off(3) ; 0 0 0 1];
-    flp    = spm_flip_analyze_images;
     if flp,
         %disp(['Assuming that image is stored left-handed']);
         mat = diag([-1 1 1 1])*mat;

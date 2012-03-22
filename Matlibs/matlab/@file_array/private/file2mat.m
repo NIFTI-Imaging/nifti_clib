@@ -7,10 +7,15 @@ function val = file2mat(a,varargin)
 %
 % This function is normally called by file_array/subsref
 % _______________________________________________________________________
-% Copyright (C) 2005 Wellcome Department of Imaging Neuroscience
+% Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 % John Ashburner
-% $Id$
+% Id: file2mat.m 1530 2008-04-30 19:28:22Z guillaume 
+
+% 
+% niftilib $Id$
+%
+
 
 %-This is merely the help file for the compiled routine
 error('file2mat.c not compiled - see Makefile');

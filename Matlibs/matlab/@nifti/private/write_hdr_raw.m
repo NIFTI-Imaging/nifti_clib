@@ -6,13 +6,19 @@ function ok = write_hdr_raw(fname,hdr,be)
 % be    - whether big-endian or not
 % ok    - status (1=good, 0=bad)
 % _______________________________________________________________________
-% Copyright (C) 2005 Wellcome Department of Imaging Neuroscience
+% Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 %
-% $Id$
+% Id: write_hdr_raw.m 2237 2008-09-29 17:39:53Z guillaume 
+
+%
+% niftilib $Id$
+%
+
 
 
 [pth,nam,ext] = fileparts(fname);
+if isempty(pth), pth = pwd; end
 
 if isfield(hdr,'magic')
     org = niftistruc;
@@ -36,15 +42,16 @@ if nargin >=3
 else       mach = 'native';
 end;
 
-ok  = true;
-fp  = fopen(hname,'r+',mach);
-if fp==-1
-    fp  = fopen(hname,'w+',mach);
-    if fp==-1
-        ok  = false;
-        return;
-    end;
-end;
+ok = true;
+if spm_existfile(hname),
+    fp = fopen(hname,'r+',mach);
+else
+    fp = fopen(hname,'w+',mach);
+end
+if fp == -1,
+    ok = false;
+    return;
+end
 
 for i=1:length(org)
     if isfield(hdr,org(i).label),

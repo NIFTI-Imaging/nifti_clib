@@ -7,10 +7,15 @@ function mat2file(a,val,varargin)
 %
 % This function is normally called by file_array/subsasgn
 % _______________________________________________________________________
-% Copyright (C) 2005 Wellcome Department of Imaging Neuroscience
+% Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 % John Ashburner
-% $Id$
+% Id: mat2file.m 1530 2008-04-30 19:28:22Z guillaume 
+
+% 
+% niftilib $Id$
+%
+
 
 %-This is merely the help file for the compiled routine
 error('mat2file.c not compiled - see Makefile');

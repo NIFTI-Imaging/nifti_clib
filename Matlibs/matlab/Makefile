@@ -20,8 +20,8 @@
 # 
 # Problems ?
 # If you need to make platform specific tweaks to the mex call, you
-# may want to look at the SPM5 (http://www.fil.ion.ucl.ac.uk/spm/)
-# distribution Makefile that has more detailed flag settings.
+# may want to look at the SPM8 (http://www.fil.ion.ucl.ac.uk/spm/)
+# distribution src/Makefile and src/Makefile.var that has more detailed flag settings.
 #
 # For Windows you need the CygWin environment (http://sourceware.org/cygwin/).
 # Install the Default configuration, along with the gcc C compiler, and make
@@ -57,7 +57,9 @@ IRIX64:	big_endian
 HP-UX:	big_endian
 AIX:	big_endian
 OSF1:	big_endian
-Darwin:	big_endian
+
+# for MAC power pc reset to big_endian
+Darwin:	little_endian
 
 Linux:	little_endian
 Linux.A64:	little_endian

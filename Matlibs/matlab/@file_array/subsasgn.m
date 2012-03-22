@@ -1,10 +1,15 @@
 function obj = subsasgn(obj,subs,dat)
 % Overloaded subsasgn function for file_array objects.
 % _______________________________________________________________________
-% Copyright (C) 2005 Wellcome Department of Imaging Neuroscience
+% Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
 
 %
-% $Id$
+% Id: subsasgn.m 4136 2010-12-09 22:22:28Z guillaume 
+
+%
+% niftilib $Id$
+%
+
 
 
 if isempty(subs)
@@ -17,13 +22,14 @@ if ~strcmp(subs(1).type,'()'),
             error('Can only change the fields of simple file_array objects.');
         end;
         switch(subs(1).subs)
-        case 'fname',      obj = asgn(obj,@fname,    subs(2:end),dat); %fname(obj,dat);
-        case 'dtype',      obj = asgn(obj,@dtype,    subs(2:end),dat); %dtype(obj,dat);
-        case 'offset',     obj = asgn(obj,@offset,   subs(2:end),dat); %offset(obj,dat);
-        case 'dim',        obj = asgn(obj,@dim,      subs(2:end),dat); %obj = dim(obj,dat);
-        case 'scl_slope',  obj = asgn(obj,@scl_slope,subs(2:end),dat); %scl_slope(obj,dat);
-        case 'scl_inter',  obj = asgn(obj,@scl_inter,subs(2:end),dat); %scl_inter(obj,dat);
-        otherwise, error(['Reference to non-existent field "' subs.type '".']);
+        case 'fname',      obj = asgn(obj,@fname,     subs(2:end),dat); %fname(obj,dat);
+        case 'dtype',      obj = asgn(obj,@dtype,     subs(2:end),dat); %dtype(obj,dat);
+        case 'offset',     obj = asgn(obj,@offset,    subs(2:end),dat); %offset(obj,dat);
+        case 'dim',        obj = asgn(obj,@dim,       subs(2:end),dat); %obj = dim(obj,dat);
+        case 'scl_slope',  obj = asgn(obj,@scl_slope, subs(2:end),dat); %scl_slope(obj,dat);
+        case 'scl_inter',  obj = asgn(obj,@scl_inter, subs(2:end),dat); %scl_inter(obj,dat);
+        case 'permission', obj = asgn(obj,@permission,subs(2:end),dat); %permission(obj,dat);
+        otherwise, error(['Reference to non-existent field "' subs.subs '".']);
         end;
         return;
     end;
@@ -46,7 +52,7 @@ if length(subs.subs) < length(dm),
 end;
 
 dm   = [dm ones(1,16)];
-do   = ones(1,16);
+di   = ones(1,16);
 args = {};
 for i=1:length(subs.subs),
     if ischar(subs.subs{i}),
@@ -55,14 +61,20 @@ for i=1:length(subs.subs),
     else
         args{i} = int32(subs.subs{i});
     end;
-    do(i) = length(args{i});
+    di(i) = length(args{i});
 end;
+for j=1:length(sobj),
+    if strcmp(sobj(j).permission,'ro'),
+        error('Array is read-only.');
+    end
+end
+
 if length(sobj)==1
     sobj.dim = dm;
     if numel(dat)~=1,
         subfun(sobj,double(dat),args{:});
     else
-        dat1 = double(dat) + zeros(do);
+        dat1 = double(dat) + zeros(di);
         subfun(sobj,dat1,args{:});
     end;
 else
@@ -92,7 +104,7 @@ va = varargin;
 dt  = datatypes;
 ind = find(cat(1,dt.code)==sobj.dtype);
 if isempty(ind), error('Unknown datatype'); end;
-if dt(ind).isint, dat(~finite(dat)) = 0; end;
+if dt(ind).isint, dat(~isfinite(dat)) = 0; end;
 
 if ~isempty(sobj.scl_inter),
     inter = sobj.scl_inter;
@@ -113,7 +125,13 @@ if ~isempty(sobj.scl_slope),
 end;
 
 if dt(ind).isint, dat = round(dat); end;
+
+% Avoid warning messages in R14 SP3
+wrn = warning;
+warning('off');
 dat   = feval(dt(ind).conv,dat);
+warning(wrn);
+
 nelem = dt(ind).nelem;
 if nelem==1,
     mat2file(sobj,dat,va{:});
