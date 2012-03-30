@@ -6,14 +6,16 @@ The niftilib SF homepage is at
 http://niftilib.sourceforge.net/
 
 The documents for the niftilib webpage are at
-/home/groups/n/ni/niftilib/htdocs
-
+/home/project-web/niftilib/htdocs
 This directory can be accessed directly/interactively
- by ssh'ing to the SF shell server 
-shell.sourceforge.net
+ by ssh'ing to the SF shell server:
+ssh -t USER,PROJECT@shell.sourceforge.net create
+eg
+ssh -t fissell,niftilib@shell.sourceforge.net create
+
 
 Files can be uploaded to this directory by using scp, e.g.:
-scp index.html  fissell,niftilib@web.sourceforge.net:/home/groups/n/ni/niftilib/htdocs
+scp README.txt fissell,niftilib@shell.sourceforge.net:///home/project-web/niftilib/htdocs/mat_api_html
 Note that you only need to upload the 8 files listed
 below, not everything in the webpage directory.
 

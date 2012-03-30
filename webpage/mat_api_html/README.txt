@@ -11,45 +11,72 @@ The nifti1 matlab code was provided by John Ashburner, Functional
 Imaging Laboratory, Wellcome Department of Imaging Neuroscience, London.  
 This code is released under the GNU public license, see the license.txt 
 and gpl.txt files in the distribution.
+This niftimatlib release was pulled in March 2012 from the spm8  
+release: "Version 4667 (SPM8) 27-Feb-12"
 
 
 2. Install/Build
 
 The nifti1 matlab i/o code was written to run under MATLAB version 6.5 or higher.
 To install, just make sure that the niftimatlib/matlab directory is in your MATLAB
-path.  For example. in matlab you can run the path command:
-path(path, '/usr/local/pkg/niftimatlib/matlab')
+path.  For example. in matlab you can run the addpath command:
+addpath('/usr/local/pkg/niftimatlib/matlab')
 Or, you can copy the contents of the niftimatlib/matlab directory to your <home>/matlab directory.
+
 There are two C program files included in the distribution: file2mat.c and mat2file.c
 to handle file i/o.  These need to be compiled into MATLAB mex files.  
-Precompiled mex files are included in this distribution for the following platforms: PCWIN, 
-MAC, SOL2, LNX86, GLNXA64, IRIX.  So, you may not need to do the mex compile.  If you do,
+Precompiled mex files, taken from the spm8 distribution courtesy of the FIL, are included in 
+this distribution for the following platforms: 
+mexglx  	glnx86		Linux on x86	
+mexa64  	glnxa64		Linux on x86_64
+mexmaci 	maci		Apple Mac OS X on x86
+mexmaci64       maci64		Apple Mac OS X on x86_64
+mexw32  	win32		Microsoft Windows on x86
+mexw64  	win64		Microsoft Windows on x64
+So, you may not need to do the mex compile.  If you do compile,
 a Makefile is in the matlab directory.  Instructions are in the Makefile, a simple
 "make all" should work.  Note that you must have a MATLAB version 6.5 or higher mex compiler.
+Alternately, a make.m file for calling mex from matlab was contributed by Alle Meije Wink.
+Optional C code for a mex interface to Robert Cox's (NIH) nifti_stats.c code is provided
+in the @nifti/private/src directory.
 
 
 3. Tiny Example
 
 Short example for those who want to see something in a hurry (longer example below):
+For access to the avg152T1_LR_nifti.nii image see
+http://nifti.nimh.nih.gov/nifti-1/data
+
 
 To open an existing nifti1 file:
 
->> f = nifti('newsirp_final_XML.nii');
+>> % be sure to rmpath any paths that point to any spm version
+>> % after removing spm paths, clear all, then add niftimatlib path
+>> % eg:
+>> rmpath(genpath('/usr/local/pkg/spm8'))
+>> clear all
+>> addpath /usr/local/pkg/niftimatlib-1.2/matlab
+
+
+>> f = nifti('avg152T1_LR_nifti.nii');
 >> disp(f)
 NIFTI object: 1-by-1
-            dat: [4-D file_array]
-            mat: [4x4 double]
-     mat_intent: 'Scanner'
-           mat0: [4x4 double]
-    mat0_intent: 'Scanner'
-         timing: [1x1 struct]
-        descrip: 'FSL3.2beta'
-            cal: [0 5000]
+           dat: [91x109x91 file_array]
+           mat: [4x4 double]
+    mat_intent: 'MNI152'
+          mat0: [4x4 double]
+        timing: [1x1 struct]
+       descrip: 'FSL3.2beta'
+           cal: [0 255]
+      aux_file: 'none'
+
+
 
 >> size(f.dat)
-ans =
-    64    64    35   147
 
+ans =
+
+    91   109    91
 
 
 3. nifti1 i/o Class Structures
@@ -148,7 +175,7 @@ ans =
   dat         = file_array;
   dat.fname   = 'junk.nii';
   dat.dim     = [64 64 32];
-  dat.dtype   = 'FLOAT64-BE';
+  dat.dtype   = 'FLOAT64-LE';
   dat.offset  = ceil(348/8)*8;
 
   % alternatively:
