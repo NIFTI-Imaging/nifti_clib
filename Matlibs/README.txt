@@ -22,12 +22,21 @@ To install, just make sure that the niftimatlib/matlab directory is in your MATL
 path.  For example. in matlab you can run the addpath command:
 addpath('/usr/local/pkg/niftimatlib/matlab')
 Or, you can copy the contents of the niftimatlib/matlab directory to your <home>/matlab directory.
+
 There are two C program files included in the distribution: file2mat.c and mat2file.c
 to handle file i/o.  These need to be compiled into MATLAB mex files.  
-Precompiled mex files are included in this distribution for the following platforms: PCWIN, 
-MAC, SOL2, LNX86, GLNXA64, IRIX.  So, you may not need to do the mex compile.  If you do,
+Precompiled mex files, taken from the spm8 distribution courtesy of the FIL, are included in 
+this distribution for the following platforms: 
+mexglx  	glnx86		Linux on x86	
+mexa64  	glnxa64		Linux on x86_64
+mexmaci 	maci		Apple Mac OS X on x86
+mexmaci64       maci64		Apple Mac OS X on x86_64
+mexw32  	win32		Microsoft Windows on x86
+mexw64  	win64		Microsoft Windows on x64
+So, you may not need to do the mex compile.  If you do compile,
 a Makefile is in the matlab directory.  Instructions are in the Makefile, a simple
 "make all" should work.  Note that you must have a MATLAB version 6.5 or higher mex compiler.
+Alternately, a make.m file for calling mex from matlab was contributed by Alle Meije Wink.
 Optional C code for a mex interface to Robert Cox's (NIH) nifti_stats.c code is provided
 in the @nifti/private/src directory.
 
