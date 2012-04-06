@@ -55,7 +55,7 @@ To open an existing nifti1 file:
 >> % eg:
 >> rmpath(genpath('/usr/local/pkg/spm8'))
 >> clear all
->> addpath /usr/local/pkg/Matlibs/matlab
+>> addpath /usr/local/pkg/niftimatlib-1.2/matlab
 
 
 >> f = nifti('avg152T1_LR_nifti.nii');
