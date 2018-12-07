@@ -13,7 +13,6 @@ else()
 endif()
 cmake_policy(VERSION ${NIFTI_CMAKE_POLICY_VERSION}) 
 
-subdirs(znzlib niftilib)
 add_definitions(-DHAVE_ZLIB)
 
 # add option to build shared libraries. The default is OFF to maintain the
@@ -68,18 +67,18 @@ else("${ITK_VERSION_MAJOR}" GREATER 0.0)
   set(NIFTI_INSTALL_NO_LIBRARIES 0)
 
   #Needs an if clause and more work before testing can take place.
-  subdirs(Testing)
-  subdirs(nifticdf utils)
+  add_subdirectory(Testing)
+  add_subdirectory(nifticdf utils)
 
   option(USE_FSL_CODE "If OFF, The copyright of this code is questionable for inclusion with nifti." OFF)
   mark_as_advanced(USE_FSL_CODE)
 
-  # the order of subdirs is important! fsliolob has to preceed examples
+  # the order of add_subdirectory is important! fsliolob has to preceed examples
   # as otherwise FSLIOLIB_SOURCE_DIR is undefined and hence the examples
   # will fail to compile
   if(USE_FSL_CODE)
-    subdirs(fsliolib)
-    subdirs(examples)
+    add_subdirectory(fsliolib)
+    add_subdirectory(examples)
   endif(USE_FSL_CODE)
   enable_testing()
   include(CTest)
@@ -147,9 +146,5 @@ if(NOT DEFINED NIFTI_INSTALL_INCLUDE_DIR)
   message(FATAL_ERROR "Must set NIFTI_INSTALL_INCLUDE_DIR.")
 endif(NOT DEFINED NIFTI_INSTALL_INCLUDE_DIR)
 
-
-
-
-
-
-
+add_subdirectory(znzlib)
+add_subdirectory(niftilib)
