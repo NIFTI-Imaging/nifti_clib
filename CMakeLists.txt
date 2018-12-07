@@ -29,6 +29,9 @@ else()
   enable_language(C)
 endif()
 
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
+
 add_definitions(-DHAVE_ZLIB)
 
 # add option to build shared libraries. The default is OFF to maintain the
@@ -98,6 +101,39 @@ else()
   endif()
   enable_testing()
   include(CTest)
+
+  ####################################
+  # CMake itself and can use some CMake facilities for creating the package files. 
+  # This allows for find_package(NIFTI 2.1.0 NO_MODULE) to work for pulling in 
+  # NIFTI libraries into an external project
+  include(CMakePackageConfigHelpers)
+  write_basic_package_version_file(
+          "${CMAKE_CURRENT_BINARY_DIR}/NIFTI/NIFTIConfigVersion.cmake"
+          VERSION ${NIFTI_VERSION}
+          COMPATIBILITY AnyNewerVersion
+  )
+
+  export(EXPORT NIFTITargets
+          FILE "${CMAKE_CURRENT_BINARY_DIR}/NIFTI/NIFTITargets.cmake"
+          NAMESPACE NIFTI::
+          )
+  configure_file(cmake/NIFTIConfig.cmake
+          "${CMAKE_CURRENT_BINARY_DIR}/NIFTI/NIFTIConfig.cmake"
+          COPYONLY
+          )
+
+  set(ConfigPackageLocation lib/cmake/NIFTI)
+  install(EXPORT NIFTITargets
+          FILE          NIFTITargets.cmake
+          NAMESPACE     NIFTI::
+          DESTINATION   ${ConfigPackageLocation}
+          )
+  install(FILES
+             cmake/NIFTIConfig.cmake
+             "${CMAKE_CURRENT_BINARY_DIR}/NIFTI/NIFTIConfigVersion.cmake"
+          DESTINATION   ${ConfigPackageLocation}
+          COMPONENT     Development
+  )
 
   ####################################
   ### Define information necessary for packaging with CPACK (http://www.cmake.org/Wiki/CMake:Packaging_With_CPack)
