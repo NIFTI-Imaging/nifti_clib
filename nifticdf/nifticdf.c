@@ -10864,9 +10864,9 @@ static pqpair stat2pq( double val, int code, double p1,double p2,double p3 )
                         if( val >= 0.0 && val <= 1.0 ) pq.q = val ;
                                                        pq.p = 1.0-pq.q; break;
      case NIFTI_INTENT_LOGPVAL:
-                            pq.q = exp(-abs(val))    ; pq.p = 1.0-pq.q; break;
+                           pq.q = exp(-fabs(val))    ; pq.p = 1.0-pq.q; break;
      case NIFTI_INTENT_LOG10PVAL:
-                            pq.q = pow(10.,-abs(val)); pq.p = 1.0-pq.q; break;
+                           pq.q = pow(10.,-fabs(val)); pq.p = 1.0-pq.q; break;
    }
 
    return pq ;
