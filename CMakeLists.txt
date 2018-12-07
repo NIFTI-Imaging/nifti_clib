@@ -27,7 +27,6 @@ option( BUILD_SHARED_LIBS "Toggle building shared libraries." OFF)
 ###  USE AS PART OF ITK
 if("${ITK_VERSION_MAJOR}" GREATER 0.0)
 #   message(STATUS "---------------------ITK ZLIB  ${ITK_ZLIB_LIBRARIES}")
-  add_definitions(-DHAVE_ZLIB)
   add_definitions(-DITKZLIB)
   set(PACKAGE_PREFIX "ITK")
   set(NIFTI_LIBRARY_PROPERTIES ${ITK_LIBRARY_PROPERTIES})
