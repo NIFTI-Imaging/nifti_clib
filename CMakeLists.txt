@@ -47,9 +47,9 @@ else()
   set(CPACK_PACKAGE_VERSION_MAJOR "2")
   set(CPACK_PACKAGE_VERSION_MINOR "0")
   set(CPACK_PACKAGE_VERSION_PATCH "0")
-###  USE AS STAND ALONE PACKAGE
-   find_package(ZLIB)
-#  message(STATUS "---------------------SYSTEM ZLIB ${ZLIB_LIBRARY}")
+  ###  USE AS STAND ALONE PACKAGE
+  find_package(ZLIB)
+  #  message(STATUS "---------------------SYSTEM ZLIB ${ZLIB_LIBRARY}")
   set(PACKAGE_PREFIX "")
   # Set default shared library version
   # This library version will be applied to all libraries in the package
@@ -84,55 +84,50 @@ else()
 
   ####################################
   ### Define information necessary for packaging with CPACK (http://www.cmake.org/Wiki/CMake:Packaging_With_CPack)
-### The last section is concerned with installing the binaries and making distributions.
-include(InstallRequiredSystemLibraries)
+  ### The last section is concerned with installing the binaries and making distributions.
+  include(InstallRequiredSystemLibraries)
 
-set(CPACK_PACKAGE_NAME "NIFTI")
+  set(CPACK_PACKAGE_NAME "NIFTI")
 
-set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-dev")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Niftilib is a set of i/o libraries for reading and writing files in the nifti-1 data format. nifti-1 is a binary file format for storing medical image data, e.g. magnetic resonance image (MRI) and functional MRI (fMRI) brain images.")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${NIFTI_SOURCE_DIR}/README")
-#set(CPACK_RESOURCE_FILE_LICENSE "${NIFTI_SOURCE_DIR}/Copyright.txt")
-set(CPACK_RESOURCE_FILE_LICENSE "${NIFTI_SOURCE_DIR}/README")
+  set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-dev")
+  set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Niftilib is a set of i/o libraries for reading and writing files in the nifti-1 data format. nifti-1 is a binary file format for storing medical image data, e.g. magnetic resonance image (MRI) and functional MRI (fMRI) brain images.")
+  set(CPACK_PACKAGE_DESCRIPTION_FILE "${NIFTI_SOURCE_DIR}/README")
+  #set(CPACK_RESOURCE_FILE_LICENSE "${NIFTI_SOURCE_DIR}/Copyright.txt")
+  set(CPACK_RESOURCE_FILE_LICENSE "${NIFTI_SOURCE_DIR}/README")
 
-set(CPACK_PACKAGE_DEFAULT_LOCATION "/opt/${CPACK_PACKAGE_NAME}")
-#set(CPACK_PACKAGE_INSTALL_DIRECTORY "NIFTI ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "${NIFTI}")
-set(CPACK_PACKAGING_INSTALL_PREFIX "/")
-set(CPACK_SET_DESTDIR ON)
+  set(CPACK_PACKAGE_DEFAULT_LOCATION "/opt/${CPACK_PACKAGE_NAME}")
+  #set(CPACK_PACKAGE_INSTALL_DIRECTORY "NIFTI ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}")
+  set(CPACK_PACKAGE_INSTALL_DIRECTORY "${NIFTI}")
+  set(CPACK_PACKAGING_INSTALL_PREFIX "/")
+  set(CPACK_SET_DESTDIR ON)
 
-set(CPACK_PACKAGE_VENDOR "NIFTI DFWG")
+  set(CPACK_PACKAGE_VENDOR "NIFTI DFWG")
 
-set(CPACK_SOURCE_GENERATOR "TGZ;TZ")
-#set(CPACK_SOURCE_IGNORE_FILES "/CVS/;/\\.svn/;\\.swp$;\\.#;/#;\\.*~")
-set(CPACK_SOURCE_IGNORE_FILES "")
-set(CPACK_PACKAGE_EXECUTABLES "nifti_tool;NIFTI")
+  set(CPACK_SOURCE_GENERATOR "TGZ;TZ")
+  #set(CPACK_SOURCE_IGNORE_FILES "/CVS/;/\\.svn/;\\.swp$;\\.#;/#;\\.*~")
+  set(CPACK_SOURCE_IGNORE_FILES "")
+  set(CPACK_PACKAGE_EXECUTABLES "nifti_tool;NIFTI")
 
-if(WIN32 AND NOT UNIX)
-  set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY
-"${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-  # There is a bug in NSI that does not handle full unix paths properly. Make
-  # sure there is at least one set of four (4) backlasshes.
-  set(CPACK_PACKAGE_ICON
-"${CMake_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
-  set(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\MyExecutable.exe")
-  set(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} My Famous
-Project")
-  set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.nitrc.org")
-  set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.nitrc.org")
-  set(CPACK_NSIS_CONTACT "xyz@domain.edu")
-  set(CPACK_NSIS_MODIFY_PATH ON)
-else()
-  set(CPACK_STRIP_FILES OFF)
-  set(CPACK_SOURCE_STRIP_FILES OFF)
+  if(WIN32 AND NOT UNIX)
+    set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY
+  "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+    # There is a bug in NSI that does not handle full unix paths properly. Make
+    # sure there is at least one set of four (4) backlasshes.
+    set(CPACK_PACKAGE_ICON
+  "${CMake_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
+    set(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\MyExecutable.exe")
+    set(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} My Famous
+  Project")
+    set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.nitrc.org")
+    set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.nitrc.org")
+    set(CPACK_NSIS_CONTACT "xyz@domain.edu")
+    set(CPACK_NSIS_MODIFY_PATH ON)
+  else()
+    set(CPACK_STRIP_FILES OFF)
+    set(CPACK_SOURCE_STRIP_FILES OFF)
+  endif()
+  include(CPack)
 endif()
-
-include(CPack)
-
-
-endif()
-
-
 
 if(NOT DEFINED NIFTI_INSTALL_LIB_DIR)
   message(FATAL_ERROR "Must set NIFTI_INSTALL_LIB_DIR.")
