@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
-  
+cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
+
 set(NIFTI_MAX_VALIDATED_CMAKE_VERSION "3.13.1")
 if("${CMAKE_VERSION}" VERSION_LESS_EQUAL "${NIFTI_MAX_VALIDATED_CMAKE_VERSION}")
   # As of 2018-12-04 NIFTI has been validated to build with cmake version 3.13.1 new policies.
@@ -8,7 +8,7 @@ if("${CMAKE_VERSION}" VERSION_LESS_EQUAL "${NIFTI_MAX_VALIDATED_CMAKE_VERSION}")
 else()
   set(NIFTI_CMAKE_POLICY_VERSION "${NIFTI_MAX_VALIDATED_CMAKE_VERSION}")
 endif()
-cmake_policy(VERSION ${NIFTI_CMAKE_POLICY_VERSION}) 
+cmake_policy(VERSION ${NIFTI_CMAKE_POLICY_VERSION})
 
 
 set(NIFTI_HOMEPAGE_URL "https://nifti-imaging.github.io")
@@ -32,32 +32,58 @@ endif()
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 
-add_definitions(-DHAVE_ZLIB)
+include(FetchContent)
+include(GNUInstallDirs)
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/${NIFTI_NIFTILIB_NAME})
+
 
 # add option to build shared libraries. The default is OFF to maintain the
 # current build behavior
+set( 1)
+  set( 1)
+
+option( NIFTI_INSTALL_NO_DEVELOPMENT "ITK build development flag." OFF)
+option( NIFTI_INSTALL_NO_LIBRARIES "ITK build development flag." OFF)
 option( BUILD_SHARED_LIBS "Toggle building shared libraries." OFF)
+if(BUILD_SHARED_LIBS)
+  set(NIFTI_LIBRARY_PROPERTIES
+    BUILD_SHARED_LIBS TRUE
+    POSITION_INDEPENDENT_CODE TRUE)
+  endif()
 
-# Michael Hanke 2007-04-25 Note:
-# 'Utilities' is merged into the include install path to be able to easily
-# install into any other path if necessary. For the same reason lib, bin and
-# include dir for standalone builds are only set if not yet defined.
+# Generate a mapping from targets that need to be built to the sub-directories
+# in which they are located.
+macro(INSERT_INTO_DIRMAP _KEY _VALUE)
+  set("modules_${_KEY}" "${_VALUE}")
+endmacro()
+INSERT_INTO_DIRMAP(utils utils)
+INSERT_INTO_DIRMAP(znz znzlib)
+INSERT_INTO_DIRMAP(nifti2io nifti2)
+INSERT_INTO_DIRMAP(niftiio niftilib)
+INSERT_INTO_DIRMAP(cifti cifti)
+INSERT_INTO_DIRMAP(nifticdf nifticdf)
 
-###  USE AS PART OF ITK
+# Fetch and populate the content of each sub-directory to provide access to
+# targets during cmake configure time
+foreach(module nifticdf niftiio nifti2io cifti)
+  FetchContent_Declare(
+  ${module}
+  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${modules_${module}})
+  FetchContent_GetProperties(${module})
+if(NOT ${${module}_POPULATED})
+  FetchContent_Populate(${module})
+  add_subdirectory(${${module}_SOURCE_DIR} ${${module}_BINARY_DIR})
+endif()
+endforeach()
+
+
+
+##  USE AS PART OF ITK
 if("${ITK_VERSION_MAJOR}" GREATER 0.0)
 #   message(STATUS "---------------------ITK ZLIB  ${ITK_ZLIB_LIBRARIES}")
   add_definitions(-DITKZLIB)
   set(PACKAGE_PREFIX "ITK")
   set(NIFTI_LIBRARY_PROPERTIES ${ITK_LIBRARY_PROPERTIES})
-  set(NIFTI_INSTALL_BIN_DIR "${ITK_INSTALL_BIN_DIR_CM24}")
-  set(NIFTI_INSTALL_LIB_DIR "${ITK_INSTALL_LIB_DIR_CM24}")
-
-  if(ITK_USE_FLAT_DIRECTORY_INSTALL)
-    set(NIFTI_INSTALL_INCLUDE_DIR "${ITK_INSTALL_INCLUDE_DIR_CM24}")
-  else()
-    set(NIFTI_INSTALL_INCLUDE_DIR "${ITK_INSTALL_INCLUDE_DIR_CM24}/Utilities")
-  endif()
-
   set(NIFTI_ZLIB_LIBRARIES ${ITK_ZLIB_LIBRARIES})
   set(NIFTI_INSTALL_NO_DEVELOPMENT ${ITK_INSTALL_NO_DEVELOPMENT})
   set(NIFTI_INSTALL_NO_LIBRARIES ${ITK_INSTALL_NO_LIBRARIES})
@@ -66,9 +92,7 @@ else()
   set(CPACK_PACKAGE_VERSION_MAJOR "${NIFTI_VERSION_MAJOR}")
   set(CPACK_PACKAGE_VERSION_MINOR "${NIFTI_VERSION_MINOR}")
   set(CPACK_PACKAGE_VERSION_PATCH "${NIFTI_VERSION_PATCH}")
-  ###  USE AS STAND ALONE PACKAGE
-  find_package(ZLIB)
-  #  message(STATUS "---------------------SYSTEM ZLIB ${ZLIB_LIBRARY}")
+
   set(PACKAGE_PREFIX "")
 
   # Set default shared library version
@@ -78,16 +102,8 @@ else()
   string( REGEX MATCH "^[0-9]+" NIFTI_SHAREDLIB_SOVERSION ${NIFTI_SHAREDLIB_VERSION})
   set(NIFTI_LIBRARY_PROPERTIES VERSION ${NIFTI_SHAREDLIB_VERSION} SOVERSION ${NIFTI_SHAREDLIB_SOVERSION})
 
-  set(NIFTI_INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin")
-  set(NIFTI_INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
-  set(NIFTI_INSTALL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include/nifti")
-  set(NIFTI_ZLIB_LIBRARIES ${ZLIB_LIBRARIES})
-  set(NIFTI_INSTALL_NO_DEVELOPMENT 0)
-  set(NIFTI_INSTALL_NO_LIBRARIES 0)
-
   #Needs an if clause and more work before testing can take place.
   add_subdirectory(Testing)
-  add_subdirectory(nifticdf utils)
 
   option(USE_FSL_CODE "If OFF, The copyright of this code is questionable for inclusion with nifti." OFF)
   mark_as_advanced(USE_FSL_CODE)
@@ -103,8 +119,8 @@ else()
   include(CTest)
 
   ####################################
-  # CMake itself and can use some CMake facilities for creating the package files. 
-  # This allows for find_package(NIFTI 2.1.0 NO_MODULE) to work for pulling in 
+  # CMake itself and can use some CMake facilities for creating the package files.
+  # This allows for find_package(NIFTI 2.1.0 NO_MODULE) to work for pulling in
   # NIFTI libraries into an external project
   include(CMakePackageConfigHelpers)
   write_basic_package_version_file(
@@ -180,16 +196,3 @@ else()
   endif()
   include(CPack)
 endif()
-
-if(NOT DEFINED NIFTI_INSTALL_LIB_DIR)
-  message(FATAL_ERROR "Must set NIFTI_INSTALL_LIB_DIR.")
-endif()
-if(NOT DEFINED NIFTI_INSTALL_BIN_DIR)
-  message(FATAL_ERROR "Must set NIFTI_INSTALL_BIN_DIR.")
-endif()
-if(NOT DEFINED NIFTI_INSTALL_INCLUDE_DIR)
-  message(FATAL_ERROR "Must set NIFTI_INSTALL_INCLUDE_DIR.")
-endif()
-
-add_subdirectory(znzlib)
-add_subdirectory(niftilib)
