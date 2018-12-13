@@ -12,7 +12,7 @@ MOBJS=mjtest.o
 
 SCRIPTS =
 
-depend:	
+depend:
 	$(RM) -f depend.mk
 	$(MAKE) depend.mk
 

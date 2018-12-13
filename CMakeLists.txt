@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
-  
+
 set(NIFTI_MAX_VALIDATED_CMAKE_VERSION "3.13.1")
 if("${CMAKE_VERSION}" VERSION_LESS_EQUAL "${NIFTI_MAX_VALIDATED_CMAKE_VERSION}")
   # As of 2018-12-04 NIFTI has been validated to build with cmake version 3.13.1 new policies.
@@ -8,7 +8,7 @@ if("${CMAKE_VERSION}" VERSION_LESS_EQUAL "${NIFTI_MAX_VALIDATED_CMAKE_VERSION}")
 else()
   set(NIFTI_CMAKE_POLICY_VERSION "${NIFTI_MAX_VALIDATED_CMAKE_VERSION}")
 endif()
-cmake_policy(VERSION ${NIFTI_CMAKE_POLICY_VERSION}) 
+cmake_policy(VERSION ${NIFTI_CMAKE_POLICY_VERSION})
 
 
 set(NIFTI_HOMEPAGE_URL "https://nifti-imaging.github.io")
@@ -103,8 +103,8 @@ else()
   include(CTest)
 
   ####################################
-  # CMake itself and can use some CMake facilities for creating the package files. 
-  # This allows for find_package(NIFTI 2.1.0 NO_MODULE) to work for pulling in 
+  # CMake itself and can use some CMake facilities for creating the package files.
+  # This allows for find_package(NIFTI 2.1.0 NO_MODULE) to work for pulling in
   # NIFTI libraries into an external project
   include(CMakePackageConfigHelpers)
   write_basic_package_version_file(
