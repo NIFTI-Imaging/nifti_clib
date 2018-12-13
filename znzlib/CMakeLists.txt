@@ -6,7 +6,7 @@ include_regular_expression("^.*$")
 set(NIFTI_ZNZLIB_NAME ${PACKAGE_PREFIX}znz)
 
 add_library(${NIFTI_ZNZLIB_NAME} ${ZNZLIB_SRC} )
-target_link_libraries( ${NIFTI_ZNZLIB_NAME} ${NIFTI_ZLIB_LIBRARIES} )
+target_link_libraries( ${NIFTI_ZNZLIB_NAME} PUBLIC ${NIFTI_ZLIB_LIBRARIES} )
 target_include_directories(${NIFTI_ZNZLIB_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<INSTALL_INTERFACE:${NIFTI_INSTALL_INCLUDE_DIR}>
