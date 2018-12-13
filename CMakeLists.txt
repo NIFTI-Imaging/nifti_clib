@@ -26,11 +26,6 @@ add_definitions(-DHAVE_ZLIB)
 # current build behavior
 option( BUILD_SHARED_LIBS "Toggle building shared libraries." OFF)
 
-# Michael Hanke 2007-04-25 Note:
-# 'Utilities' is merged into the include install path to be able to easily
-# install into any other path if necessary. For the same reason lib, bin and
-# include dir for standalone builds are only set if not yet defined.
-
 ###  USE AS PART OF ITK
 if("${ITK_VERSION_MAJOR}" GREATER 0.0)
 #   message(STATUS "---------------------ITK ZLIB  ${ITK_ZLIB_LIBRARIES}")
