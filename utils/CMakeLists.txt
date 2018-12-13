@@ -6,9 +6,9 @@ include_directories(${NIFTI_SOURCE_DIR}/niftilib ${NIFTI_SOURCE_DIR}/znzlib ${NI
 add_executable(${PACKAGE_PREFIX}nifti_stats nifti_stats.c)
 add_executable(${PACKAGE_PREFIX}nifti_tool nifti_tool.c)
 add_executable(${PACKAGE_PREFIX}nifti1_test nifti1_test.c)
-target_link_libraries( nifti_stats ${PACKAGE_PREFIX}niftiio ${PACKAGE_PREFIX}nifticdf)
-target_link_libraries( nifti_tool  ${PACKAGE_PREFIX}niftiio)
-target_link_libraries( nifti1_test ${PACKAGE_PREFIX}niftiio)
+target_link_libraries( nifti_stats PUBLIC ${PACKAGE_PREFIX}niftiio ${PACKAGE_PREFIX}nifticdf)
+target_link_libraries( nifti_tool  PUBLIC ${PACKAGE_PREFIX}niftiio)
+target_link_libraries( nifti1_test PUBLIC ${PACKAGE_PREFIX}niftiio)
 
 if(NOT NIFTI_INSTALL_NO_DEVELOPMENT)
   install(TARGETS ${PACKAGE_PREFIX}nifti_stats ${PACKAGE_PREFIX}nifti_tool ${PACKAGE_PREFIX}nifti1_test

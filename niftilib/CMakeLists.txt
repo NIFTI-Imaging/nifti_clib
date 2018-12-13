@@ -6,7 +6,7 @@ set(NIFTILIB_SRC nifti1_io.c)
 
 set(NIFTI_NIFTILIB_NAME ${PACKAGE_PREFIX}niftiio)
 add_library(${NIFTI_NIFTILIB_NAME} ${NIFTILIB_SRC} )
-target_link_libraries( ${NIFTI_NIFTILIB_NAME} ${PACKAGE_PREFIX}znz)
+target_link_libraries( ${NIFTI_NIFTILIB_NAME} PUBLIC ${PACKAGE_PREFIX}znz)
 target_include_directories(${NIFTI_NIFTILIB_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<INSTALL_INTERFACE:${NIFTI_INSTALL_INCLUDE_DIR}>
@@ -18,7 +18,7 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 if(UNIX)
-  target_link_libraries(${NIFTI_NIFTILIB_NAME} -lm)
+  target_link_libraries(${NIFTI_NIFTILIB_NAME} PUBLIC m)
 endif()
 
 if(NOT NIFTI_INSTALL_NO_LIBRARIES)
