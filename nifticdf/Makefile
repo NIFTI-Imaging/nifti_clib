@@ -7,7 +7,7 @@ INCFLAGS = $(NIFTI_INC) $(NIFTICDF_INC)
 SRCS=nifticdf.c
 OBJS=nifticdf.o
 
-depend:	
+depend:
 	$(RM) -f depend.mk
 	$(MAKE) depend.mk
 
