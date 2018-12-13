@@ -1,6 +1,7 @@
 
 include_directories(${NIFTI_SOURCE_DIR}/niftilib)
 #include_directories(/usr/include/nifti)
+find_library(MATH_LIBRARY m)
 set(NIFTICDFLIB_SRC nifticdf.c)
 
 set(NIFTI_CDFLIB_NAME ${PACKAGE_PREFIX}nifticdf)
@@ -15,6 +16,9 @@ if(BUILD_SHARED_LIBS)
   set_target_properties(${NIFTI_CDFLIB_NAME} PROPERTIES ${NIFTI_LIBRARY_PROPERTIES})
 endif()
 
+if(MATH_LIBRARY)
+    target_link_libraries(${NIFTI_CDFLIB_NAME} PUBLIC ${MATH_LIBRARY})
+endif()
 
 if(NOT NIFTI_INSTALL_NO_LIBRARIES)
   install(TARGETS ${NIFTI_CDFLIB_NAME}
