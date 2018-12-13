@@ -2,16 +2,20 @@
 #Please contact hans-johnson@uiowa.edu for making enhancments/corrections
 
 include_directories(${NIFTI_SOURCE_DIR}/niftilib ${NIFTI_SOURCE_DIR}/znzlib ${NIFTI_SOURCE_DIR}/nifticdf)
+option( BUILD_NIFTI1_TOOL "Build an older version of nifti_tool." OFF)
 
 add_executable(${PACKAGE_PREFIX}nifti_stats nifti_stats.c)
-add_executable(${PACKAGE_PREFIX}nifti_tool nifti_tool.c)
 add_executable(${PACKAGE_PREFIX}nifti1_test nifti1_test.c)
 target_link_libraries( nifti_stats PUBLIC ${PACKAGE_PREFIX}niftiio ${PACKAGE_PREFIX}nifticdf)
-target_link_libraries( nifti_tool  PUBLIC ${PACKAGE_PREFIX}niftiio)
 target_link_libraries( nifti1_test PUBLIC ${PACKAGE_PREFIX}niftiio)
+if(${BUILD_NIFTI1_TOOL})
+  set(NIFTI1_TOOL ${PACKAGE_PREFIX}nifti1_tool)
+  add_executable(${NIFTI1_TOOL} nifti_tool.c)
+  target_link_libraries(${NIFTI1_TOOL}  PUBLIC ${PACKAGE_PREFIX}niftiio)
+endif()
 
 if(NOT NIFTI_INSTALL_NO_DEVELOPMENT)
-  install(TARGETS ${PACKAGE_PREFIX}nifti_stats ${PACKAGE_PREFIX}nifti_tool ${PACKAGE_PREFIX}nifti1_test
+  install(TARGETS ${PACKAGE_PREFIX}nifti_stats ${NIFTI1_TOOL} ${PACKAGE_PREFIX}nifti1_test
           EXPORT NIFTITargets
     RUNTIME DESTINATION ${NIFTI_INSTALL_BIN_DIR} COMPONENT RuntimeLibraries
     LIBRARY DESTINATION ${NIFTI_INSTALL_LIB_DIR} COMPONENT RuntimeLibraries
@@ -22,7 +26,7 @@ if(NOT NIFTI_INSTALL_NO_DEVELOPMENT)
   file(GLOB __files "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
   install(FILES ${__files}
     DESTINATION ${NIFTI_INSTALL_INCLUDE_DIR} COMPONENT Development)
-endif()
+endif() 
 
 add_test(${PACKAGE_PREFIX}nifti1_test_help ${NIFTI_BINARY_DIR}/utils/${PACKAGE_PREFIX}nifti1_test)
 add_test(${PACKAGE_PREFIX}nifti1_test_n1 ${NIFTI_BINARY_DIR}/utils/${PACKAGE_PREFIX}nifti1_test  -n1  ${NIFTI_SOURCE_DIR}/Testing/Data/ATestReferenceImageForReadingAndWriting.nii.gz ${NIFTI_BINARY_DIR}/utils/n1 )

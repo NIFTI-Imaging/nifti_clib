@@ -26,6 +26,7 @@ add_definitions(-DHAVE_ZLIB)
 # current build behavior
 option( BUILD_SHARED_LIBS "Toggle building shared libraries." OFF)
 
+
 ###  USE AS PART OF ITK
 if("${ITK_VERSION_MAJOR}" GREATER 0.0)
 #   message(STATUS "---------------------ITK ZLIB  ${ITK_ZLIB_LIBRARIES}")
@@ -76,7 +77,7 @@ else()
 
   #Needs an if clause and more work before testing can take place.
   add_subdirectory(Testing)
-  add_subdirectory(nifticdf utils)
+  add_subdirectory(nifticdf)
 
   option(USE_FSL_CODE "If OFF, The copyright of this code is questionable for inclusion with nifti." OFF)
   mark_as_advanced(USE_FSL_CODE)
@@ -174,3 +175,4 @@ add_subdirectory(znzlib)
 add_subdirectory(niftilib)
 add_subdirectory(nifti2)
 add_subdirectory(cifti)
+add_subdirectory(utils)
