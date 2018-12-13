@@ -172,3 +172,4 @@ endif()
 
 add_subdirectory(znzlib)
 add_subdirectory(niftilib)
+add_subdirectory(nifti2)
