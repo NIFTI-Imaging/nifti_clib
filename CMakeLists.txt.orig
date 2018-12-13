@@ -1,5 +1,10 @@
-cmake_minimum_required(VERSION 3.10.2 FATAL_ERROR)
+<<<<<<< HEAD
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
+=======
+cmake_minimum_required(VERSION 3.10.2 FATAL_ERROR)
+  
+>>>>>>> ENH: Update to cmake 3.10.2 version
 set(NIFTI_MAX_VALIDATED_CMAKE_VERSION "3.13.1")
 if("${CMAKE_VERSION}" VERSION_LESS_EQUAL "${NIFTI_MAX_VALIDATED_CMAKE_VERSION}")
   # As of 2018-12-04 NIFTI has been validated to build with cmake version 3.13.1 new policies.
@@ -25,6 +30,11 @@ add_definitions(-DHAVE_ZLIB)
 # add option to build shared libraries. The default is OFF to maintain the
 # current build behavior
 option( BUILD_SHARED_LIBS "Toggle building shared libraries." OFF)
+
+# Michael Hanke 2007-04-25 Note:
+# 'Utilities' is merged into the include install path to be able to easily
+# install into any other path if necessary. For the same reason lib, bin and
+# include dir for standalone builds are only set if not yet defined.
 
 ###  USE AS PART OF ITK
 if("${ITK_VERSION_MAJOR}" GREATER 0.0)
@@ -162,6 +172,16 @@ else()
     set(CPACK_SOURCE_STRIP_FILES OFF)
   endif()
   include(CPack)
+endif()
+
+if(NOT DEFINED NIFTI_INSTALL_LIB_DIR)
+  message(FATAL_ERROR "Must set NIFTI_INSTALL_LIB_DIR.")
+endif()
+if(NOT DEFINED NIFTI_INSTALL_BIN_DIR)
+  message(FATAL_ERROR "Must set NIFTI_INSTALL_BIN_DIR.")
+endif()
+if(NOT DEFINED NIFTI_INSTALL_INCLUDE_DIR)
+  message(FATAL_ERROR "Must set NIFTI_INSTALL_INCLUDE_DIR.")
 endif()
 
 add_subdirectory(znzlib)
