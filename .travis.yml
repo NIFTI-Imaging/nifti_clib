@@ -37,6 +37,21 @@ matrix:
 
 before_install:
   #- env
+  ############################################################################
+  # Install a recent CMake
+  ############################################################################
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      mkdir -p ${TRAVIS_BUILD_DIR}/deps
+      pushd ${TRAVIS_BUILD_DIR}/deps
+        CMAKE_URL="https://cmake.org/files/v3.13/cmake-3.13.1-Linux-x86_64.tar.gz"
+        mkdir -p cmake-3.13.1 && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake-3.13.1
+        export PATH=${TRAVIS_BUILD_DIR}/deps/cmake-3.13.1/bin:${PATH}
+      popd
+    else
+      brew install cmake || brew upgrade cmake
+    fi
+  - cd ${TRAVIS_BUILD_DIR}
   - cmake --version
 install: true
 before_script: true
