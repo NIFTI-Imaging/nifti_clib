@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10.2 FATAL_ERROR)
 
 set(NIFTI_MAX_VALIDATED_CMAKE_VERSION "3.13.1")
 if("${CMAKE_VERSION}" VERSION_LESS_EQUAL "${NIFTI_MAX_VALIDATED_CMAKE_VERSION}")
@@ -12,22 +12,10 @@ cmake_policy(VERSION ${NIFTI_CMAKE_POLICY_VERSION})
 
 
 set(NIFTI_HOMEPAGE_URL "https://nifti-imaging.github.io")
-if("${CMAKE_VERSION}" VERSION_GREATER_EQUAL 3.10.0)
-  project(NIFTI
-          VERSION 2.1.0
-          DESCRIPTION "Niftilib is a set of i/o libraries for reading and writing files in the nifti-1 data format. nifti-1 is a binary file format for storing medical image data, e.g. magnetic resonance image (MRI) and functional MRI (fMRI) brain images."
-          LANGUAGES C)
-else()
-  ## Provide backwards compatible equivalent variables.
-  project(NIFTI)
-  set(NIFTI_VERSION_MAJOR "2")
-  set(NIFTI_VERSION_MINOR "1")
-  set(NIFTI_VERSION_PATCH "0")
-  #set(NIFTI_VERSION_TWEAK "0")
-  set(NIFTI_VERSION "${NIFTI_VERSION_MAJOR}.${NIFTI_VERSION_MINOR}.${NIFTI_VERSION_PATCH}")
-  set(NIFTI_PROJECT_DESCRIPTION "Niftilib is a set of i/o libraries for reading and writing files in the nifti-1 data format. nifti-1 is a binary file format for storing medical image data, e.g. magnetic resonance image (MRI) and functional MRI (fMRI) brain images.")
-  enable_language(C)
-endif()
+project(NIFTI
+        VERSION 2.1.0
+        DESCRIPTION "Niftilib is a set of i/o libraries for reading and writing files in the nifti-1 data format. nifti-1 is a binary file format for storing medical image data, e.g. magnetic resonance image (MRI) and functional MRI (fMRI) brain images."
+        LANGUAGES C)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
