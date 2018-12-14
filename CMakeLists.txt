@@ -69,8 +69,8 @@ if(BUILD_SHARED_LIBS AND NOT NIFTI_LIBRARY_PROPERTIES)
   )
 endif()
 
-set_if_not_defined(NIFTI_INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin")
-set_if_not_defined(NIFTI_INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
+set_if_not_defined(NIFTI_INSTALL_RUNTIME_DIR "${CMAKE_INSTALL_PREFIX}/bin")
+set_if_not_defined(NIFTI_INSTALL_LIBRARY_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 set_if_not_defined(NIFTI_INSTALL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include/nifti")
 set_if_not_defined(NIFTI_ZLIB_LIBRARIES "")
 if(NOT NIFTI_ZLIB_LIBRARIES) # If using a custom zlib library, skip the find package
