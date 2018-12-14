@@ -10,7 +10,6 @@ else()
 endif()
 cmake_policy(VERSION ${NIFTI_CMAKE_POLICY_VERSION})
 
-
 set(NIFTI_HOMEPAGE_URL "https://nifti-imaging.github.io")
 project(NIFTI
         VERSION 2.1.0
@@ -58,9 +57,6 @@ add_definitions(-DHAVE_ZLIB)
 option( BUILD_SHARED_LIBS "Toggle building shared libraries." OFF)
 
 
-set(CPACK_PACKAGE_VERSION_MAJOR "${NIFTI_VERSION_MAJOR}")
-set(CPACK_PACKAGE_VERSION_MINOR "${NIFTI_VERSION_MINOR}")
-set(CPACK_PACKAGE_VERSION_PATCH "${NIFTI_VERSION_PATCH}")
 ###  USE AS STAND ALONE PACKAGE
 find_package(ZLIB)
 #  message(STATUS "---------------------SYSTEM ZLIB ${ZLIB_LIBRARY}")
@@ -136,50 +132,8 @@ install(FILES
         COMPONENT     Development
 )
 
-####################################
-### Define information necessary for packaging with CPACK (http://www.cmake.org/Wiki/CMake:Packaging_With_CPack)
-### The last section is concerned with installing the binaries and making distributions.
-include(InstallRequiredSystemLibraries)
-
-set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
-
-set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-dev")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${NIFTI_PROJECT_DESCRIPTION}")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${NIFTI_SOURCE_DIR}/README")
-#set(CPACK_RESOURCE_FILE_LICENSE "${NIFTI_SOURCE_DIR}/Copyright.txt")
-set(CPACK_RESOURCE_FILE_LICENSE "${NIFTI_SOURCE_DIR}/README")
-
-set(CPACK_PACKAGE_DEFAULT_LOCATION "/opt/${CPACK_PACKAGE_NAME}")
-#set(CPACK_PACKAGE_INSTALL_DIRECTORY "NIFTI ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "${NIFTI}")
-set(CPACK_PACKAGING_INSTALL_PREFIX "/")
-set(CPACK_SET_DESTDIR ON)
-
-set(CPACK_PACKAGE_VENDOR "NIFTI DFWG")
-
-set(CPACK_SOURCE_GENERATOR "TGZ;TZ")
-#set(CPACK_SOURCE_IGNORE_FILES "/CVS/;/\\.svn/;\\.swp$;\\.#;/#;\\.*~")
-set(CPACK_SOURCE_IGNORE_FILES "")
-set(CPACK_PACKAGE_EXECUTABLES "nifti_tool;NIFTI")
-
-if(WIN32 AND NOT UNIX)
-  set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY
-"${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-  # There is a bug in NSI that does not handle full unix paths properly. Make
-  # sure there is at least one set of four (4) backlasshes.
-  set(CPACK_PACKAGE_ICON
-"${CMake_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
-  set(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\MyExecutable.exe")
-  set(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} NIFTI Project")
-  set(CPACK_NSIS_HELP_LINK "https:\\\\\\\\www.nitrc.org")
-  set(CPACK_NSIS_URL_INFO_ABOUT "https:\\\\\\\\www.nitrc.org")
-  set(CPACK_NSIS_CONTACT "xyz@domain.edu")
-  set(CPACK_NSIS_MODIFY_PATH ON)
-else()
-  set(CPACK_STRIP_FILES OFF)
-  set(CPACK_SOURCE_STRIP_FILES OFF)
-endif()
-include(CPack)
 
 add_subdirectory(znzlib)
 add_subdirectory(niftilib)
+
+include(cmake/NIFTICPackConfig.cmake)
