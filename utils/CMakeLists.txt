@@ -1,6 +1,4 @@
 
-include_directories(${NIFTI_SOURCE_DIR}/niftilib ${NIFTI_SOURCE_DIR}/znzlib ${NIFTI_SOURCE_DIR}/nifticdf)
-
 add_executable(${NIFTI_PACKAGE_PREFIX}nifti_stats nifti_stats.c)
 add_executable(${NIFTI_PACKAGE_PREFIX}nifti1_tool nifti1_tool.c)
 add_executable(${NIFTI_PACKAGE_PREFIX}nifti1_test nifti1_test.c)

@@ -1,5 +1,4 @@
 
-include_directories(${NIFTILIB_SOURCE_DIR} ${ZNZLIB_SOURCE_DIR})
 set(FSLIOLIB_SRC fslio.c)
 
 # Michael Hanke 2004-04-25:
@@ -8,7 +7,7 @@ set(NIFTI_FSLIOLIB_NAME ${NIFTI_PACKAGE_PREFIX}fslio)
 
 add_library(${NIFTI_FSLIOLIB_NAME} ${FSLIOLIB_SRC} )
 target_link_libraries( ${NIFTI_FSLIOLIB_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}niftiio)
-target_include_directories(${NIFTI_FSLIOLIB_NAME} PUBLIC
+target_include_directories(${NIFTI_FSLIOLIB_NAME} INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<INSTALL_INTERFACE:${NIFTI_INSTALL_INCLUDE_DIR}>
         )

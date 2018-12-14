@@ -1,8 +1,10 @@
 
-include_directories(${NIFTI_SOURCE_DIR}/niftilib ${NIFTI_SOURCE_DIR}/znzlib ${NIFTI_SOURCE_DIR}/nifticdf)
-
 add_executable(  ${NIFTI_PACKAGE_PREFIX}fsl_api_driver fsl_api_driver.c )
 target_link_libraries( fsl_api_driver PUBLIC ${NIFTI_PACKAGE_PREFIX}fslio)
+target_include_directories(fsl_api_driver INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:${NIFTI_INSTALL_INCLUDE_DIR}>
+        )
 
 if(NOT NIFTI_INSTALL_NO_LIBRARIES)
   install(TARGETS ${NIFTI_PACKAGE_PREFIX}fsl_api_driver
