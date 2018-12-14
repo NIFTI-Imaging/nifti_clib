@@ -67,11 +67,9 @@ set_if_not_defined(PACKAGE_PREFIX "")
 # unless it is not explicitely for a certain lib.
 set(NIFTI_SHAREDLIB_VERSION ${NIFTI_VERSION_MAJOR}.${NIFTI_VERSION_MINOR}.${NIFTI_VERSION_PATCH} )
 string( REGEX MATCH "^[0-9]+" NIFTI_SHAREDLIB_SOVERSION ${NIFTI_SHAREDLIB_VERSION})
-if(BUILD_SHARED_LIBS)
-  set_if_not_defined(NIFTI_LIBRARY_PROPERTIES
-    BUILD_SHARED_LIBS TRUE
-    POSITION_INDEPENDENT_CODE TRUE
-    VERSION ${NIFTI_SHAREDLIB_VERSION} SOVERSION ${NIFTI_SHAREDLIB_SOVERSION}
+if(BUILD_SHARED_LIBS AND NOT NIFTI_LIBRARY_PROPERTIES)
+  set(NIFTI_LIBRARY_PROPERTIES ${DEFAULT_SHARED_LIBS}
+    BUILD_SHARED_LIBS TRUE POSITION_INDEPENDENT_CODE TRUE VERSION ${NIFTI_SHAREDLIB_VERSION} SOVERSION ${NIFTI_SHAREDLIB_SOVERSION}
   )
 endif()
 
@@ -82,13 +80,41 @@ set_if_not_defined(NIFTI_ZLIB_LIBRARIES ${ZLIB_LIBRARIES})
 set_if_not_defined(NIFTI_INSTALL_NO_DEVELOPMENT 0)
 set_if_not_defined(NIFTI_INSTALL_NO_LIBRARIES 0)
 
-#Needs an if clause and more work before testing can take place.
-add_subdirectory(Testing)
-add_subdirectory(nifticdf utils)
+#######################################################################
+enable_testing()
+include(CTest)
+
+#######################################################################
+add_subdirectory(znzlib)
+add_subdirectory(niftilib)
+
+option(USE_NIFTICDF_CODE "Build nifticdf library and tools" ON)
+mark_as_advanced(USE_NIFTICDF_CODE)
+if(USE_NIFTICDF_CODE)
+    add_subdirectory(nifticdf)
+endif()
+
+option(NIFTI_BUILD_APPLICATIONS "Build various utility tools" ON)
+mark_as_advanced(NIFTI_BUILD_APPLICATIONS)
+if(NIFTI_BUILD_APPLICATIONS)
+  add_subdirectory(utils)
+endif()
+
+option(USE_NIFTI2_CODE "Build the nifti2 library and tools" ON)
+mark_as_advanced(USE_NIFTI2_CODE)
+include(CMakeDependentOption)
+cmake_dependent_option(USE_CIFTI_CODE "Build the cifti library and tools" OFF "USE_NIFTI2_CODE" OFF)
+mark_as_advanced(USE_CIFTI_CODE)
+
+if( USE_NIFTI2_CODE )
+  add_subdirectory(nifti2)
+  if( USE_CIFTI_CODE )
+    add_subdirectory(cifti)
+  endif()
+endif()
 
 option(USE_FSL_CODE "If OFF, The copyright of this code is questionable for inclusion with nifti." OFF)
 mark_as_advanced(USE_FSL_CODE)
-
 # the order of add_subdirectory is important! fsliolob has to preceed examples
 # as otherwise FSLIOLIB_SOURCE_DIR is undefined and hence the examples
 # will fail to compile
@@ -96,14 +122,18 @@ if(USE_FSL_CODE)
   add_subdirectory(fsliolib)
   add_subdirectory(examples)
 endif()
-enable_testing()
-include(CTest)
 
-####################################
+#Needs an if clause and more work before testing can take place.
+if(BUILD_TESTING)
+  add_subdirectory(Testing)
+endif()
+
+#######################################################################
 # CMake itself and can use some CMake facilities for creating the package files.
 # This allows for find_package(NIFTI 2.1.0 NO_MODULE) to work for pulling in
 # NIFTI libraries into an external project
 include(CMakePackageConfigHelpers)
+
 write_basic_package_version_file(
         "${CMAKE_CURRENT_BINARY_DIR}/NIFTI/NIFTIConfigVersion.cmake"
         VERSION ${NIFTI_VERSION}
@@ -133,7 +163,8 @@ install(FILES
 )
 
 
-add_subdirectory(znzlib)
-add_subdirectory(niftilib)
 
+
+#######################################################################
+## Add the cpack configuration settings last
 include(cmake/NIFTICPackConfig.cmake)
