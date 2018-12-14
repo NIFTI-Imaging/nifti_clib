@@ -55,7 +55,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 # current build behavior
 option( BUILD_SHARED_LIBS "Toggle building shared libraries." OFF)
 
-set_if_not_defined(PACKAGE_PREFIX "")
+#When including nifti as a subpackage, a prefix is often needed to avoid conflicts with sytem installed libraries.
+set_if_not_defined(NIFTI_PACKAGE_PREFIX "")
 
 # Set default shared library version
 # This library version will be applied to all libraries in the package

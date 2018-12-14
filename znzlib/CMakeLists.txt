@@ -1,7 +1,7 @@
 set(ZNZLIB_SRC znzlib.c)
 include_regular_expression("^.*$")
 
-set(NIFTI_ZNZLIB_NAME ${PACKAGE_PREFIX}znz)
+set(NIFTI_ZNZLIB_NAME ${NIFTI_PACKAGE_PREFIX}znz)
 
 add_library(${NIFTI_ZNZLIB_NAME} ${ZNZLIB_SRC} )
 target_link_libraries( ${NIFTI_ZNZLIB_NAME} PUBLIC ${NIFTI_ZLIB_LIBRARIES} )
