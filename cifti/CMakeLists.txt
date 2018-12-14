@@ -1,22 +1,22 @@
 find_package(expat REQUIRED)
 
-set(NIFTI_CIFTILIB_NAME ${PACKAGE_PREFIX}cifti)
+set(NIFTI_CIFTILIB_NAME ${NIFTI_PACKAGE_PREFIX}cifti)
 set(CIFTILIB_SRC afni_xml.c afni_xml_io.c)
 
 add_library(${NIFTI_CIFTILIB_NAME} ${CIFTILIB_SRC} )
-target_link_libraries( ${NIFTI_CIFTILIB_NAME} PUBLIC EXPAT::EXPAT ${PACKAGE_PREFIX}nifti2)
+target_link_libraries( ${NIFTI_CIFTILIB_NAME} PUBLIC EXPAT::EXPAT ${NIFTI_PACKAGE_PREFIX}nifti2)
 target_include_directories(${NIFTI_CIFTILIB_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<INSTALL_INTERFACE:${NIFTI_INSTALL_INCLUDE_DIR}>
         )
 
 if(NIFTI_BUILD_APPLICATIONS)
-  add_executable(${PACKAGE_PREFIX}afni_xml_tool afni_xml_tool.c)
-  target_link_libraries(${PACKAGE_PREFIX}afni_xml_tool PUBLIC ${NIFTI_CIFTILIB_NAME})
-  add_executable(${PACKAGE_PREFIX}cifti_tool cifti_tool.c)
-  target_link_libraries(${PACKAGE_PREFIX}cifti_tool PUBLIC ${NIFTI_CIFTILIB_NAME})
+  add_executable(${NIFTI_PACKAGE_PREFIX}afni_xml_tool afni_xml_tool.c)
+  target_link_libraries(${NIFTI_PACKAGE_PREFIX}afni_xml_tool PUBLIC ${NIFTI_CIFTILIB_NAME})
+  add_executable(${NIFTI_PACKAGE_PREFIX}cifti_tool cifti_tool.c)
+  target_link_libraries(${NIFTI_PACKAGE_PREFIX}cifti_tool PUBLIC ${NIFTI_CIFTILIB_NAME})
 
-  set(CIFTI_APPS ${PACKAGE_PREFIX}afni_xml_tool ${PACKAGE_PREFIX}cifti_tool)
+  set(CIFTI_APPS ${NIFTI_PACKAGE_PREFIX}afni_xml_tool ${NIFTI_PACKAGE_PREFIX}cifti_tool)
 endif()
 # Set lib version when buildung shared libs.
 if(BUILD_SHARED_LIBS)
