@@ -3,7 +3,7 @@ set(NIFTILIB2_SRC nifti2_io.c)
 
 add_library(${NIFTI_NIFTILIB2_NAME} ${NIFTILIB2_SRC} )
 target_link_libraries( ${NIFTI_NIFTILIB2_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}niftiio)
-target_include_directories(${NIFTI_NIFTILIB2_NAME} PUBLIC
+target_include_directories(${NIFTI_NIFTILIB2_NAME} INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<INSTALL_INTERFACE:${NIFTI_INSTALL_INCLUDE_DIR}>
         )

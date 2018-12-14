@@ -1,11 +1,10 @@
 
-include_directories(${NIFTI_SOURCE_DIR}/znzlib)
 set(NIFTILIB_SRC nifti1_io.c)
 
 set(NIFTI_NIFTILIB_NAME ${NIFTI_PACKAGE_PREFIX}niftiio)
 add_library(${NIFTI_NIFTILIB_NAME} ${NIFTILIB_SRC} )
 target_link_libraries( ${NIFTI_NIFTILIB_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}znz)
-target_include_directories(${NIFTI_NIFTILIB_NAME} PUBLIC
+target_include_directories(${NIFTI_NIFTILIB_NAME} INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<INSTALL_INTERFACE:${NIFTI_INSTALL_INCLUDE_DIR}>
         )

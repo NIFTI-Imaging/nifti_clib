@@ -5,7 +5,7 @@ set(CIFTILIB_SRC afni_xml.c afni_xml_io.c)
 
 add_library(${NIFTI_CIFTILIB_NAME} ${CIFTILIB_SRC} )
 target_link_libraries( ${NIFTI_CIFTILIB_NAME} PUBLIC EXPAT::EXPAT ${NIFTI_PACKAGE_PREFIX}nifti2)
-target_include_directories(${NIFTI_CIFTILIB_NAME} PUBLIC
+target_include_directories(${NIFTI_CIFTILIB_NAME} INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<INSTALL_INTERFACE:${NIFTI_INSTALL_INCLUDE_DIR}>
         )
