@@ -50,16 +50,11 @@ endmacro()
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 
-add_definitions(-DHAVE_ZLIB)
 
 # add option to build shared libraries. The default is OFF to maintain the
 # current build behavior
 option( BUILD_SHARED_LIBS "Toggle building shared libraries." OFF)
 
-
-###  USE AS STAND ALONE PACKAGE
-find_package(ZLIB)
-#  message(STATUS "---------------------SYSTEM ZLIB ${ZLIB_LIBRARY}")
 set_if_not_defined(PACKAGE_PREFIX "")
 
 # Set default shared library version
@@ -76,7 +71,14 @@ endif()
 set_if_not_defined(NIFTI_INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin")
 set_if_not_defined(NIFTI_INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 set_if_not_defined(NIFTI_INSTALL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include/nifti")
-set_if_not_defined(NIFTI_ZLIB_LIBRARIES ${ZLIB_LIBRARIES})
+set_if_not_defined(NIFTI_ZLIB_LIBRARIES "")
+if(NOT NIFTI_ZLIB_LIBRARIES) # If using a custom zlib library, skip the find package
+  ###  USE AS STAND ALONE PACKAGE
+  find_package(ZLIB REQUIRED)
+  set(NIFTI_ZLIB_LIBRARIES ${ZLIB_LIBRARIES})
+endif()
+#message(STATUS "---------------------ZLIB -${NIFTI_ZLIB_LIBRARIES}--")
+add_definitions(-DHAVE_ZLIB)
 set_if_not_defined(NIFTI_INSTALL_NO_DEVELOPMENT 0)
 set_if_not_defined(NIFTI_INSTALL_NO_LIBRARIES 0)
 
