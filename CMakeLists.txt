@@ -124,7 +124,8 @@ if(USE_FSL_CODE)
 endif()
 
 #Needs an if clause and more work before testing can take place.
-if(BUILD_TESTING)
+set_if_not_defined(NIFTI_BUILD_TESTING ${BUILD_TESTING})
+if(NIFTI_BUILD_TESTING)
   add_subdirectory(Testing)
 endif()
 
@@ -162,9 +163,10 @@ install(FILES
         COMPONENT     Development
 )
 
-
-
-
 #######################################################################
 ## Add the cpack configuration settings last
-include(cmake/NIFTICPackConfig.cmake)
+option(NIFTI_USE_PACKAGING "Configure the packaging options for NIFTI" OFF)
+mark_as_advanced(NIFTI_USE_PACKAGING)
+if(NIFTI_USE_PACKAGING)
+  include(cmake/NIFTICPackConfig.cmake)
+endif()
