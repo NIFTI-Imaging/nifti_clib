@@ -42,53 +42,36 @@ if(NIFTI_BUILD_TESTING AND NIFTI_BUILD_APPLICATIONS)
     target_link_libraries(${NIFTI_PACKAGE_PREFIX}clib_02_nifti2 PUBLIC ${NIFTI_NIFTILIB2_NAME})
 
     # Do all regression tests
-
-    set(NIFTI_TEST_DATA_DIR  ${NIFTI_BINARY_DIR}/Testing/nifti_regress_test/nifti_regress_data)
-    set(NIFTI_TEST_SCRIPT_DIR ${CMAKE_CURRENT_LIST_DIR}/nifti_regress_test/cmake_testscripts)
-
     add_test( NAME nifti_ver COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> -nifti_ver)
     add_test( NAME nifti_tool_ver COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> -ver)
     add_test( NAME nifti_help COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> -help)
     add_test( NAME nifti_nifti_hist COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> -nifti_hist)
     add_test( NAME nifti_hist COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> -hist)
 
-    add_test( NAME fetch_data
-            COMMAND sh ${NIFTI_TEST_SCRIPT_DIR}/fetch_data_test.sh ${NIFTI_TEST_DATA_DIR}
-            )
-
-    add_test( NAME nifti_disp_hdr COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> -disp_hdr -infiles ${NIFTI_TEST_DATA_DIR}/anat0.nii )
-    set_tests_properties( nifti_disp_hdr PROPERTIES DEPENDS fetch_data)
-
-    add_test( NAME nifti_disp_nim COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> -disp_nim -infiles ${NIFTI_TEST_DATA_DIR}/anat0.nii )
-    set_tests_properties( nifti_disp_nim PROPERTIES DEPENDS fetch_data)
-
-    add_test( NAME nifti_disp_ext COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> -disp_ext -infiles ${NIFTI_TEST_DATA_DIR}/anat0.nii )
-    set_tests_properties( nifti_disp_ext PROPERTIES DEPENDS fetch_data)
-
-    add_test( NAME nifti_modhdr_exts COMMAND sh ${NIFTI_TEST_SCRIPT_DIR}/mod_header_test.sh $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> ${NIFTI_TEST_DATA_DIR} )
-    set_tests_properties( nifti_modhdr_exts PROPERTIES DEPENDS fetch_data)
-
-    add_test( NAME nifti_bricks_test COMMAND sh ${NIFTI_TEST_SCRIPT_DIR}/bricks_test.sh $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> ${NIFTI_TEST_DATA_DIR} )
-    set_tests_properties( nifti_bricks_test PROPERTIES DEPENDS fetch_data)
-
-    add_test( NAME nifti_dts_test COMMAND sh ${NIFTI_TEST_SCRIPT_DIR}/dts_test.sh $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> ${NIFTI_TEST_DATA_DIR} )
-    set_tests_properties( nifti_dts_test PROPERTIES DEPENDS fetch_data)
-
-    add_test( NAME nifti_dci_test COMMAND sh ${NIFTI_TEST_SCRIPT_DIR}/dci_test.sh $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> ${NIFTI_TEST_DATA_DIR} )
-    set_tests_properties( nifti_dci_test PROPERTIES DEPENDS fetch_data)
-
-    add_test( NAME nifti_comment_test COMMAND sh ${NIFTI_TEST_SCRIPT_DIR}/comment_test.sh $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> ${NIFTI_TEST_DATA_DIR} )
-    set_tests_properties( nifti_comment_test PROPERTIES DEPENDS fetch_data)
-
-    add_test( NAME nifti_header_check COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> -check_hdr -infiles ${NIFTI_TEST_DATA_DIR}/anat0.nii )
-    set_tests_properties( nifti_header_check PROPERTIES DEPENDS fetch_data)
-
-    add_test( NAME nifti_nim_check COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> -check_nim -infiles ${NIFTI_TEST_DATA_DIR}/anat0.nii )
-    set_tests_properties( nifti_nim_check PROPERTIES DEPENDS fetch_data)
-
-    add_test( NAME nifti_dsets_test COMMAND sh ${NIFTI_TEST_SCRIPT_DIR}/dsets_test.sh $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> ${NIFTI_TEST_DATA_DIR} )
-    set_tests_properties( nifti_dsets_test PROPERTIES DEPENDS fetch_data)
-
-    add_test( NAME nifti_newfiles_test COMMAND sh ${NIFTI_TEST_SCRIPT_DIR}/newfiles_test.sh $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> ${NIFTI_TEST_DATA_DIR} )
-    set_tests_properties( nifti_newfiles_test PROPERTIES DEPENDS fetch_data)
+    if (CMAKE_VERSION GREATER_EQUAL 3.11.0) # CMAKE VERSION 3.11.0 needed for fetching data with cmake
+        include(FetchContent) # fetch data a configure time to simplify tests
+        FetchContent_Declare( fetch_testing_data
+                URL      https://nifti.nimh.nih.gov/pub/dist/data/nifti_regress_data.tgz
+                URL_HASH SHA256=9dfaee43b2571e729fff30037798276f09a0cb2155d59f2fc7bd3d9303cb9e1d
+        )
+        FetchContent_GetProperties(fetch_testing_data)
+        if(NOT fetch_testing_data)
+            FetchContent_Populate( fetch_testing_data )
+        endif()
+        add_test( NAME nifti_disp_hdr COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> -disp_hdr -infiles ${fetch_testing_data_SOURCE_DIR}/anat0.nii )
+        add_test( NAME nifti_disp_nim COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> -disp_nim -infiles ${fetch_testing_data_SOURCE_DIR}/anat0.nii )
+        add_test( NAME nifti_disp_ext COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> -disp_ext -infiles ${fetch_testing_data_SOURCE_DIR}/anat0.nii )
+        add_test( NAME nifti_header_check COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> -check_hdr -infiles ${fetch_testing_data_SOURCE_DIR}/anat0.nii )
+        add_test( NAME nifti_nim_check COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> -check_nim -infiles ${fetch_testing_data_SOURCE_DIR}/anat0.nii )
+        if(UNIX) # unix needed to run shell scripts
+            set(NIFTI_TEST_SCRIPT_DIR ${CMAKE_CURRENT_LIST_DIR}/nifti_regress_test/cmake_testscripts)
+            add_test( NAME nifti_modhdr_exts COMMAND sh ${NIFTI_TEST_SCRIPT_DIR}/mod_header_test.sh $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> ${fetch_testing_data_SOURCE_DIR} )
+            add_test( NAME nifti_bricks_test COMMAND sh ${NIFTI_TEST_SCRIPT_DIR}/bricks_test.sh $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> ${fetch_testing_data_SOURCE_DIR} )
+            add_test( NAME nifti_dts_test COMMAND sh ${NIFTI_TEST_SCRIPT_DIR}/dts_test.sh $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> ${fetch_testing_data_SOURCE_DIR} )
+            add_test( NAME nifti_dci_test COMMAND sh ${NIFTI_TEST_SCRIPT_DIR}/dci_test.sh $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> ${fetch_testing_data_SOURCE_DIR} )
+            add_test( NAME nifti_comment_test COMMAND sh ${NIFTI_TEST_SCRIPT_DIR}/comment_test.sh $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> ${fetch_testing_data_SOURCE_DIR} )
+            add_test( NAME nifti_dsets_test COMMAND sh ${NIFTI_TEST_SCRIPT_DIR}/dsets_test.sh $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> ${fetch_testing_data_SOURCE_DIR} )
+            add_test( NAME nifti_newfiles_test COMMAND sh ${NIFTI_TEST_SCRIPT_DIR}/newfiles_test.sh $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti_tool> ${fetch_testing_data_SOURCE_DIR} )
+        endif()
+    endif()
 endif()
