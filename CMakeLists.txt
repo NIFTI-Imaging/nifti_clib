@@ -86,6 +86,8 @@ set_if_not_defined(NIFTI_INSTALL_NO_LIBRARIES 0)
 #######################################################################
 enable_testing()
 include(CTest)
+#Needs an if clause and more work before testing can take place.
+set_if_not_defined(NIFTI_BUILD_TESTING ${BUILD_TESTING})
 
 #######################################################################
 add_subdirectory(znzlib)
@@ -99,9 +101,6 @@ endif()
 
 option(NIFTI_BUILD_APPLICATIONS "Build various utility tools" ON)
 mark_as_advanced(NIFTI_BUILD_APPLICATIONS)
-if(NIFTI_BUILD_APPLICATIONS)
-  add_subdirectory(utils)
-endif()
 
 option(USE_NIFTI2_CODE "Build the nifti2 library and tools" ON)
 mark_as_advanced(USE_NIFTI2_CODE)
@@ -126,11 +125,6 @@ if(USE_FSL_CODE)
   add_subdirectory(examples)
 endif()
 
-#Needs an if clause and more work before testing can take place.
-set_if_not_defined(NIFTI_BUILD_TESTING ${BUILD_TESTING})
-if(NIFTI_BUILD_TESTING)
-  add_subdirectory(Testing)
-endif()
 
 #######################################################################
 # CMake itself and can use some CMake facilities for creating the package files.

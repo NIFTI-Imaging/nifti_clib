@@ -25,4 +25,7 @@ libnifticdf.a: $(OBJS)
 	$(AR) -r libnifticdf.a $(OBJS)
 	$(RANLIB) $@
 
+nifti_stats: nifti_stats.c
+	$(CC) $(CFLAGS) -o nifti_stats nifti_stats.c $(NIFTI_INCS) $(ZNZ_INCS) $(NIFTICDF_LIBS) $(NIFTI_LIBS) $(ZNZ_LIBS)
+
 include depend.mk

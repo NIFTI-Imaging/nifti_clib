@@ -1,2 +1,0 @@
-add_subdirectory(niftilib)
-add_subdirectory(nifti_regress_test)
