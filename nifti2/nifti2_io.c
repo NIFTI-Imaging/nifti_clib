@@ -489,7 +489,7 @@ static int   is_uppercase      (const char * str);
 static int   make_lowercase    (char * str);
 static int   make_uppercase    (char * str);
 static int   need_nhdr_swap    (short dim0, int hdrsize);
-static int   print_hex_vals    (const char * data, int nbytes, FILE * fp);
+static int   print_hex_vals    (const char * data, size_t nbytes, FILE * fp);
 static int   unescape_string   (char *str);  /* string utility functions */
 static char *escapize_string   (const char *str);
 
@@ -4394,9 +4394,9 @@ int is_nifti_file( const char *hname )
    return -1 ;                          /* not good */
 }
 
-static int print_hex_vals( const char * data, int nbytes, FILE * fp )
+static int print_hex_vals( const char * data, size_t nbytes, FILE * fp )
 {
-   int c;
+   size_t c;
 
    if ( !data || nbytes < 1 || !fp ) return -1;
 
@@ -6414,7 +6414,7 @@ int valid_nifti_extensions(const nifti_image * nim)
 
        \return -1 on error, else NIFTI version
  *//*--------------------------------------------------------------------*/
-int nifti_header_version(const char * buf, int nbytes){
+int nifti_header_version(const char * buf, size_t nbytes){
    nifti_1_header *n1p = (nifti_1_header *)buf;
    nifti_2_header *n2p = (nifti_2_header *)buf;
    char            fname[] = { "nifti_header_version" };
@@ -6428,7 +6428,7 @@ int nifti_header_version(const char * buf, int nbytes){
 
    if( nbytes < sizeof(nifti_1_header) ) {
       if(g_opts.debug > 0)
-         fprintf(stderr,"** %s: nbytes=%d, too small for test", fname, nbytes);
+         fprintf(stderr,"** %s: nbytes=%zu, too small for test", fname, nbytes);
       return -1;
    }
 
