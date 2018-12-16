@@ -406,6 +406,7 @@ static int axio_alloc_known_data(FILE * fp, afni_xml_t * ax, int depth)
    int64_t   ival;
    char    * cp;
 
+   (void)(depth);  // depth is not used for this variant
    if( ! ax ) return 1;
    if( ! ax->xtext || ax->xlen <= 0 ) return 0;  /* nothing to allocate */
 
