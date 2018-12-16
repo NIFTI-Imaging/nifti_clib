@@ -170,7 +170,7 @@ void FslSetFileType(FSLIO *fslio, int filetype);
 int  FslIsSingleFileType(int filetype);
 int  FslIsCompressedFileType(int filetype);
 int  FslBaseFileType(int filetype);
-char* FslFileTypeString(int filetype);
+const char* FslFileTypeString(int filetype);
 
 int  FslGetWriteMode(const FSLIO *fslio);
 void FslSetWriteMode(FSLIO *fslio, int mode);

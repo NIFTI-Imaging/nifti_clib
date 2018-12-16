@@ -44,7 +44,7 @@ static int FslOverrideOutputType=-1;
     \return  A string with the data format name, e.g. "ANALYZE-7.5"
     \sa FSL_TYPE
 */
-char* FslFileTypeString(int filetype)
+const char* FslFileTypeString(int filetype)
 {
   if (filetype==FSL_TYPE_ANALYZE)          return "ANALYZE-7.5";
   if (filetype==FSL_TYPE_NIFTI)            return "NIFTI-1+";
