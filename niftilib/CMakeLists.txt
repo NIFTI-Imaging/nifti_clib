@@ -1,8 +1,5 @@
-
-set(NIFTILIB_SRC nifti1_io.c)
-
 set(NIFTI_NIFTILIB_NAME ${NIFTI_PACKAGE_PREFIX}niftiio)
-add_library(${NIFTI_NIFTILIB_NAME} ${NIFTILIB_SRC} )
+add_library(${NIFTI_NIFTILIB_NAME} nifti1_io.c )
 target_link_libraries( ${NIFTI_NIFTILIB_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}znz)
 target_include_directories(${NIFTI_NIFTILIB_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

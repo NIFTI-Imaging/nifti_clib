@@ -1,11 +1,8 @@
-
-set(FSLIOLIB_SRC fslio.c)
-
 # Michael Hanke 2004-04-25:
 # Restructure the file to match those of niftilib and znzlib
 set(NIFTI_FSLIOLIB_NAME ${NIFTI_PACKAGE_PREFIX}fslio)
 
-add_library(${NIFTI_FSLIOLIB_NAME} ${FSLIOLIB_SRC} )
+add_library(${NIFTI_FSLIOLIB_NAME} fslio.c )
 target_link_libraries( ${NIFTI_FSLIOLIB_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}niftiio)
 target_include_directories(${NIFTI_FSLIOLIB_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
