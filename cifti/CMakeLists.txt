@@ -1,4 +1,4 @@
-find_package(expat REQUIRED)
+include(FindEXPAT)
 
 set(NIFTI_CIFTILIB_NAME ${NIFTI_PACKAGE_PREFIX}cifti)
 
