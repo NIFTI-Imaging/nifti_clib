@@ -139,7 +139,6 @@ mark_as_advanced(USE_FSL_CODE)
 # will fail to compile
 if(USE_FSL_CODE)
   add_subdirectory(fsliolib)
-  add_subdirectory(examples)
 endif()
 
 
