@@ -115,8 +115,7 @@ static int  disp_axml_ctrl ( const char *mesg, afni_xml_control * dp, int show_a
 static int  disp_gen_text(afni_xml_control *, const char *, const char *, int);
 static void free_whitespace(void);
 static int  init_axml_ctrl (afni_xml_control *xd, int doall);
-static int  process_popped_element(afni_xml_control * xd, int pop_depth,
-                                   const char * ename);
+static int  process_popped_element(afni_xml_control * xd, const char * ename);
 static int  reset_xml_buf  (afni_xml_control * xd, char ** buf, int * bsize);
 static int  white_first    (const char * str, int len);
 static int  white_last     (const char * str, int len);
@@ -731,7 +730,7 @@ static int epop(afni_xml_control * xd, const char * ename)
           fprintf(stderr,"-- skip=%d, depth=%d, skipping pop element '%s'\n",
                   xd->dskip, xd->depth, ename);
    } else {
-      process_popped_element(xd, xd->depth-1, ename);
+      process_popped_element(xd, ename);
    }
 
    if( ! xd->dskip ) {
@@ -748,8 +747,7 @@ static int epop(afni_xml_control * xd, const char * ename)
    return 0;
 }
 
-static int process_popped_element(afni_xml_control * xd, int pop_depth,
-                                  const char * ename)
+static int process_popped_element(afni_xml_control * xd, const char * ename)
 {
    afni_xml_t * ax;
    ax = xd->stack[xd->depth-1];
