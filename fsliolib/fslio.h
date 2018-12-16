@@ -185,8 +185,7 @@ FSLIO *FslInit(void);
 void   FslInitHeader(FSLIO *fslio, short t,
                    size_t x, size_t y, size_t z, size_t v,
                    float vx, float vy, float vz, float tr,
-                   size_t dim,
-                   const char* units);
+                   size_t dim);
 void   FslSetInit(FSLIO* fslio);
 void   FslCloneHeader(FSLIO *dest, const FSLIO *src);
 

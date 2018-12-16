@@ -407,7 +407,7 @@ void FslInit4Write(FSLIO* fslio, const char* filename, int ft)
 
   if ( (FslBaseFileType(imgtype)!=FSL_TYPE_MINC) ) {
     FslInitHeader(fslio, NIFTI_TYPE_FLOAT32,
-                  1, 1, 1, 3,  0.0, 0.0, 0.0, 0.0,  4, "mm");
+                  1, 1, 1, 3,  0.0, 0.0, 0.0, 0.0,  4);
 
     FslSetFileType(fslio,imgtype);  /* this is after InitHeader as niftiptr set there */
 
@@ -433,8 +433,7 @@ void FslInit4Write(FSLIO* fslio, const char* filename, int ft)
 void FslInitHeader(FSLIO *fslio, short t,
                    size_t x, size_t y, size_t z, size_t v,
                    float vx, float vy, float vz, float tr,
-                   size_t dim,
-                   const char* units)
+                   size_t dim)
 {
   /* NB: This function does not set the file type or write mode*/
 
@@ -1142,21 +1141,6 @@ size_t FslReadTimeSeries(FSLIO *fslio, void *buffer, short xVox, short yVox, sho
   if (fslio->mincptr!=NULL) {
     fprintf(stderr,"Warning:: Minc is not yet supported\n");
   }
-  return 0;
-}
-
-
-size_t FslReadCplxVolumes(FSLIO *fslio, void *buffer, size_t nvols, char mode)
-{
-  if (fslio==NULL)  FSLIOERR("FslReadCplxVolumes: Null pointer passed for FSLIO");
-  fprintf(stderr,"Warning:: FslReadCplxVolumes is not yet supported\n");
-  return 0;
-}
-
-size_t FslWriteCplxVolumes(FSLIO *fslio, void *buffer, size_t nvols, char mode)
-{
-  if (fslio==NULL)  FSLIOERR("FslWriteCplxVolumes: Null pointer passed for FSLIO");
-  fprintf(stderr,"Warning:: FslWriteCplxVolumes is not yet supported\n");
   return 0;
 }
 
