@@ -157,7 +157,7 @@ write_basic_package_version_file(
 
 export(EXPORT NIFTITargets
         FILE "${CMAKE_CURRENT_BINARY_DIR}/NIFTI/NIFTITargets.cmake"
-        NAMESPACE NIFTI::
+        NAMESPACE ${NIFTI_PACKAGE_PREFIX}NIFTI::
         )
 configure_file(cmake/NIFTIConfig.cmake
         "${CMAKE_CURRENT_BINARY_DIR}/NIFTI/NIFTIConfig.cmake"
@@ -167,7 +167,7 @@ configure_file(cmake/NIFTIConfig.cmake
 set(ConfigPackageLocation lib/cmake/NIFTI)
 install(EXPORT NIFTITargets
         FILE          NIFTITargets.cmake
-        NAMESPACE     NIFTI::
+        NAMESPACE     ${NIFTI_PACKAGE_PREFIX}NIFTI::
         DESTINATION   ${ConfigPackageLocation}
         )
 install(FILES
