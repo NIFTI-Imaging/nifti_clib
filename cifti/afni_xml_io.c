@@ -211,7 +211,7 @@ int axio_show_cifti_summary(FILE * fp, char * mesg, afni_xml_t * ax, int verb)
 
 typedef void(*gen_disp_func_t)(FILE *, afni_xml_t *, int);
 #define AXIO_NMIM_KIDS 5
-static char * MIM_kids[AXIO_NMIM_KIDS+1] =
+static const char * MIM_kids[AXIO_NMIM_KIDS+1] =
    { "NamedMap", "Surface", "Parcel", "Volume", "BrainModel", "INVALID" };
 static gen_disp_func_t MIM_disp_funcs[AXIO_NMIM_KIDS] = {
    disp_namedmap_child, disp_surface_child, disp_parcel_child,
@@ -232,7 +232,7 @@ static int get_map_index(afni_xml_t * ax)
 }
 
 
-int axio_show_mim_summary(FILE * fp, char * mesg, afni_xml_t * ax, int verb)
+int axio_show_mim_summary(FILE * fp, const char * mesg, afni_xml_t * ax, int verb)
 {
    afni_xml_t * xm, * xt;
    FILE       * ofp = fp ? fp : stderr;
@@ -273,7 +273,7 @@ int axio_show_mim_summary(FILE * fp, char * mesg, afni_xml_t * ax, int verb)
 /* depth first search for struct with given name
    if maxd >= 0, impose depth restriction
  */
-afni_xml_t * axio_find_map_name(afni_xml_t * ax, char * name, int maxd)
+afni_xml_t * axio_find_map_name(afni_xml_t * ax, const char * name, int maxd)
 {
    afni_xml_t * rv;
    int          ind;

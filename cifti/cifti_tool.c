@@ -20,7 +20,7 @@
 #include <nifti2_io.h>
 #include "afni_xml_io.h"
 
-static char * g_history[] =
+static const char * g_history[] =
 {
   "----------------------------------------------------------------------\n"
   "cifti_tool modification history:\n",
