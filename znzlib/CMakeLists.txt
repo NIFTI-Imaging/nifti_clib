@@ -1,8 +1,6 @@
-set(ZNZLIB_SRC znzlib.c)
-
 set(NIFTI_ZNZLIB_NAME ${NIFTI_PACKAGE_PREFIX}znz)
 
-add_library(${NIFTI_ZNZLIB_NAME} ${ZNZLIB_SRC} )
+add_library(${NIFTI_ZNZLIB_NAME} znzlib.c )
 target_link_libraries( ${NIFTI_ZNZLIB_NAME} PUBLIC ${NIFTI_ZLIB_LIBRARIES} )
 target_include_directories(${NIFTI_ZNZLIB_NAME} INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

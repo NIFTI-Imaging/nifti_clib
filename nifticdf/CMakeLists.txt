@@ -1,9 +1,6 @@
-
-set(NIFTICDFLIB_SRC nifticdf.c)
-
 set(NIFTI_CDFLIB_NAME ${NIFTI_PACKAGE_PREFIX}nifticdf)
 
-add_library(${NIFTI_CDFLIB_NAME} ${NIFTICDFLIB_SRC} )
+add_library(${NIFTI_CDFLIB_NAME} nifticdf.c )
 target_link_libraries(${NIFTI_CDFLIB_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}niftiio)
 target_include_directories(${NIFTI_CDFLIB_NAME} INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
