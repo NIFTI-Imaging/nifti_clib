@@ -33,3 +33,7 @@ if(NOT NIFTI_INSTALL_NO_DEVELOPMENT)
     DESTINATION ${NIFTI_INSTALL_INCLUDE_DIR}
     COMPONENT Development)
 endif()
+
+if(NIFTI_BUILD_APPLICATIONS)
+  add_subdirectory(examples)
+endif()
