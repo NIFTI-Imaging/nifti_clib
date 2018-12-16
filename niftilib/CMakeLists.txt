@@ -62,32 +62,52 @@ if(NIFTI_BUILD_TESTING AND NIFTI_BUILD_APPLICATIONS)
   add_test( NAME nifti_second_test COMMAND $<TARGET_FILE:nifti_second_test_program> )
 
   add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_test_help COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_test>)
-  add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_test_n1 COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_test>  -n1  ${NIFTI_SOURCE_DIR}/Testing/Data/ATestReferenceImageForReadingAndWriting.nii.gz ${NIFTI_BINARY_DIR}/utils/n1 )
-  add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_test_n2 COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_test>  -n2  ${NIFTI_SOURCE_DIR}/Testing/Data/ATestReferenceImageForReadingAndWriting.nii.gz ${NIFTI_BINARY_DIR}/utils/n2 )
-  add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_test_a2 COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_test>  -a2  ${NIFTI_SOURCE_DIR}/Testing/Data/ATestReferenceImageForReadingAndWriting.nii.gz ${NIFTI_BINARY_DIR}/utils/a2 )
-  add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_test_zn1 COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_test> -zn1 ${NIFTI_SOURCE_DIR}/Testing/Data/ATestReferenceImageForReadingAndWriting.nii.gz ${NIFTI_BINARY_DIR}/utils/zn1 )
-  add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_test_zn2 COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_test> -zn2 ${NIFTI_SOURCE_DIR}/Testing/Data/ATestReferenceImageForReadingAndWriting.nii.gz ${NIFTI_BINARY_DIR}/utils/zn2 )
-  add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_test_za2 COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_test> -za2 ${NIFTI_SOURCE_DIR}/Testing/Data/ATestReferenceImageForReadingAndWriting.nii.gz ${NIFTI_BINARY_DIR}/utils/za2 )
+  add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_test_n1  COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_test>  -n1  ${fetch_testing_data_SOURCE_DIR}/nifti_regress_data/ATestReferenceImageForReadingAndWriting.nii.gz ${NIFTI_BINARY_DIR}/utils/n1 )
+  add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_test_n2  COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_test>  -n2  ${fetch_testing_data_SOURCE_DIR}/nifti_regress_data/ATestReferenceImageForReadingAndWriting.nii.gz ${NIFTI_BINARY_DIR}/utils/n2 )
+  add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_test_a2  COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_test>  -a2  ${fetch_testing_data_SOURCE_DIR}/nifti_regress_data/ATestReferenceImageForReadingAndWriting.nii.gz ${NIFTI_BINARY_DIR}/utils/a2 )
+  add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_test_zn1 COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_test> -zn1 ${fetch_testing_data_SOURCE_DIR}/nifti_regress_data/ATestReferenceImageForReadingAndWriting.nii.gz ${NIFTI_BINARY_DIR}/utils/zn1 )
+  add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_test_zn2 COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_test> -zn2 ${fetch_testing_data_SOURCE_DIR}/nifti_regress_data/ATestReferenceImageForReadingAndWriting.nii.gz ${NIFTI_BINARY_DIR}/utils/zn2 )
+  add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_test_za2 COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_test> -za2 ${fetch_testing_data_SOURCE_DIR}/nifti_regress_data/ATestReferenceImageForReadingAndWriting.nii.gz ${NIFTI_BINARY_DIR}/utils/za2 )
 
   #The help screens always return 1; add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool1_help COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_tool>)
   add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool_n1 COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_tool>  -disp_hdr -infile ${NIFTI_BINARY_DIR}/utils/n1 )
+  set_tests_properties( ${NIFTI_PACKAGE_PREFIX}nifti1_tool_n1 PROPERTIES DEPENDS ${NIFTI_PACKAGE_PREFIX}nifti1_test_n1)
   add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool_n2 COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_tool>  -disp_hdr -infile ${NIFTI_BINARY_DIR}/utils/n2 )
+  set_tests_properties( ${NIFTI_PACKAGE_PREFIX}nifti1_tool_n2 PROPERTIES DEPENDS ${NIFTI_PACKAGE_PREFIX}nifti1_test_n2)
   add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool_a2 COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_tool>  -disp_hdr -infile ${NIFTI_BINARY_DIR}/utils/a2 )
+  set_tests_properties( ${NIFTI_PACKAGE_PREFIX}nifti1_tool_a2 PROPERTIES DEPENDS ${NIFTI_PACKAGE_PREFIX}nifti1_test_a2)
   add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool_zn1 COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_tool> -disp_hdr -infile ${NIFTI_BINARY_DIR}/utils/zn1 )
+  set_tests_properties( ${NIFTI_PACKAGE_PREFIX}nifti1_tool_zn1 PROPERTIES DEPENDS ${NIFTI_PACKAGE_PREFIX}nifti1_test_zn1)
   add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool_zn2 COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_tool> -disp_hdr -infile ${NIFTI_BINARY_DIR}/utils/zn2 )
+  set_tests_properties( ${NIFTI_PACKAGE_PREFIX}nifti1_tool_zn2 PROPERTIES DEPENDS ${NIFTI_PACKAGE_PREFIX}nifti1_test_zn2)
   add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool_za2 COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_tool> -disp_hdr -infile ${NIFTI_BINARY_DIR}/utils/za2 )
+  set_tests_properties( ${NIFTI_PACKAGE_PREFIX}nifti1_tool_za2 PROPERTIES DEPENDS ${NIFTI_PACKAGE_PREFIX}nifti1_test_za2)
+
   add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool_diff_hdr COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_tool> -diff_hdr -infile ${NIFTI_BINARY_DIR}/utils/zn1 ${NIFTI_BINARY_DIR}/utils/zn1 )
+  set_tests_properties( ${NIFTI_PACKAGE_PREFIX}nifti1_tool_diff_hdr PROPERTIES DEPENDS ${NIFTI_PACKAGE_PREFIX}nifti1_test_zn1)
   add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool_diff_nims COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_tool> -diff_nim -infile ${NIFTI_BINARY_DIR}/utils/zn1 ${NIFTI_BINARY_DIR}/utils/zn1 )
+  set_tests_properties( ${NIFTI_PACKAGE_PREFIX}nifti1_tool_diff_nims PROPERTIES DEPENDS ${NIFTI_PACKAGE_PREFIX}nifti1_test_zn1)
 
   add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool_copy_brick_list COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_tool> -cbl -prefix cbl_zn1.nii -infile ${NIFTI_BINARY_DIR}/utils/zn1.nii.gz[0,1])
+  set_tests_properties( ${NIFTI_PACKAGE_PREFIX}nifti1_tool_copy_brick_list PROPERTIES DEPENDS ${NIFTI_PACKAGE_PREFIX}nifti1_test_zn1)
   #add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool_copy_collapsed_image /bin/sh ${NIFTI_SOURCE_DIR}/utils/rmthenrun cci_zn1.nii COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_tool> -cci 2 2 2 -1 -1 -1 -1 -prefix cci_zn1.nii -infile ${NIFTI_BINARY_DIR}/utils/zn1.nii.gz )
+  #set_tests_properties( ${NIFTI_PACKAGE_PREFIX}nifti1_tool_copy_collapsed_image PROPERTIES DEPENDS ${NIFTI_PACKAGE_PREFIX}nifti1_test_zn1)
   add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool_disp_ci COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_tool> -disp_ci 2 2 2 -1 0 0 0  -infile ${NIFTI_BINARY_DIR}/utils/zn1.nii.gz )
+  set_tests_properties( ${NIFTI_PACKAGE_PREFIX}nifti1_tool_disp_ci PROPERTIES DEPENDS ${NIFTI_PACKAGE_PREFIX}nifti1_test_zn1)
+
   add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool_disp_ts COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_tool> -disp_ts 2 2 2 -infile ${NIFTI_BINARY_DIR}/utils/zn1.nii.gz )
+  set_tests_properties( ${NIFTI_PACKAGE_PREFIX}nifti1_tool_disp_ts PROPERTIES DEPENDS ${NIFTI_PACKAGE_PREFIX}nifti1_test_zn1)
+
   add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool_strip_extras COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_tool> -strip_extras -infile ${NIFTI_BINARY_DIR}/utils/zn1.nii.gz )
+  set_tests_properties( ${NIFTI_PACKAGE_PREFIX}nifti1_tool_strip_extras PROPERTIES DEPENDS ${NIFTI_PACKAGE_PREFIX}nifti1_test_zn1)
 
   # This test needs a file that has extensions to remove
   #add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool_rm_ext /bin/sh ${NIFTI_SOURCE_DIR}/utils/rmthenrun rm_ext.nii COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_tool> -rm_ext ALL -prefix rm_ext.nii -infile ${NIFTI_BINARY_DIR}/utils/zn1.nii.gz )
 
   add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool_check_hdr COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_tool> -check_hdr -infile ${NIFTI_BINARY_DIR}/utils/za2 )
+  set_tests_properties( ${NIFTI_PACKAGE_PREFIX}nifti1_tool_check_hdr PROPERTIES DEPENDS ${NIFTI_PACKAGE_PREFIX}nifti1_test_za2)
+
   add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool_check_nim COMMAND $<TARGET_FILE:${NIFTI_PACKAGE_PREFIX}nifti1_tool> -check_nim -infile ${NIFTI_BINARY_DIR}/utils/za2 )
+  set_tests_properties( ${NIFTI_PACKAGE_PREFIX}nifti1_tool_check_nim PROPERTIES DEPENDS ${NIFTI_PACKAGE_PREFIX}nifti1_test_za2)
+
 endif()

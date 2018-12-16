@@ -88,6 +88,23 @@ enable_testing()
 include(CTest)
 #Needs an if clause and more work before testing can take place.
 set_if_not_defined(NIFTI_BUILD_TESTING ${BUILD_TESTING})
+if (NIFTI_BUILD_TESTING AND CMAKE_VERSION GREATER_EQUAL 3.11.0) # CMAKE VERSION 3.11.0 needed for fetching data with cmake
+
+  include(FetchContent) # fetch data a configure time to simplify tests
+  # If new or changed data is needed, add that data to the https://github.com/NIFTI-Imaging/nifti-test-data repo
+  # make a new release, and then update the URL and hash (shasum -a 256 <downloaded tarball>).
+  FetchContent_Declare( fetch_testing_data
+          URL      https://github.com/NIFTI-Imaging/nifti-test-data/archive/v3.0.0.tar.gz
+          URL_HASH SHA256=8a22554ca196f707f7c8cdc102e1a30117cd67da41d269390952683076ffcac8
+          )
+  FetchContent_GetProperties(fetch_testing_data)
+  if(NOT fetch_testing_data)
+    set(FETCHCONTENT_QUIET OFF)
+    message(STATUS "Downloading testing data... please wait")
+    FetchContent_Populate( fetch_testing_data )
+    message(STATUS "download complete.")
+  endif()
+endif()
 
 #######################################################################
 add_subdirectory(znzlib)
