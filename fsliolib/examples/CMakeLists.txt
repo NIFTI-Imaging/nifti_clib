@@ -1,7 +1,7 @@
 
 add_executable(  ${NIFTI_PACKAGE_PREFIX}fsl_api_driver fsl_api_driver.c)
 target_link_libraries( ${NIFTI_PACKAGE_PREFIX}fsl_api_driver PUBLIC ${NIFTI_PACKAGE_PREFIX}fslio)
-target_include_directories(${NIFTI_PACKAGE_PREFIX}fsl_api_driver INTERFACE
+target_include_directories(${NIFTI_PACKAGE_PREFIX}fsl_api_driver PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<INSTALL_INTERFACE:${NIFTI_INSTALL_INCLUDE_DIR}>
         )
