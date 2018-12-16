@@ -185,7 +185,7 @@ afni_xml_list axml_read_file(const char * fname, int read_data)
          blen = (int)bshort;
       }
 
-      done = blen < bsize;
+      done = blen < (unsigned)  bsize;
 
       if(xd->verb > 4) fprintf(stderr,"-- XML_Parse # %d\n", pcount);
       pcount++;
