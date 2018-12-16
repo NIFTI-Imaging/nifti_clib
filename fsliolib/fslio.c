@@ -1106,7 +1106,8 @@ size_t FslReadTimeSeries(FSLIO *fslio, void *buffer, short xVox, short yVox, sho
 {
   size_t volbytes, offset, orig_offset;
   size_t n;
-  short xdim,ydim,zdim,v,wordsize;
+  short xdim,ydim,zdim,v;
+  size_t wordsize;
 
   if (fslio==NULL)  FSLIOERR("FslReadTimeSeries: Null pointer passed for FSLIO");
   if (fslio->niftiptr!=NULL) {
