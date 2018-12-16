@@ -899,7 +899,7 @@ size_t FslWriteVolumes(FSLIO *fslio, const void *buffer, size_t nvols)
     { FSLIOERR("FslWriteVolumes: header must be written before data for single compressed file types"); }
 
   if (fslio->niftiptr!=NULL) {
-    long int nbytes, bpv;
+    long size_t nbytes, bpv;
     bpv = fslio->niftiptr->nbyper;  /* bytes per voxel */
     nbytes = nvols * FslGetVolSize(fslio) * bpv;
 
