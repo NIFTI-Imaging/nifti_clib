@@ -111,7 +111,7 @@ static int  epop (afni_xml_control *, const char *);
 static int  add_to_xchild_list(afni_xml_t * parent, afni_xml_t * child);
 static int  add_to_xroot_list (afni_xml_control * xd, afni_xml_t * newp);
 static int  append_to_string(char **, int *, const char *, int);
-static int  disp_axml_ctrl (char * mesg, afni_xml_control * dp, int show_all );
+static int  disp_axml_ctrl ( const char *mesg, afni_xml_control * dp, int show_all );
 static int  disp_gen_text(afni_xml_control *, const char *, const char *, int);
 static void free_whitespace(void);
 static int  init_axml_ctrl (afni_xml_control *xd, int doall);
@@ -287,7 +287,7 @@ afni_xml_list axml_read_buf(const char * buf_in, int64_t bin_len)
 
 
 /* display the list of afni_xml_t structs */
-int axml_disp_xlist(char * mesg, afni_xml_list * axlist, int verb)
+int axml_disp_xlist( const char *mesg, afni_xml_list * axlist, int verb)
 {
    FILE * fp = stderr;
    int    ind;
@@ -311,7 +311,7 @@ int axml_disp_xlist(char * mesg, afni_xml_list * axlist, int verb)
 }
 
 /* recursive function to display an afni_xml_t struct */
-int axml_disp_xml_t(char * mesg, afni_xml_t * ax, int indent, int verb)
+int axml_disp_xml_t( const char *mesg, afni_xml_t * ax, int indent, int verb)
 {
    FILE * fp = stderr;
    int    ind;
@@ -586,7 +586,7 @@ static int init_axml_ctrl(afni_xml_control *xd, int doall)
 }
 
 
-static int disp_axml_ctrl(char * mesg, afni_xml_control * dp, int show_all )
+static int disp_axml_ctrl( const char *mesg, afni_xml_control * dp, int show_all )
 {
    if( mesg ) fputs(mesg, stderr);
 
