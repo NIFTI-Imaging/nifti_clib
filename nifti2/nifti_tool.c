@@ -5113,4 +5113,3 @@ nifti_image * nt_read_bricks(nt_opts * opts, char * fname, int len,
 
     return nim;
 }
-

@@ -55,4 +55,3 @@ nifti1_tool: $(MISC_OBJS)
 # make non-clashing version
 nifti2_tool: nifti_tool
 	cp -p nifti_tool nifti2_tool
-

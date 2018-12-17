@@ -268,6 +268,3 @@ double ***d3matrix(int zh,  int yh, int xh);
 #endif
 
 #endif
-
-
-

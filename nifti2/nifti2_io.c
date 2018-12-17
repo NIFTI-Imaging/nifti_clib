@@ -9571,5 +9571,3 @@ int nifti_disp_type_list( int which )
 
     return 0;
 }
-
-

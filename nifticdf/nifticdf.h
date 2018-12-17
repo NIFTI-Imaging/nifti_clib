@@ -173,4 +173,3 @@ void ftnstop(const char*);
 int ipmpar(int*);
 
 /** end: prototypes for cdflib functions **/
-

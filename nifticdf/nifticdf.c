@@ -11104,4 +11104,3 @@ double nifti_stat2hzscore( double val, int code, double p1,double p2,double p3 )
    pq.q = 0.5*(1.0-pq.p) ; pq.p = 0.5*(1.0+pq.p) ;          /* mangle it */
    return normal_pq2s( pq ) ;                               /* find z  */
 }
-
