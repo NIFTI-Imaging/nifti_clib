@@ -883,18 +883,19 @@ void FslWriteAllVolumes(FSLIO *fslio, const void *buffer)
     \param fslio        pointer to open dataset
     \param buffer       pointer to data array. Size and datatype of this buffer
     \param nvols        number of volumes to write
-    \return ??? looks like return of retval is missing ???  0 on error.
+    \return number of bytes written
  */
 size_t FslWriteVolumes(FSLIO *fslio, const void *buffer, size_t nvols)
 {
   /* The dimensions and datatype must be set before calling this function */
-  int retval;
+  size_t retval = 0;  // initialize to failure
   if (fslio==NULL)  FSLIOERR("FslWriteVolumes: Null pointer passed for FSLIO");
   if ( (!fslio->written_hdr) && (FslIsSingleFileType(FslGetFileType(fslio))) &&
        (FslIsCompressedFileType(FslGetFileType(fslio))) )
     { FSLIOERR("FslWriteVolumes: header must be written before data for single compressed file types"); }
 
   if (fslio->niftiptr!=NULL) {
+    size_t bytes_written;
     size_t nbytes;
     long int bpv = fslio->niftiptr->nbyper;  /* bytes per voxel */
     nbytes = nvols * FslGetVolSize(fslio) * bpv;
@@ -917,16 +918,17 @@ size_t FslWriteVolumes(FSLIO *fslio, const void *buffer, size_t nvols)
           }
         }
       }
-      retval = nifti_write_buffer(fslio->fileptr, tmpbuf, nbytes);
+      bytes_written = nifti_write_buffer(fslio->fileptr, tmpbuf, nbytes);
       free(tmpbuf);
     } else {
-      retval = nifti_write_buffer(fslio->fileptr, buffer, nbytes);
+      bytes_written = nifti_write_buffer(fslio->fileptr, buffer, nbytes);
     }
+    retval = ( bytes_written == nbytes ) ? bytes_written : 0;
   }
   if (fslio->mincptr!=NULL) {
     fprintf(stderr,"Warning:: Minc is not yet supported\n");
   }
-  return 0;  /* failure */
+  return retval;
 }
 
 
