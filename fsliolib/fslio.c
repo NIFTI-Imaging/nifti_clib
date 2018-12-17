@@ -458,7 +458,6 @@ void FslCloneHeader(FSLIO *dest, const FSLIO *src)
   /* only clone the information that is stored in the disk version of the header */
   /*  - therefore _not_ the filenames, output type, write mode, etc */
 
-  char *fname=NULL, *iname=NULL;
   void *data=NULL;
   int filetype, writemode;
   int preserve_nifti_values = 0;
@@ -468,8 +467,6 @@ void FslCloneHeader(FSLIO *dest, const FSLIO *src)
   if (src->niftiptr!=NULL) {
     /* preserve the filenames, output type and write mode */
     if (dest->niftiptr != NULL) {
-      fname = dest->niftiptr->fname;
-      iname = dest->niftiptr->iname;
       data = dest->niftiptr->data;
       preserve_nifti_values = 1;
     }
