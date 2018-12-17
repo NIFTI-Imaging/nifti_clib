@@ -65,4 +65,3 @@ exit 1
 else
 echo "diff succeed -- found changes"
 fi
-

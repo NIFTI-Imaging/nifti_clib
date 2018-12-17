@@ -166,4 +166,3 @@ int disp_float(nifti_image * nim, int vol, int slice, int line, int offset)
 
    return 0; /* success */
 }
-

@@ -51,5 +51,3 @@ nifticdf.o:
 
 znzlib.o:
 	$(CC) -c -DHAVE_ZLIB $(CFLAGS) $(NIFLAGS) ../znzlib/znzlib.c
-
-

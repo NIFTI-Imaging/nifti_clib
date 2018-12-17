@@ -995,4 +995,3 @@ static int64_t loc_strnlen(const char * str, int64_t maxlen)
 
    return len;  /* max of maxlen */
 }
-
