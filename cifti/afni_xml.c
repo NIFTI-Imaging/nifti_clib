@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <expat.h>
+#include <inttypes.h>
 #include "afni_xml.h"
 
 #define AXML_MIN_BSIZE 2048
@@ -180,7 +181,7 @@ afni_xml_list axml_read_file(const char * fname, int read_data)
       bshort = loc_strnlen(buf, blen);
       if( bshort < blen ) {
          if( xd->verb > 1 )
-            fprintf(stderr,"-- AXML: truncating fbuffer from %d to %lld\n",
+            fprintf(stderr,"-- AXML: truncating fbuffer from %u to %" PRId64  "\n",
                     blen, bshort);
          blen = (int)bshort;
       }
@@ -235,7 +236,7 @@ afni_xml_list axml_read_buf(const char * buf_in, int64_t bin_len)
     /* check for early termination */
     bin_remain = loc_strnlen(buf_in, bin_len);
     if( bin_remain < bin_len && xd->verb > 1 )
-       fprintf(stderr,"-- AXML: truncating buffer from %lld to %lld\n",
+       fprintf(stderr,"-- AXML: truncating buffer from %" PRId64 " to %" PRId64 "\n",
                bin_len, bin_remain);
 
     /* create a new buffer */
@@ -243,7 +244,7 @@ afni_xml_list axml_read_buf(const char * buf_in, int64_t bin_len)
     if( reset_xml_buf(xd, &buf, &bsize) ) { return xlist; }
 
     if(xd->verb > 1)
-       fprintf(stderr,"-- reading xml from length %lld buffer\n", bin_remain);
+       fprintf(stderr,"-- reading xml from length %" PRId64 " buffer\n", bin_remain);
 
     /* create parser, init handlers */
     parser = init_xml_parser((void *)xd);
@@ -337,7 +338,7 @@ int axml_disp_xml_t( const char *mesg, afni_xml_t * ax, int indent, int verb)
          if( ax->bdata || ax->blen > 0 ) {
             fprintf(fp, "%*sbdata  : %s\n", indent, "",
                         ax->bdata ? "SET" : "CLEAR");
-            fprintf(fp, "%*sblen   : %lld\n", indent, "", ax->blen);
+            fprintf(fp, "%*sblen   : %" PRId64 "\n", indent, "", ax->blen);
             fprintf(fp, "%*sbtype  : %d\n", indent, "", ax->btype);
          }
       }

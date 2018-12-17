@@ -10,6 +10,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <nifti2_io.h>
+#include <inttypes.h>
 #include "afni_xml_io.h"
 
 
@@ -312,7 +313,7 @@ static void disp_name_n_desc(FILE * fp, afni_xml_t * ax, int indent, int verb)
       else
          fprintf(fp, "\n%*s: %.*s ...\n", indent+3, "", max, ax->xtext);
       if( verb > 1 && ax->blen > 0 )
-         fprintf(fp, "%*s: %lld values of type %s\n", indent+3, "",
+         fprintf(fp, "%*s: %" PRId64 " values of type %s\n", indent+3, "",
                  ax->blen, nifti_datatype_string(ax->btype));
    } else
       fputc('\n', fp);
@@ -472,7 +473,7 @@ static int dalloc_as_nifti_type(FILE * fp, afni_xml_t * ax, int64_t nvals,
 
    ax->bdata = malloc(nbyper * ntok);
    if( ! ax->bdata ) {
-      fprintf(fp, "** axio_alloc: failed to allocate %lld vals of size %d\n",
+      fprintf(fp, "** axio_alloc: failed to allocate %" PRId64 " vals of size %d\n",
               ntok, nbyper);
       ax->blen = 0;
       return 1;
@@ -492,7 +493,7 @@ static int dalloc_as_nifti_type(FILE * fp, afni_xml_t * ax, int64_t nvals,
       if( nread == 0 ) { free(ax->bdata); ax->bdata = NULL; }
 
       ax->blen = nread;
-      fprintf(fp, "** axio_alloc: read only %lld of %lld f64\n", nread, ntok);
+      fprintf(fp, "** axio_alloc: read only %" PRId64 " of %" PRId64 " f64\n", nread, ntok);
       return 1;
    }
 
