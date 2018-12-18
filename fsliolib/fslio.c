@@ -869,7 +869,7 @@ void FslWriteAllVolumes(FSLIO *fslio, const void *buffer)
 {
   short x,y,z,t;
 
-  if (fslio==NULL)  FSLIOERR("FslWriteAllVolumes: Null pointer passed for FSLIO");
+  if (fslio==NULL || fslio->niftiptr == NULL )  FSLIOERR("FslWriteAllVolumes: Null pointer passed for FSLIO");
 
   FslGetDim(fslio,&x,&y,&z,&t);
   FslWriteHeader(fslio);
