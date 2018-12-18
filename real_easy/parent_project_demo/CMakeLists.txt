@@ -64,6 +64,8 @@ set(SILLYDEMO_INSTALL_NO_DEVELOPMENT FALSE)
 # set to TRUE if SILLYDEMO* libraries are not exposed through your package to others
 set(SILLYDEMO_INSTALL_NO_LIBRARIES FALSE)
 
+set(SILLYDEMO_TARGETS "SillyDemoTargets")
+
 ### STEP 1 -- set build configuration items to override nifti_clib defaults
 
 set( USE_NIFTI2_CODE ON CACHE BOOL "Do not build NIFTI2 provided by NIFTI" FORCE )
@@ -76,7 +78,8 @@ set( NIFTI_BUILD_APPLICATIONS ON CACHE BOOL "Do not build applications provided 
 set( NIFTI_BUILD_TESTING ON CACHE BOOL "Do not build nifit testing applications" FORCE)
 
 add_definitions(-DHAVE_ZLIB)
-set(NIFTI_PACKAGE_PREFIX "SILLYDEMO" CACHE STRING "Set the nifti package prefix" FORCE)
+set(NIFTI_INSTALL_EXPORT_NAME SILLYDEMOTargets CACHE STRING "Set the nifti package export target name " FORCE)
+set(NIFTI_PACKAGE_PREFIX "${SILLYDEMO_TARGETS}" CACHE STRING "Set the nifti package prefix" FORCE)
 set(NIFTI_LIBRARY_PROPERTIES ${SILLYDEMO_LIBRARY_PROPERTIES} CACHE STRING "Set the nifti library properties to match SILLYDEMO" FORCE)
 set(NIFTI_INSTALL_RUNTIME_DIR "${SILLYDEMONIFTI_INSTALL_RUNTIME_DIR}" CACHE PATH "Set nifti install binaries directory" FORCE)
 set(NIFTI_INSTALL_LIBRARY_DIR "${SILLYDEMONIFTI_INSTALL_LIBRARY_DIR}" CACHE PATH "Set nifti install dynamic libraries directory" FORCE)
@@ -109,3 +112,40 @@ endif()
 
 ### STEP 3 -- The reset of the parent project code that depends on nifti_clib
 add_subdirectory(src)
+
+
+
+### STEP 4 -- Export the SILLYDEMO.cmake files
+#######################################################################
+# CMake itself and can use some CMake facilities for creating the package files.
+# This allows for find_package(SILLYDEMO 0.0.1 NO_MODULE) to work for pulling in
+# SILLYDEMO libraries into an external project (including SILLYDEMOniftiio.a etc...)
+include(CMakePackageConfigHelpers)
+
+write_basic_package_version_file(
+      "${CMAKE_CURRENT_BINARY_DIR}/SILLYDEMO/SILLYDEMOConfigVersion.cmake"
+      VERSION ${SILLYDEMO_VERSION}
+      COMPATIBILITY AnyNewerVersion
+)
+
+export(EXPORT SILLYDEMOTargets
+      FILE "${CMAKE_CURRENT_BINARY_DIR}/SILLYDEMO/SILLYDEMOTargets.cmake"
+      NAMESPACE ${SILLYDEMO_PACKAGE_PREFIX}NIFTI::
+      )
+configure_file(cmake/SILLYDEMOConfig.cmake
+      "${CMAKE_CURRENT_BINARY_DIR}/SILLYDEMO/SILLYDEMOConfig.cmake"
+      COPYONLY
+      )
+
+set(ConfigPackageLocation lib/cmake/SILLYDEMO)
+install(EXPORT SILLYDEMOTargets
+      FILE          SILLYDEMOTargets.cmake
+      NAMESPACE     ${SILLYDEMO_PACKAGE_PREFIX}NIFTI::
+      DESTINATION   ${ConfigPackageLocation}
+      )
+install(FILES
+         cmake/SILLYDEMOConfig.cmake
+         "${CMAKE_CURRENT_BINARY_DIR}/SILLYDEMO/SILLYDEMOConfigVersion.cmake"
+      DESTINATION   ${ConfigPackageLocation}
+      COMPONENT     Development
+)
