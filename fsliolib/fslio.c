@@ -674,10 +674,15 @@ FSLIO *FslXOpen(const char *filename, const char *opts, int filetype)
     /** ====================== Open file for writing ====================== **/
 
     FslInit4Write(fslio,filename,filetype);
-    imgtype = FslGetFileType(fslio);
+        imgtype = FslGetFileType(fslio);
     fslio->written_hdr = 0;
 
     /* open the image file - not the header */
+    if ( fslio->niftiptr == NULL )
+    {
+        free(fslio);
+        return NULL;
+    }
     fslio->fileptr = znzopen(fslio->niftiptr->iname,bopts,FslIsCompressedFileType(imgtype));
     if (znz_isnull(fslio->fileptr)) {
       fprintf(stderr,"Error: failed to open file %s\n",fslio->niftiptr->iname);
