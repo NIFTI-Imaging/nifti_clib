@@ -1,7 +1,7 @@
 set(NIFTI_NIFTILIB2_NAME ${NIFTI_PACKAGE_PREFIX}nifti2)
 
 add_library(${NIFTI_NIFTILIB2_NAME} nifti2_io.c )
-target_link_libraries( ${NIFTI_NIFTILIB2_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}niftiio)
+target_link_libraries( ${NIFTI_NIFTILIB2_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}znz)
 target_include_directories(${NIFTI_NIFTILIB2_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<INSTALL_INTERFACE:${NIFTI_INSTALL_INCLUDE_DIR}>
@@ -37,6 +37,13 @@ endif()
 
 
 if(NIFTI_BUILD_TESTING AND NIFTI_BUILD_APPLICATIONS)
+    # in order to decouble nifti2 and niftilib, the nifti1.h file
+    # is duplicated here.  The verify_nifti1_headers_are_smame test
+    # will fail if these two files are not identical.
+    if( ( IS_DIRECTORY ${PROJECT_SOURCE_DIR}/nifti2 ) AND (IS_DIRECTORY ${PROJECT_SOURCE_DIR}/niftilib))
+        message(STATUS "Testing same")
+        add_test(verify_nifti1_headers_are_smame ${CMAKE_COMMAND} -E compare_files ${PROJECT_SOURCE_DIR}/nifti2/nifti1.h ${PROJECT_SOURCE_DIR}/niftilib/nifti1.h)
+    endif()
     add_executable(${NIFTI_PACKAGE_PREFIX}clib_02_nifti2 clib_02_nifti2.c)
     target_link_libraries(${NIFTI_PACKAGE_PREFIX}clib_02_nifti2 PUBLIC ${NIFTI_NIFTILIB2_NAME})
 
