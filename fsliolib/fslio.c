@@ -354,7 +354,9 @@ void FslGetHdrImgNames(const char* filename, const FSLIO* fslio,
   free(basename);
 
   /* Failure */
+  free(*hdrname);
   *hdrname = NULL;
+  free(*imgname);
   *imgname = NULL;
 }
 
