@@ -598,10 +598,12 @@ int check_for_multiple_filenames(const char* filename)
       if (!FslIgnoreMFQ) {
         otype = getenv("FSLMULTIFILEQUIT");
         if (otype!=NULL) {
+          free(tmpname);
           fprintf(stderr,"STOPPING PROGRAM\n");
           exit(EXIT_FAILURE);
         }
       }
+      free(tmpname);
       return 1;
     }
   return 0;
@@ -679,6 +681,7 @@ FSLIO *FslXOpen(const char *filename, const char *opts, int filetype)
     fslio->fileptr = znzopen(fslio->niftiptr->iname,bopts,FslIsCompressedFileType(imgtype));
     if (znz_isnull(fslio->fileptr)) {
       fprintf(stderr,"Error: failed to open file %s\n",fslio->niftiptr->iname);
+      free(fslio);
       return NULL;
     }
 
@@ -699,6 +702,7 @@ FSLIO *FslXOpen(const char *filename, const char *opts, int filetype)
   /* see if the extension indicates a minc file */
   imgtype = FslFileType(filename);
   if ((imgtype>=0) && (FslBaseFileType(imgtype)==FSL_TYPE_MINC)) {
+    free(fslio);
     fprintf(stderr,"Warning:: Minc is not yet supported\n");
     return NULL;
   }
@@ -1961,6 +1965,7 @@ int FslClose(FSLIO *fslio)
     if (fslio->niftiptr->byteorder != nifti_short_order()) {AvwSwapHeader(hdr);}
     hptr = znzopen(fslio->niftiptr->fname,"wb",FslIsCompressedFileType(FslGetFileType(fslio)));
     if (znz_isnull(hptr)) {
+      free(hdr);
       fprintf(stderr,"Error:: Could not write origin data to header file %s.\n",
               fslio->niftiptr->fname);
       return -1;
@@ -2229,7 +2234,10 @@ double ****FslGetBufferAsScaledDouble(FSLIO *fslio)
     if (ret == 0)
         return(newbuf);
     else
+    {
+        free(newbuf);
         return(NULL);
+    }
 
   } /* nifti data */
 
