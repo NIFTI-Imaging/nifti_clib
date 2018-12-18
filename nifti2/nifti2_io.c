@@ -1831,7 +1831,7 @@ void nifti_dmat44_to_quatern(nifti_dmat44 R ,
        c = 0.25l* (r23+r32) / d ;
        a = 0.25l* (r21-r12) / d ;
      }
-     if( a < 0.0l ){ b=-b ; c=-c ; d=-d; a=-a; }
+     if( a < 0.0l ){ b=-b ; c=-c ; d=-d; }
    }
 
    ASSIF(qb,b) ; ASSIF(qc,c) ; ASSIF(qd,d) ;
@@ -1970,7 +1970,7 @@ void nifti_mat44_to_quatern( mat44 R ,
        c = 0.25l* (r23+r32) / d ;
        a = 0.25l* (r21-r12) / d ;
      }
-     if( a < 0.0l ){ b=-b ; c=-c ; d=-d; a=-a; }
+     if( a < 0.0l ){ b=-b ; c=-c ; d=-d; }
    }
 
    ASSIF(qb,(float)b) ; ASSIF(qc,(float)c) ; ASSIF(qd,(float)d) ;
@@ -8103,7 +8103,7 @@ char *nifti_image_to_ascii( const nifti_image *nim )
 
    if( nim == NULL ) return NULL ;   /* stupid caller */
 
-   buf = (char *)calloc(1,65534); nbuf = 0; /* longer than needed, to be safe */
+   buf = (char *)calloc(1,65534); /* longer than needed, to be safe */
    if( !buf ){
       fprintf(stderr,"** NIFTI NITA: failed to alloc %d bytes\n",65534);
       return NULL;
