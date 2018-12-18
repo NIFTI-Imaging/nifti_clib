@@ -33,9 +33,9 @@ matrix:
     - compiler: clang
       os: osx
       env:
-        - CFLAGS="-Wall -Wextra" # -m64 -fsanitize=address,undefined
-        - CXXFLAGS="-Wall -Wextra" # -m64 -fsanitize=address,undefined
-        - CMAKE_EXTRA="-DCMAKE_INTERPROCEDURAL_OPTIMIZATION:BOOL=ON -DUSE_FSL_CODE:BOOL=ON -DUSE_CIFTI_CODE:BOOL=OFF -DUSE_NIFTI2_CODE:BOOL=ON"
+        - CFLAGS="-O3 -Wall -Wextra -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -Wno-deprecated -Wwrite-strings " # -m64 -fsanitize=address,undefined
+        - CXXFLAGS="-O3 -Wall -Wextra -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -Wno-deprecated -Wwrite-strings " # -m64 -fsanitize=address,undefined
+        - CMAKE_EXTRA="-DCMAKE_INTERPROCEDURAL_OPTIMIZATION:BOOL=ON -DUSE_FSL_CODE:BOOL=ON -DUSE_CIFTI_CODE:BOOL=ON -DUSE_NIFTI2_CODE:BOOL=ON"
         - B_NAME=osx_clang
         - COVERAGE="NO"
 
