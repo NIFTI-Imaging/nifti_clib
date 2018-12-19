@@ -9164,7 +9164,7 @@ static int make_pivot_list(nifti_image *nim, const int64_t dims[], int pivots[],
    }
 
    /* make sure to include 0 as a pivot (instead of just 1, if it is) */
-   if( pivots[len-1] != 0 ){
+   if( len > 0 && pivots[len-1] != 0 ){
       pivots[len] = 0;
       prods[len] = 1;
       len++;
