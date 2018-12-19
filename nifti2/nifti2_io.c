@@ -6284,7 +6284,7 @@ static int nifti_read_next_extension( nifti1_extension * nex, nifti_image *nim,
                                       int remain, znzFile fp )
 {
    int swap = nim->byteorder != nifti_short_order();
-   int count, size, code;
+   int count, size, code = -1;
 
    /* first clear nex */
    nex->esize = nex->ecode = 0;
@@ -6300,7 +6300,7 @@ static int nifti_read_next_extension( nifti1_extension * nex, nifti_image *nim,
    count = (int)znzread( &size, 4, 1, fp );
    if( count == 1 ) count += (int)znzread( &code, 4, 1, fp );
 
-   if( count != 2 ){
+   if( count != 2 || code == -1 ){
       if( g_opts.debug > 2 )
          fprintf(stderr,"-d current extension read failed\n");
       znzseek(fp, -4*count, SEEK_CUR); /* back up past any read */
