@@ -2530,7 +2530,7 @@ int act_mod_hdrs( nt_opts * opts )
 {
    nifti_1_header * nhdr;
    nifti_image    * nim;         /* for reading/writing entire datasets */
-   int              filec, swap;
+   int              filec, swap=0;
    const char     * fname;
    char           * dupname;
    char             func[] = { "act_mod_hdrs" };
