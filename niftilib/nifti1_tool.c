@@ -3765,7 +3765,7 @@ int act_disp_ci( nt_opts * opts )
       if( len < 0 || !data )
       {
          fprintf(stderr,"** FAILURE for dataset '%s'\n", nim->fname);
-         if( data ) free(data);
+         if( data ) { free(data); data = NULL; }
          err++;
       }
 
