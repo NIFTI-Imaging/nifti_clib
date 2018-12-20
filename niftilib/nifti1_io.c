@@ -4447,6 +4447,7 @@ static int nifti_read_extensions( nifti_image *nim, znzFile fp, int remain )
    while (nifti_read_next_extension(&extn, nim, remain, fp) > 0)
    {
       if( nifti_add_exten_to_list(&extn, &Elist, count+1) < 0 ){
+         free(Elist);
          if( g_opts.debug > 0 )
             fprintf(stderr,"** failed adding ext %d to list\n", count);
          return -1;
@@ -4498,8 +4499,8 @@ int nifti_add_extension(nifti_image *nim, const char * data, int len, int ecode)
    nifti1_extension ext;
 
    /* error are printed in functions */
-   if( nifti_fill_extension(&ext, data, len, ecode) )                 return -1;
-   if( nifti_add_exten_to_list(&ext, &nim->ext_list, nim->num_ext+1)) return -1;
+   if( nifti_fill_extension(&ext, data, len, ecode) )                 {free(ext.edata); return -1;}
+   if( nifti_add_exten_to_list(&ext, &nim->ext_list, nim->num_ext+1)) {free(ext.edata); return -1;}
 
    nim->num_ext++;  /* success, so increment */
 
