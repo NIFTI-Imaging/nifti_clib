@@ -175,7 +175,7 @@ int process_args(int argc, char * argv[], opts_t * opts)
 /* ----------------------------------------------------------------- */
 int process(opts_t * opts)
 {
-   nifti_image * nim;
+   nifti_image * nim = NULL;
    afni_xml_t  * ax;
 
    if( !opts->fin ){ fprintf(stderr, "** missing option '-input'\n"); return 1;}
