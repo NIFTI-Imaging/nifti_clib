@@ -4610,7 +4610,7 @@ static int nifti_read_next_extension( nifti1_extension * nex, nifti_image *nim,
                                       int remain, znzFile fp )
 {
    int swap = nim->byteorder != nifti_short_order();
-   int count, size, code;
+   int count, size, code = NIFTI_ECODE_IGNORE;
 
    /* first clear nex */
    nex->esize = nex->ecode = 0;
