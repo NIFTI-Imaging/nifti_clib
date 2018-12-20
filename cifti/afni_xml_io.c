@@ -404,7 +404,7 @@ static void disp_brainmodel_child(FILE * fp, afni_xml_t * ax, int verb)
    (prototype matches first argument of axml_recur) */
 static int axio_alloc_known_data(FILE * fp, afni_xml_t * ax, int depth)
 {
-   int64_t   ival;
+   int64_t   ival = 0 ;
    char    * cp;
 
    (void)(depth);  // depth is not used for this variant
@@ -520,6 +520,7 @@ static int64_t text_to_i64(int64_t * result, const char * text, int64_t nvals)
    int64_t * rptr, val;
    int64_t   nread;
 
+   *result = 0; // Initialize to zero incase of failure
    if( ! text || ! result) return 1;
    if( nvals <= 0 )        return 0;
 
