@@ -107,6 +107,13 @@ if (NIFTI_BUILD_TESTING AND CMAKE_VERSION GREATER_EQUAL 3.11.0) # CMAKE VERSION 
 endif()
 
 #######################################################################
+# Find unix math libraries
+if(NOT WIN32)
+    find_library(NIFTI_SYSTEM_MATH_LIB m)
+else()
+    set(NIFTI_SYSTEM_MATH_LIB "")
+endif()
+#######################################################################
 add_subdirectory(znzlib)
 add_subdirectory(niftilib)
 

@@ -1,6 +1,7 @@
 set(NIFTI_NIFTILIB_NAME ${NIFTI_PACKAGE_PREFIX}niftiio)
+
 add_library(${NIFTI_NIFTILIB_NAME} nifti1_io.c )
-target_link_libraries( ${NIFTI_NIFTILIB_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}znz)
+target_link_libraries( ${NIFTI_NIFTILIB_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}znz ${NIFTI_SYSTEM_MATH_LIB})
 target_include_directories(${NIFTI_NIFTILIB_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<INSTALL_INTERFACE:${NIFTI_INSTALL_INCLUDE_DIR}>
@@ -15,10 +16,6 @@ endif()
 # Set library version when building shared libs.
 if(BUILD_SHARED_LIBS)
   set_target_properties(${NIFTI_NIFTILIB_NAME} PROPERTIES ${NIFTI_LIBRARY_PROPERTIES})
-endif()
-
-if(UNIX)
-  target_link_libraries(${NIFTI_NIFTILIB_NAME} PUBLIC m)
 endif()
 
 if(NOT NIFTI_INSTALL_NO_LIBRARIES)
