@@ -39,7 +39,7 @@ static int64_t text_to_f64(double * result, const char * text, int64_t nvals);
 int axio_read_cifti_file(const char * fname, int get_ndata,
                          nifti_image ** nim_out, afni_xml_t ** ax_out)
 {
-   nifti_image      * nim;
+   nifti_image      * nim = NULL;
    afni_xml_t       * ax = NULL;
 
    if( !fname || !nim_out || !ax_out ) {
