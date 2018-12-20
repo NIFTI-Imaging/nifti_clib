@@ -265,8 +265,11 @@ afni_xml_list axml_read_buf(const char * buf_in, int64_t bin_len)
         if( bin_remain >= bsize ) blen = bsize;
         else                      blen = bin_remain;
 
+        if(blen > 0 && blen < (unsigned)bsize)
+        {
         memcpy(buf, bin_ptr, blen);
         buf[blen] = '\0';
+        }
 
         /* update bytes remaining to process and decide if done */
         bin_remain -= blen;
