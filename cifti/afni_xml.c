@@ -168,18 +168,24 @@ afni_xml_list axml_read_file(const char * fname, int read_data)
 
    if( !fname ) {
       fprintf(stderr,"** axml_read_image: missing filename\n");
+      xd->xroot = NULL;
       return xlist;
    }
 
    fp = fopen(fname, "r");
    if( !fp ) {
       fprintf(stderr,"** failed to open XML file '%s'\n", fname);
+      xd->xroot = NULL;
       return xlist;
    }
 
    /* create a new buffer */
    bsize = 0;
-   if( reset_xml_buf(xd, &buf, &bsize) ) { fclose(fp); return xlist; }
+   if( reset_xml_buf(xd, &buf, &bsize) ) {
+     fclose(fp);
+     xd->xroot = NULL;
+     return xlist;
+   }
 
    if(xd->verb > 1) fprintf(stderr,"-- reading xml file '%s'\n", fname);
 
@@ -219,6 +225,7 @@ afni_xml_list axml_read_file(const char * fname, int read_data)
 
    if(xd->verb > 1) fprintf(stderr,"++ done parsing XML file %s\n", fname);
 
+   xd->xroot = NULL; /* Stop pointing to xlist */
    return xlist;
 }
 
@@ -245,6 +252,7 @@ afni_xml_list axml_read_buf(const char * buf_in, int64_t bin_len)
 
     if( ! buf_in || bin_len < 0L ) {
        fprintf(stderr,"** axml_read_buf: missing buffer\n");
+       xd->xroot=NULL;
        return xlist;
     }
 
@@ -256,7 +264,11 @@ afni_xml_list axml_read_buf(const char * buf_in, int64_t bin_len)
 
     /* create a new buffer */
     bsize = 0;
-    if( reset_xml_buf(xd, &buf, &bsize) ) { return xlist; }
+    if( reset_xml_buf(xd, &buf, &bsize) )
+    {
+      xd->xroot = NULL; /* Stop pointing to xlist */
+      return xlist;
+    }
 
     if(xd->verb > 1)
        fprintf(stderr,"-- reading xml from length %" PRId64 " buffer\n", bin_remain);
@@ -300,6 +312,7 @@ afni_xml_list axml_read_buf(const char * buf_in, int64_t bin_len)
 
     if(xd->verb > 1) fprintf(stderr,"++ done parsing XML buffer\n");
 
+    xd->xroot = NULL; /* Stop pointing to xlist */
     return xlist;
 }
 
