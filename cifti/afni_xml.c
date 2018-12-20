@@ -134,7 +134,6 @@ static char       * strip_whitespace(const char * str, int slen);
          piece of (CDATA?) text, o.w. it will require parsing in pieces */
 afni_xml_list axml_read_file(const char * fname, int read_data)
 {
-   afni_xml_control * xd = &gAXD;        /* point to global struct */
    afni_xml_list      xlist = {0, NULL};
 
    XML_Parser   parser;
@@ -145,42 +144,44 @@ afni_xml_list axml_read_file(const char * fname, int read_data)
    int          bsize;    /* be sure it doesn't change at some point */
    int          done = 0, pcount = 1;
 
-   if( init_axml_ctrl(xd, 0) ) /* reset non-user variables */
+   if( init_axml_ctrl(&gAXD, 0) ) /* reset non-user variables */
       return xlist;
 
-   xd->xroot = &xlist;      /* return struct */
-   xd->dstore = read_data;  /* store for global access */
+   gAXD.xroot = &xlist;      /* return struct */
+   gAXD.dstore = read_data;  /* store for global access */
 
    if( !fname ) {
       fprintf(stderr,"** axml_read_image: missing filename\n");
+      gAXD.xroot = NULL;
       return xlist;
    }
 
    fp = fopen(fname, "r");
    if( !fp ) {
       fprintf(stderr,"** failed to open XML file '%s'\n", fname);
+      gAXD.xroot = NULL;
       return xlist;
    }
 
    /* create a new buffer */
    bsize = 0;
-   if( reset_xml_buf(xd, &buf, &bsize) ) { fclose(fp); return xlist; }
+   if( reset_xml_buf(&gAXD, &buf, &bsize) ) { fclose(fp); free(buf); gAXD.xroot=NULL; return xlist; }
 
-   if(xd->verb > 1) fprintf(stderr,"-- reading xml file '%s'\n", fname);
+   if(gAXD.verb > 1) fprintf(stderr,"-- reading xml file '%s'\n", fname);
 
    /* create parser, init handlers */
-   parser = init_xml_parser((void *)xd);
+   parser = init_xml_parser((void *)&gAXD);
 
    while( !done )
    {
-      if( reset_xml_buf(xd, &buf, &bsize) ) break;
+      if( reset_xml_buf(&gAXD, &buf, &bsize) ) break;
 
       blen = fread(buf, 1, bsize, fp);
 
       /* check for early termination */
       bshort = loc_strnlen(buf, blen);
       if( bshort < blen ) {
-         if( xd->verb > 1 )
+         if( gAXD.verb > 1 )
             fprintf(stderr,"-- AXML: truncating fbuffer from %u to %" PRId64  "\n",
                     blen, bshort);
          blen = (int)bshort;
@@ -188,7 +189,7 @@ afni_xml_list axml_read_file(const char * fname, int read_data)
 
       done = blen < (unsigned)  bsize;
 
-      if(xd->verb > 4) fprintf(stderr,"-- XML_Parse # %d\n", pcount);
+      if(gAXD.verb > 4) fprintf(stderr,"-- XML_Parse # %d\n", pcount);
       pcount++;
       if( XML_Parse(parser, buf, blen, done) == XML_STATUS_ERROR) {
           fprintf(stderr,"** %s at line %u\n",
@@ -197,13 +198,13 @@ afni_xml_list axml_read_file(const char * fname, int read_data)
           break;
       }
    }
-
+   free(buf);
    fclose(fp);
-   if( buf ) free(buf);        /* parser buffer */
    XML_ParserFree(parser);
 
-   if(xd->verb > 1) fprintf(stderr,"++ done parsing XML file %s\n", fname);
+   if(gAXD.verb > 1) fprintf(stderr,"++ done parsing XML file %s\n", fname);
 
+   gAXD.xroot = NULL; /* Stop pointing to xlist */
    return xlist;
 }
 
@@ -211,7 +212,6 @@ afni_xml_list axml_read_file(const char * fname, int read_data)
 /* parse a complete buffer as XML */
 afni_xml_list axml_read_buf(const char * buf_in, int64_t bin_len)
 {
-    afni_xml_control * xd = &gAXD;        /* point to global struct */
     afni_xml_list      xlist = {0, NULL};
 
     XML_Parser   parser;
@@ -222,36 +222,42 @@ afni_xml_list axml_read_buf(const char * buf_in, int64_t bin_len)
     int          bsize;    /* be sure it doesn't change at some point */
     int          done = 0, pcount = 1;
 
-    if( init_axml_ctrl(xd, 0) ) /* reset non-user variables */
-        return xlist;
-
-    xd->xroot = &xlist;      /* return struct */
-    xd->dstore = 1;          /* store for global access */
+    if( init_axml_ctrl(&gAXD, 0) ) /* reset non-user variables */
+    {
+      return xlist;
+    }
+    gAXD.xroot = &xlist;      /* return struct */
+    gAXD.dstore = 1;          /* store for global access */
 
     if( ! buf_in || bin_len < 0L ) {
        fprintf(stderr,"** axml_read_buf: missing buffer\n");
+       gAXD.xroot=NULL;
        return xlist;
     }
 
     /* check for early termination */
     bin_remain = loc_strnlen(buf_in, bin_len);
-    if( bin_remain < bin_len && xd->verb > 1 )
+    if( bin_remain < bin_len && gAXD.verb > 1 )
        fprintf(stderr,"-- AXML: truncating buffer from %" PRId64 " to %" PRId64 "\n",
                bin_len, bin_remain);
 
     /* create a new buffer */
     bsize = 0;
-    if( reset_xml_buf(xd, &buf, &bsize) ) { return xlist; }
+    if( reset_xml_buf(&gAXD, &buf, &bsize) )
+    {
+      gAXD.xroot = NULL; /* Stop pointing to xlist */
+      return xlist;
+    }
 
-    if(xd->verb > 1)
+    if(gAXD.verb > 1)
        fprintf(stderr,"-- reading xml from length %" PRId64 " buffer\n", bin_remain);
 
     /* create parser, init handlers */
-    parser = init_xml_parser((void *)xd);
+    parser = init_xml_parser((void *)&gAXD);
 
     while( !done )
     {
-        if( reset_xml_buf(xd, &buf, &bsize) ) break;
+        if( reset_xml_buf(&gAXD, &buf, &bsize) ) break;
 
         /*--- replace fread with buffer copy ---*/
 
@@ -267,7 +273,7 @@ afni_xml_list axml_read_buf(const char * buf_in, int64_t bin_len)
         bin_ptr += blen;
         done = bin_remain <= 0;
 
-        if(xd->verb > 4) fprintf(stderr,"-- XML_Parse # %d\n", pcount);
+        if(gAXD.verb > 4) fprintf(stderr,"-- XML_Parse # %d\n", pcount);
         pcount++;
         if( XML_Parse(parser, buf, blen, done) == XML_STATUS_ERROR) {
             fprintf(stderr,"** %s at line %u\n",
@@ -277,11 +283,12 @@ afni_xml_list axml_read_buf(const char * buf_in, int64_t bin_len)
         }
     }
 
-    if( buf ) free(buf);        /* parser buffer */
+    free(buf);        /* parser buffer */
     XML_ParserFree(parser);
 
-    if(xd->verb > 1) fprintf(stderr,"++ done parsing XML buffer\n");
+    if(gAXD.verb > 1) fprintf(stderr,"++ done parsing XML buffer\n");
 
+    gAXD.xroot = NULL; /* Stop pointing to xlist */
     return xlist;
 }
 
