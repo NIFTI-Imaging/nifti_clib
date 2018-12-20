@@ -1,19 +1,19 @@
 # NIFTI C Libraries
 
-Niftilib is a set of i/o libraries for reading and writing files in the nifti-1,
-nifti-2, and cifti file formats.  These libraries provide api's for binary file
-format for storing medical image data, e.g. magnetic resonance image (MRI) and
-functional MRI (fMRI) brain images.
+Nifti_clib is a set of i/o libraries for reading and writing files in the nifti-1,
+nifti-2, and (to some degree) cifti file formats.  These libraries provide api's
+for binary file format for storing medical image data, e.g. magnetic resonance
+image (MRI) and functional MRI (fMRI) brain images.
 
 This repository contains the C implementations. ( See other repositories at
 [github](https://github.com/NIFTI-Imaging) for Java, MATLAB, and Python libraries).
 
-Niftilib has been developed by members of the NIFTI DFWG and volunteers in the
-neuroimaging community and serves as a reference implementation of the nifti-1,
-nifti-2, and cifti file formats. In addition to being a reference implementation, we hope it is
-also a useful i/o library. 
+Nifti_clib has been developed by members of the NIFTI DFWG and volunteers in the
+neuroimaging community and serves as a reference implementation of the nifti-1
+and nifti-2 file formats. In addition to being a reference implementation, we
+hope it is also a useful i/o library. 
 
-Niftilib code is released into the public domain,
+Nifti_clib code is released into the public domain,
 developers are encouraged to incorporate niftilib code into their applications,
 and, to contribute changes and enhancements to niftilib. Please contact us if
 you would like to contribute additonal functionality to the i/o library.
@@ -26,10 +26,10 @@ The testing dashboard for monitoring the health of the libraries is at
 
 
 ## Nifti-2 C libraries
-comming soon.
+coming soon.
 
 ## Cifti C libraries
-comming soon.
+Introductory, coming soon.
 
 ## Nifti-1 C libraries
 
@@ -52,8 +52,10 @@ directory |  description
 ----------|-------------
 znzlib    | low level library for handling read/write of compressed files.
 niftilib  | core i/o routines for reading and writing nifti-1 format files.  Primarily routines to read/write and manipulate the header field information, including orientation matrices.  Volume-wise, timecourse-wise, access to image data.
+nifti2    | core i/o routines for reading and writing nifti-2 format files.
 nifticdf  | functions to compute cumulative distributions and their inverses
 fsliolib  | i/o routines for reading and writing nifti-1 format files, higher level than niftilib, includes routines for reading the data blob by volume, timecourse, etc., and, addresses image orientation issues.  `work in progress, subject to significant revision.....`
+cifti     | very basic routines for reading cifti format files
 
 ## Destination directories
 
@@ -69,8 +71,7 @@ docs      | destination directory Doxygen html (created via "make doc")
 
 directory   | description
 ------------|-------------
-examples    | directory containing sample code using nifti reference library
-`real_easy` | code snippets to read nifti-1 files, not using nifti ref. lib.
+`real_easy` | simple code snippets, some using ref. libs., some not
 
 
 ## Other directories
