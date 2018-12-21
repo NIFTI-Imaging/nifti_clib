@@ -38,11 +38,11 @@ endif()
 
 if(NIFTI_BUILD_TESTING AND NIFTI_BUILD_APPLICATIONS)
     # in order to decouble nifti2 and niftilib, the nifti1.h file
-    # is duplicated here.  The verify_nifti1_headers_are_smame test
+    # is duplicated here.  The verify_nifti1_headers_are_same test
     # will fail if these two files are not identical.
     if( ( IS_DIRECTORY ${PROJECT_SOURCE_DIR}/nifti2 ) AND (IS_DIRECTORY ${PROJECT_SOURCE_DIR}/niftilib))
         message(STATUS "Testing same")
-        add_test(verify_nifti1_headers_are_smame ${CMAKE_COMMAND} -E compare_files ${PROJECT_SOURCE_DIR}/nifti2/nifti1.h ${PROJECT_SOURCE_DIR}/niftilib/nifti1.h)
+        add_test(verify_nifti1_headers_are_same ${CMAKE_COMMAND} -E compare_files ${PROJECT_SOURCE_DIR}/nifti2/nifti1.h ${PROJECT_SOURCE_DIR}/niftilib/nifti1.h)
     endif()
     add_executable(${NIFTI_PACKAGE_PREFIX}clib_02_nifti2 clib_02_nifti2.c)
     target_link_libraries(${NIFTI_PACKAGE_PREFIX}clib_02_nifti2 PUBLIC ${NIFTI_NIFTILIB2_NAME})
