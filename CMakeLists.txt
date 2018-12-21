@@ -88,7 +88,14 @@ enable_testing()
 include(CTest)
 #Needs an if clause and more work before testing can take place.
 set_if_not_defined(NIFTI_BUILD_TESTING ${BUILD_TESTING})
-if (NIFTI_BUILD_TESTING AND CMAKE_VERSION GREATER_EQUAL 3.11.0) # CMAKE VERSION 3.11.0 needed for fetching data with cmake
+
+message( STATUS "${CMAKE_VERSION}")
+if (NIFTI_BUILD_TESTING )
+  set_if_not_defined(NIFTI_SHELL_SCRIPT_TESTS "ON")
+  if ( CMAKE_VERSION VERSION_LESS 3.11.0 )
+    # CMAKE VERSION 3.11.0 needed for fetching data with cmake
+    message(FATAL_ERROR "ERROR:  The testing framework for nifti_clib requires CMake version 3.11.0 or greater")
+  endif()
 
   include(FetchContent) # fetch data a configure time to simplify tests
   # If new or changed data is needed, add that data to the https://github.com/NIFTI-Imaging/nifti-test-data repo
