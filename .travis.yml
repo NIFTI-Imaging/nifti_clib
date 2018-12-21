@@ -25,10 +25,11 @@ matrix:
         - CTEST_SCRIPT_DIRECTORY=${TRAVIS_BUILD_DIR}/cmake
         - CXXFLAGS="-g -O0 -Wall -Wextra -m64 -W -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -Wno-deprecated -Woverloaded-virtual -Wwrite-strings -fprofile-arcs -ftest-coverage"
         - CFLAGS="-g -O0 -Wall -Wextra -m64 -W -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -Wno-deprecated -Wwrite-strings -fprofile-arcs -ftest-coverage"
-        - LDFLAGS="-fprofile-arcs -ftest-coverage"
+        - LDFLAGS="-fprofile-arcs -ftest-coverage -lgcov"
         - INTERPROCEDURAL_OPTIMIZATION="ON"
         - B_NAME=system_gcc
-        - COVERAGE="YES"
+        - COVERAGE="ON"
+        - SCANBUILD_EXE=""
     - compiler: clang
       os: linux
       env:
@@ -45,7 +46,10 @@ matrix:
         - CXXFLAGS="-g -Wall -Wextra -m64 -fsanitize=address,undefined"
         - INTERPROCEDURAL_OPTIMIZATION="OFF"
         - B_NAME=fsanitize_clang
-        - COVERAGE="NO"
+        - COVERAGE="OFF"
+        - SCANBUILD_EXE="scan-build"
+        - CCC_CC=clang
+        - CCC_CXX=clang++
     - compiler: clang
       os: osx
       env:
@@ -62,7 +66,10 @@ matrix:
         - CXXFLAGS="-O3 -Wall -Wextra -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -Wno-deprecated -Wwrite-strings"
         - INTERPROCEDURAL_OPTIMIZATION="ON"
         - B_NAME=osx_clang
-        - COVERAGE="NO"
+        - COVERAGE="OFF"
+        - SCANBUILD_EXE=""
+        - CCC_CC=clang
+        - CCC_CXX=clang++
 
 before_install:
   #- env
@@ -76,7 +83,7 @@ before_install:
         #CMAKE_URL="https://cmake.org/files/v3.13/cmake-3.13.2-Linux-x86_64.tar.gz"
         CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2-Linux-x86_64.tar.gz"
         mkdir -p cmake-3.13.2 && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake-3.13.2
-        export PATH=${TRAVIS_BUILD_DIR}/deps/cmake-3.13.2/bin:${PATH}
+        export PATH=${TRAVIS_BUILD_DIR}/deps/cmake-3.13.2/bin:${PATH}:/usr/bin
       popd
     else
       brew install cmake || brew upgrade cmake
@@ -87,11 +94,13 @@ before_install:
 install: true
 before_script: true
 script:
-  - which $CXX
-  - $CXX --version
-  - which $CC
-  - $CC --version
-  - ctest -S ${CTEST_SCRIPT_DIRECTORY}/travis_dashboard.cmake -V -j 4
+  - which $CXX || true
+  - $CXX --version || true
+  - which $CC || true
+  - $CC --version || true
+  - which scan-build || true
+  - which gcov || true
+  - ${SCANBUILD_EXE} ctest -S ${CTEST_SCRIPT_DIRECTORY}/travis_dashboard.cmake -V -j 4
 
 after_success: true
 after_failure: true
