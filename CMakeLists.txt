@@ -100,8 +100,8 @@ if (NIFTI_BUILD_TESTING )
   # If new or changed data is needed, add that data to the https://github.com/NIFTI-Imaging/nifti-test-data repo
   # make a new release, and then update the URL and hash (shasum -a 256 <downloaded tarball>).
   FetchContent_Declare( fetch_testing_data
-          URL      https://github.com/NIFTI-Imaging/nifti-test-data/archive/v3.0.0.tar.gz
-          URL_HASH SHA256=8a22554ca196f707f7c8cdc102e1a30117cd67da41d269390952683076ffcac8
+          URL      https://github.com/NIFTI-Imaging/nifti-test-data/archive/v3.0.1.tar.gz
+          URL_HASH SHA256=81accd390e7c7223e090ea8b2acaf145424b28148db3ef0eee4e9d6b2fd4d521
           )
   FetchContent_GetProperties(fetch_testing_data)
   if(NOT fetch_testing_data)
