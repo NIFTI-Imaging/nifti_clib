@@ -1,4 +1,3 @@
-dist: xenial
 language: cpp # sets both CXX and CC envirionmental variables
 # Use the faster container-based infrastructure.
 #sudo: false
@@ -7,14 +6,6 @@ sudo: true
 env:
   global:
 
-addons:
-  apt:
-    packages: cmake
-    packages: valgrind
-  homebrew:
-    packages: cmake
-    packages: sed
-
 # -m32 is not supported 
 # no poppler, openjpeg, uuid, json
 # no swig
@@ -22,6 +13,7 @@ matrix:
   fast_finish: true
   include:
     - compiler: gcc
+      dist: xenial
       os: linux
       env:
         - PARALLEL_LEVEL=3
@@ -40,6 +32,7 @@ matrix:
         - COVERAGE="ON"
         - SCANBUILD_EXE=""
     - compiler: clang
+      dist: xenial
       os: linux
       env:
         - PARALLEL_LEVEL=3
@@ -82,17 +75,33 @@ matrix:
 
 before_install:
   #- env
+  ############################################################################
+  # Install a recent CMake
+  ############################################################################
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      mkdir -p ${TRAVIS_BUILD_DIR}/deps
+      pushd ${TRAVIS_BUILD_DIR}/deps
+        #CMAKE_URL="https://cmake.org/files/v3.13/cmake-3.13.2-Linux-x86_64.tar.gz"
+        CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2-Linux-x86_64.tar.gz"
+        mkdir -p cmake-3.13.2 && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake-3.13.2
+        export PATH=${TRAVIS_BUILD_DIR}/deps/cmake-3.13.2/bin:${PATH}:/usr/bin
+      popd
+    else
+      brew install cmake || brew upgrade cmake
+    fi
   - cd ${TRAVIS_BUILD_DIR}
+  - cmake --version
   
 install: true
 before_script: true
 script:
-  - which $CXX && $CXX --version || true
-  - which $CC && $CC --version || true
+  - which $CXX || true
+  - $CXX --version || true
+  - which $CC || true
+  - $CC --version || true
   - which scan-build || true
-  - which gcov && gcov --version || true
-  - which valgrind && valgrind --version || true
-  - which cmake && cmake --version || true
+  - which gcov || true
   - ${SCANBUILD_EXE} ctest -S ${CTEST_SCRIPT_DIRECTORY}/travis_dashboard.cmake -V -j 4
 
 after_success: true
