@@ -89,7 +89,6 @@ include(CTest)
 #Needs an if clause and more work before testing can take place.
 set_if_not_defined(NIFTI_BUILD_TESTING ${BUILD_TESTING})
 
-message( STATUS "${CMAKE_VERSION}")
 if (NIFTI_BUILD_TESTING )
   set_if_not_defined(NIFTI_SHELL_SCRIPT_TESTS "ON")
   if ( CMAKE_VERSION VERSION_LESS 3.11.0 )
