@@ -148,7 +148,7 @@ afni_xml_t * axio_cifti_from_ext(nifti_image * nim)
 
    /* just read until we have a CIFTI extension to process */
    ext = nim->ext_list;
-   for( ind = 0; ind < nim->num_ext; ind++ ) {
+   for( ind = 0; ind < nim->num_ext; ind++, ext++ ) {
       if( ext->ecode != NIFTI_ECODE_CIFTI ) continue;
       return axio_read_buf(ext->edata, ext->esize-8);
    }
