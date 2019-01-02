@@ -5337,7 +5337,7 @@ nifti_2_header * nifti_read_n2_hdr(const char * hname, int * swapped,
       rv = nifti_convert_nim2n2hdr(nim, hptr);
       free(nim);
 
-      if( rv ) { free(nim); return NULL; }
+      if( rv ) { free(hptr); return NULL; }
       return hptr;
    }
 
