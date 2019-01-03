@@ -381,10 +381,19 @@ static char const * const gni2_history[] =
   "   - print int64_t using PRId64 macro, (ugly, but no warnings)\n"
   "2.06 01 Oct, 2018 [rickr]\n"
   "   - errors should all mention NIFTI, slight additional clarity\n"
+  "2.07 18 Dec, 2018 [hmjohnson]\n"
+  "   - added some const qualifiers\n"
+  "   - removed register keywords\n"
+  "   - fixed potential memory leaks in error conditions\n"
+  "   - appeased compilers\n"
+  "   - duped nifti1.h under nifti2, so directories do not cross reference\n"
+  "2.08 02 Jan, 2019 [rickr]\n"
+  "   - fixed CIFTI extension reading if not first\n"
+  "   - re-allow reading of ASCII headers (not part of standard)\n"
 };
 
 static const char gni_version[]
-        = "nifti-2 library version 2.06 (1 October, 2018)";
+        = "nifti-2 library version 2.08 (3 January, 2019)";
 
 /*! global nifti options structure - init with defaults */
 /*  see 'option accessor functions'                     */
@@ -1831,6 +1840,7 @@ void nifti_dmat44_to_quatern(nifti_dmat44 R ,
        c = 0.25l* (r23+r32) / d ;
        a = 0.25l* (r21-r12) / d ;
      }
+     /* to be mathematically consistent, this would include a = -a */
      if( a < 0.0l ){ b=-b ; c=-c ; d=-d; }
    }
 
@@ -1970,6 +1980,7 @@ void nifti_mat44_to_quatern( mat44 R ,
        c = 0.25l* (r23+r32) / d ;
        a = 0.25l* (r21-r12) / d ;
      }
+     /* to be mathematically consistent, this would include a = -a */
      if( a < 0.0l ){ b=-b ; c=-c ; d=-d; }
    }
 
