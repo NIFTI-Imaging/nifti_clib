@@ -178,7 +178,8 @@ static const char * g_history[] =
   "2.05 24 Jul 2017 [rickr]\n"
   "   - display ANALYZE header via appropriate NIFTI-1\n"
   "   - apply more PRId64 for 64-bit int I/O\n"
-  "2.06 03 Jan 2019 [rickr]\n",
+  "2.06 04 Jan 2019 [rickr]\n",
+  "   - add -mod_hdr2 option, to explicitly modify NIFTI-2 headers\n"
   "   - mod_hdr and swap_as_nifti fail on valid NIFTI-2 headers\n"
   "----------------------------------------------------------------------\n"
 };
@@ -1502,9 +1503,11 @@ int use_full()
    printf(
    "    -mod_hdr2          : modify nifti_2_header fields for datasets\n"
    "\n"
-   "       This action option is the same as -mod_hdr, except that -mod_hdr\n"
-   "       applies to NIFTI-1 datasets, while this option applies to NIFTI-2\n"
-   "       datasets.\n"
+   "       This action option is like -mod_hdr, except that this -mod_hdr2\n"
+   "       option applies to NIFTI-2 datasets, while -mod_hdr applies to\n"
+   "       NIFTI-1 datasets.\n"
+   "\n"
+   "       The same -mod_field options are then applied to specify changes.\n"
    "\n");
    printf(
    "    -mod_nim          : modify nifti_image fields for datasets\n"
