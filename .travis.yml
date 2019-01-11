@@ -80,7 +80,7 @@ matrix:
         - WITH_COVERAGE="OFF"
         - WITH_MEMCHECK="OFF"
         - NIFTI_SHELL_SCRIPT_TESTS="ON"
-        - SCANBUILD_EXE="scan-build"
+        - SCANBUILD_EXE="scan-build -v --status-bugs"
         - CCC_CC=clang
         - CCC_CXX=clang++
     - compiler: clang
