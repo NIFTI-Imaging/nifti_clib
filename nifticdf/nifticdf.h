@@ -120,7 +120,7 @@ double dbetrm(double*,double*);
 double devlpl(const double [],const int*,const double*);
 #if defined(__COMPILE_UNUSED_FUNCTIONS__)
 double dexpm1(double*);
-double dinvnr(double *p,double *q);
+double dinvnr(const double *p,const double *q);
 #endif /*defined(__COMPILE_UNUSED_FUNCTIONS__)*/
 void E0000(int,int*,double*,double*,unsigned long*,
                   unsigned long*,const double*,const double*,const double*,
