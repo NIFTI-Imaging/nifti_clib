@@ -5344,7 +5344,6 @@ nifti_2_header * nifti_read_n2_hdr(const char * hname, int * swapped,
       if( g_opts.debug > 1 )
          fprintf(stderr,"++ reading ASCII header via NIFTI-2 in %s\n", hname);
       nim = nifti_read_ascii_image(fp, hname, -1, 0);
-      znzclose(fp) ;
       if( ! nim ) return NULL;
 
       hptr = (nifti_2_header *)malloc(sizeof(nifti_2_header));
