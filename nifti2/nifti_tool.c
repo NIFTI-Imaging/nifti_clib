@@ -5486,11 +5486,13 @@ void * nt_read_header(const char * fname, int * nver, int * swapped, int check,
            nim = nifti_convert_n2hdr2nim(*(nifti_2_header*)nptr, NULL);
            if( !nim ) {
               fprintf(stderr,"** %s: failed n2hdr2nim on %s\n", func, fname);
+              free(nptr); free(hdr);
               return NULL;
            }
            if( nifti_convert_nim2n1hdr(nim, hdr) ) {
               fprintf(stderr,"** %s: failed convert_nim2n1hdr on %s\n",
                       func, fname);
+              free(nptr); free(hdr); free(nim);
               return NULL;
            }
            return hdr;
