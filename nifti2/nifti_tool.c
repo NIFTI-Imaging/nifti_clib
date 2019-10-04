@@ -184,13 +184,13 @@ static const char * g_history[] =
   "2.07 19 Jul 2019 [rickr]\n",
   "   - can apply '-field HDR_SLICE_TIMING_FIELDS' (or NIM_) for easy\n"
   "     specification of field entries related to slice timing\n"
-  "2.08  3 Oct 2019 [rickr]\n",
+  "2.08  4 Oct 2019 [rickr]\n",
   "   - added option -run_misc_tests for functionality testing\n"
   "   - added many corresponding tests\n"
   "   - added some matrix manipulation macros\n"
   "----------------------------------------------------------------------\n"
 };
-static char g_version[] = "version 2.08 (October 3, 2019)";
+static char g_version[] = "version 2.08 (October 4, 2019)";
 static int  g_debug = 1;
 
 #define _NIFTI_TOOL_C_
@@ -5090,6 +5090,7 @@ int nt_run_misc_nim_tests(nifti_image * nim)
 
    nim_copy = nifti_copy_nim_info(nim);
    ival = diff_nims(nim, nim_copy, 1);
+   nifti_image_free(nim_copy);
    printf("= diff in nim copy (hopefully 0): %d\n", ival);
 
    /* test nifti_read_subregion_image() - just get one voxel */
