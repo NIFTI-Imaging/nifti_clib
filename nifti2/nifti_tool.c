@@ -3754,7 +3754,7 @@ int modify_field(void * basep, field_s * field, const char * data)
                   return 1;
                }
                /* otherwise, we're good */
-               ((float *)((char *)basep + field->offset))[fc] = f64;
+               ((double *)((char *)basep + field->offset))[fc] = f64;
                if( g_debug > 1 )
                   fprintf(stderr,"+d setting posn %d of '%s' to %f\n",
                           fc, field->name, f64);
