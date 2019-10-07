@@ -1317,6 +1317,7 @@ char const * nifti_datatype_string( int dt )
      case DT_COMPLEX256: return "COMPLEX256" ;
      case DT_RGB24:      return "RGB24"      ;
      case DT_RGBA32:     return "RGBA32"     ;
+     default:            break               ;
    }
    return "**ILLEGAL**" ;
 }
@@ -1349,6 +1350,7 @@ int nifti_is_inttype( int dt )
      case DT_COMPLEX256: return 0 ;
      case DT_RGB24:      return 1 ;
      case DT_RGBA32:     return 1 ;
+     default:            break    ;
    }
    return 0 ;
 }
@@ -1377,6 +1379,7 @@ char const *nifti_units_string( int uu )
      case NIFTI_UNITS_HZ:     return "Hz" ;
      case NIFTI_UNITS_PPM:    return "ppm" ;
      case NIFTI_UNITS_RADS:   return "rad/s" ;
+     default:                 break ;
    }
    return "Unknown" ;
 }
@@ -1400,6 +1403,7 @@ char const *nifti_xform_string( int xx )
      case NIFTI_XFORM_ALIGNED_ANAT:  return "Aligned Anat" ;
      case NIFTI_XFORM_TALAIRACH:     return "Talairach" ;
      case NIFTI_XFORM_MNI_152:       return "MNI_152" ;
+     default:                        break ;
    }
    return "Unknown" ;
 }
@@ -1456,6 +1460,7 @@ char const *nifti_intent_string( int ii )
      case NIFTI_INTENT_QUATERNION: return "Quaternion" ;
 
      case NIFTI_INTENT_DIMLESS:    return "Dimensionless number" ;
+     default:                      break ;
    }
    return "Unknown" ;
 }
@@ -1481,6 +1486,7 @@ char const *nifti_slice_string( int ss )
      case NIFTI_SLICE_ALT_DEC:  return "alternating_decreasing"   ;
      case NIFTI_SLICE_ALT_INC2: return "alternating_increasing_2" ;
      case NIFTI_SLICE_ALT_DEC2: return "alternating_decreasing_2" ;
+     default: break;
    }
    return "Unknown" ;
 }
@@ -1506,6 +1512,7 @@ char const *nifti_orientation_string( int ii )
      case NIFTI_A2P: return "Anterior-to-Posterior" ;
      case NIFTI_I2S: return "Inferior-to-Superior" ;
      case NIFTI_S2I: return "Superior-to-Inferior" ;
+     default:        break;
    }
    return "Unknown" ;
 }
@@ -1551,6 +1558,7 @@ void nifti_datatype_sizes( int datatype , int *nbyper, int *swapsize )
      case DT_COMPLEX128:  nb = 16 ; ss =  8 ; break ;
 
      case DT_COMPLEX256:  nb = 32 ; ss = 16 ; break ;
+     default:             break;
    }
 
    ASSIF(nbyper,nb) ; ASSIF(swapsize,ss) ; return ;
@@ -2766,6 +2774,7 @@ void nifti_dmat44_to_orientation( nifti_dmat44 R ,
      case -2: i = NIFTI_A2P ; break ;
      case  3: i = NIFTI_I2S ; break ;
      case -3: i = NIFTI_S2I ; break ;
+     default: break;
    }
 
    switch( jbest*qbest ){
@@ -2775,6 +2784,7 @@ void nifti_dmat44_to_orientation( nifti_dmat44 R ,
      case -2: j = NIFTI_A2P ; break ;
      case  3: j = NIFTI_I2S ; break ;
      case -3: j = NIFTI_S2I ; break ;
+     default: break;
    }
 
    switch( kbest*rbest ){
@@ -2784,6 +2794,7 @@ void nifti_dmat44_to_orientation( nifti_dmat44 R ,
      case -2: k = NIFTI_A2P ; break ;
      case  3: k = NIFTI_I2S ; break ;
      case -3: k = NIFTI_S2I ; break ;
+     default: break;
    }
 
    *icod = i ; *jcod = j ; *kcod = k ; return ;
@@ -2947,6 +2958,7 @@ void nifti_mat44_to_orientation( mat44 R , int *icod, int *jcod, int *kcod )
      case -2: i = NIFTI_A2P ; break ;
      case  3: i = NIFTI_I2S ; break ;
      case -3: i = NIFTI_S2I ; break ;
+     default: break;
    }
 
    switch( jbest*qbest ){
@@ -2956,6 +2968,7 @@ void nifti_mat44_to_orientation( mat44 R , int *icod, int *jcod, int *kcod )
      case -2: j = NIFTI_A2P ; break ;
      case  3: j = NIFTI_I2S ; break ;
      case -3: j = NIFTI_S2I ; break ;
+     default: break;
    }
 
    switch( kbest*rbest ){
@@ -2965,6 +2978,7 @@ void nifti_mat44_to_orientation( mat44 R , int *icod, int *jcod, int *kcod )
      case -2: k = NIFTI_A2P ; break ;
      case  3: k = NIFTI_I2S ; break ;
      case -3: k = NIFTI_S2I ; break ;
+     default: break;
    }
 
    *icod = i ; *jcod = j ; *kcod = k ; return ;
@@ -6835,6 +6849,7 @@ int64_t nifti_read_buffer(znzFile fp, void* dataptr, int64_t ntot,
            }
       }
       break ;
+
 
   }
 
