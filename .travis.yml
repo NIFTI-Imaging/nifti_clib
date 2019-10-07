@@ -10,7 +10,7 @@ language: cpp # sets both CXX and CC envirionmental variables
 sudo: true
 env:
   global:
-
+    - PROJECT_NAME=NIFTI_CLIB
 addons:
   apt:
     packages:
