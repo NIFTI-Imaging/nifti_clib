@@ -75,7 +75,7 @@ if(NOT CTEST_BUILD_NAME)
   endif()
 
   set(CTEST_BUILD_NAME
-    "$ENV{TRAVIS_OS_NAME}-$ENV{BUILD_BUILDID}_${pr}_${branch}")
+    "$ENV{BLDPREFIX}_$ENV{TRAVIS_OS_NAME}-$ENV{BUILD_BUILDID}_${pr}_${branch}")
 endif()
 
 set(dashboard_cache "
