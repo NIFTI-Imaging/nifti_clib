@@ -10815,61 +10815,96 @@ static double invgauss_pq2s( pqpair pq , double c )
     - All the actual work is done in utility functions for each distribution.
 ----------------------------------------------------------------------------*/
 
-static pqpair stat2pq( double val, int code, double p1,double p2,double p3 )
+static pqpair stat2pq(double val, int code, double p1, double p2, double p3)
 {
-   pqpair pq={0.0,1.0} ;
+  pqpair pq = {0.0, 1.0};
 
-   switch( code ){
-
-     case NIFTI_INTENT_CORREL:     pq = correl_s2pq  ( val, p1 )      ; break;
-     case NIFTI_INTENT_TTEST:      pq = student_s2pq ( val, p1 )      ; break;
-     case NIFTI_INTENT_FTEST:      pq = fstat_s2pq   ( val, p1,p2 )   ; break;
-     case NIFTI_INTENT_ZSCORE:     pq = normal_s2pq  ( val )          ; break;
-     case NIFTI_INTENT_CHISQ:      pq = chisq_s2pq   ( val, p1 )      ; break;
-     case NIFTI_INTENT_BETA:       pq = beta_s2pq    ( val, p1,p2 )   ; break;
-     case NIFTI_INTENT_BINOM:      pq = binomial_s2pq( val, p1,p2 )   ; break;
-     case NIFTI_INTENT_GAMMA:      pq = gamma_s2pq   ( val, p1,p2 )   ; break;
-     case NIFTI_INTENT_POISSON:    pq = poisson_s2pq ( val, p1 )      ; break;
-     case NIFTI_INTENT_FTEST_NONC: pq = fnonc_s2pq   ( val, p1,p2,p3 ); break;
-     case NIFTI_INTENT_CHISQ_NONC: pq = chsqnonc_s2pq( val, p1,p2    ); break;
-     case NIFTI_INTENT_TTEST_NONC: pq = tnonc_s2pq   ( val, p1,p2 )   ; break;
-     case NIFTI_INTENT_CHI:        pq = chi_s2pq     ( val, p1 )      ; break;
-
-     /* these distributions are shifted and scaled copies of a standard case */
-
-     case NIFTI_INTENT_INVGAUSS:
-        if( p1 > 0.0 && p2 > 0.0 ) pq = invgauss_s2pq( val/p1,p2/p1 ) ; break;
-
-     case NIFTI_INTENT_WEIBULL:
-        if( p2 > 0.0 && p3 > 0.0 ) pq = weibull_s2pq ((val-p1)/p2,p3) ; break;
-
-     case NIFTI_INTENT_EXTVAL:
-                    if( p2 > 0.0 ) pq = extval1_s2pq ( (val-p1)/p2 )  ; break;
-
-     case NIFTI_INTENT_NORMAL:
-                    if( p2 > 0.0 ) pq = normal_s2pq  ( (val-p1)/p2 )  ; break;
-
-     case NIFTI_INTENT_LOGISTIC:
-                    if( p2 > 0.0 ) pq = logistic_s2pq( (val-p1)/p2 )  ; break;
-
-     case NIFTI_INTENT_LAPLACE:
-                    if( p2 > 0.0 ) pq = laplace_s2pq ( (val-p1)/p2 )  ; break;
-
-     case NIFTI_INTENT_UNIFORM:
-                    if( p2 > p1  ) pq = uniform_s2pq((val-p1)/(p2-p1)); break;
-
-     /* these cases are trivial (note what is called 'p' is really 'q') */
-
-     case NIFTI_INTENT_PVAL:
-                        if( val >= 0.0 && val <= 1.0 ) pq.q = val ;
-                                                       pq.p = 1.0-pq.q; break;
-     case NIFTI_INTENT_LOGPVAL:
-                           pq.q = exp(-fabs(val))    ; pq.p = 1.0-pq.q; break;
-     case NIFTI_INTENT_LOG10PVAL:
-                           pq.q = pow(10.,-fabs(val)); pq.p = 1.0-pq.q; break;
-   }
-
-   return pq ;
+  switch (code)
+  {
+  case NIFTI_INTENT_CORREL:
+    pq = correl_s2pq(val, p1);
+    break;
+  case NIFTI_INTENT_TTEST:
+    pq = student_s2pq(val, p1);
+    break;
+  case NIFTI_INTENT_FTEST:
+    pq = fstat_s2pq(val, p1, p2);
+    break;
+  case NIFTI_INTENT_ZSCORE:
+    pq = normal_s2pq(val);
+    break;
+  case NIFTI_INTENT_CHISQ:
+    pq = chisq_s2pq(val, p1);
+    break;
+  case NIFTI_INTENT_BETA:
+    pq = beta_s2pq(val, p1, p2);
+    break;
+  case NIFTI_INTENT_BINOM:
+    pq = binomial_s2pq(val, p1, p2);
+    break;
+  case NIFTI_INTENT_GAMMA:
+    pq = gamma_s2pq(val, p1, p2);
+    break;
+  case NIFTI_INTENT_POISSON:
+    pq = poisson_s2pq(val, p1);
+    break;
+  case NIFTI_INTENT_FTEST_NONC:
+    pq = fnonc_s2pq(val, p1, p2, p3);
+    break;
+  case NIFTI_INTENT_CHISQ_NONC:
+    pq = chsqnonc_s2pq(val, p1, p2);
+    break;
+  case NIFTI_INTENT_TTEST_NONC:
+    pq = tnonc_s2pq(val, p1, p2);
+    break;
+  case NIFTI_INTENT_CHI:
+    pq = chi_s2pq(val, p1);
+    break;
+  /* these distributions are shifted and scaled copies of a standard case */
+  case NIFTI_INTENT_INVGAUSS:
+    if (p1 > 0.0 && p2 > 0.0)
+      pq = invgauss_s2pq(val / p1, p2 / p1);
+    break;
+  case NIFTI_INTENT_WEIBULL:
+    if (p2 > 0.0 && p3 > 0.0)
+      pq = weibull_s2pq((val - p1) / p2, p3);
+    break;
+  case NIFTI_INTENT_EXTVAL:
+    if (p2 > 0.0)
+      pq = extval1_s2pq((val - p1) / p2);
+    break;
+  case NIFTI_INTENT_NORMAL:
+    if (p2 > 0.0)
+      pq = normal_s2pq((val - p1) / p2);
+    break;
+  case NIFTI_INTENT_LOGISTIC:
+    if (p2 > 0.0)
+      pq = logistic_s2pq((val - p1) / p2);
+    break;
+  case NIFTI_INTENT_LAPLACE:
+    if (p2 > 0.0)
+      pq = laplace_s2pq((val - p1) / p2);
+    break;
+  case NIFTI_INTENT_UNIFORM:
+    if (p2 > p1)
+      pq = uniform_s2pq((val - p1) / (p2 - p1));
+    break;
+  /* these cases are trivial (note what is called 'p' is really 'q') */
+  case NIFTI_INTENT_PVAL:
+    if (val >= 0.0 && val <= 1.0)
+      pq.q = val;
+    pq.p = 1.0 - pq.q;
+    break;
+  case NIFTI_INTENT_LOGPVAL:
+    pq.q = exp(-fabs(val));
+    pq.p = 1.0 - pq.q;
+    break;
+  case NIFTI_INTENT_LOG10PVAL:
+    pq.q = pow(10., -fabs(val));
+    pq.p = 1.0 - pq.q;
+    break;
+  }
+  return pq;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -10882,59 +10917,94 @@ static pqpair stat2pq( double val, int code, double p1,double p2,double p3 )
 
 static double pq2stat( pqpair pq, int code, double p1,double p2,double p3 )
 {
-   double val=BIGG ;
+  double val = BIGG;
 
-   if( pq.p < 0.0 || pq.q < 0.0 || pq.p > 1.0 || pq.q > 1.0 ) return val ;
+  if (pq.p < 0.0 || pq.q < 0.0 || pq.p > 1.0 || pq.q > 1.0)
+    return val;
 
-   switch( code ){
+  switch (code)
+  {
+  case NIFTI_INTENT_CORREL:
+    val = correl_pq2s(pq, p1);
+    break;
+  case NIFTI_INTENT_TTEST:
+    val = student_pq2s(pq, p1);
+    break;
+  case NIFTI_INTENT_FTEST:
+    val = fstat_pq2s(pq, p1, p2);
+    break;
+  case NIFTI_INTENT_ZSCORE:
+    val = normal_pq2s(pq);
+    break;
+  case NIFTI_INTENT_CHISQ:
+    val = chisq_pq2s(pq, p1);
+    break;
+  case NIFTI_INTENT_BETA:
+    val = beta_pq2s(pq, p1, p2);
+    break;
+  case NIFTI_INTENT_BINOM:
+    val = binomial_pq2s(pq, p1, p2);
+    break;
+  case NIFTI_INTENT_GAMMA:
+    val = gamma_pq2s(pq, p1, p2);
+    break;
+  case NIFTI_INTENT_POISSON:
+    val = poisson_pq2s(pq, p1);
+    break;
+  case NIFTI_INTENT_FTEST_NONC:
+    val = fnonc_pq2s(pq, p1, p2, p3);
+    break;
+  case NIFTI_INTENT_CHISQ_NONC:
+    val = chsqnonc_pq2s(pq, p1, p2);
+    break;
+  case NIFTI_INTENT_TTEST_NONC:
+    val = tnonc_pq2s(pq, p1, p2);
+    break;
+  case NIFTI_INTENT_CHI:
+    val = chi_pq2s(pq, p1);
+    break;
+  /* these distributions are shifted and scaled copies of a standard case */
+  case NIFTI_INTENT_INVGAUSS:
+    if (p1 > 0.0 && p2 > 0.0)
+      val = p1 * invgauss_pq2s(pq, p2 / p1);
+    break;
+  case NIFTI_INTENT_WEIBULL:
+    if (p2 > 0.0 && p3 > 0.0)
+      val = p1 + p2 * weibull_pq2s(pq, p3);
+    break;
+  case NIFTI_INTENT_EXTVAL:
+    if (p2 > 0.0)
+      val = p1 + p2 * extval1_pq2s(pq);
+    break;
+  case NIFTI_INTENT_NORMAL:
+    if (p2 > 0.0)
+      val = p1 + p2 * normal_pq2s(pq);
+    break;
+  case NIFTI_INTENT_LOGISTIC:
+    if (p2 > 0.0)
+      val = p1 + p2 * logistic_pq2s(pq);
+    break;
+  case NIFTI_INTENT_LAPLACE:
+    if (p2 > 0.0)
+      val = p1 + p2 * laplace_pq2s(pq);
+    break;
+  case NIFTI_INTENT_UNIFORM:
+    if (p2 > p1)
+      val = p1 + (p2 - p1) * uniform_pq2s(pq);
+    break;
+  /* these cases are trivial */
+  case NIFTI_INTENT_PVAL:
+    val = pq.q;
+    break;
+  case NIFTI_INTENT_LOGPVAL:
+    val = (pq.q > 0.0) ? -log(pq.q) : BIGG;
+    break;
+  case NIFTI_INTENT_LOG10PVAL:
+    val = (pq.q > 0.0) ? -log10(pq.q) : BIGG;
+    break;
+  }
 
-     case NIFTI_INTENT_CORREL:     val = correl_pq2s  ( pq , p1 )      ; break;
-     case NIFTI_INTENT_TTEST:      val = student_pq2s ( pq , p1 )      ; break;
-     case NIFTI_INTENT_FTEST:      val = fstat_pq2s   ( pq , p1,p2 )   ; break;
-     case NIFTI_INTENT_ZSCORE:     val = normal_pq2s  ( pq )           ; break;
-     case NIFTI_INTENT_CHISQ:      val = chisq_pq2s   ( pq , p1 )      ; break;
-     case NIFTI_INTENT_BETA:       val = beta_pq2s    ( pq , p1,p2 )   ; break;
-     case NIFTI_INTENT_BINOM:      val = binomial_pq2s( pq , p1,p2 )   ; break;
-     case NIFTI_INTENT_GAMMA:      val = gamma_pq2s   ( pq , p1,p2 )   ; break;
-     case NIFTI_INTENT_POISSON:    val = poisson_pq2s ( pq , p1 )      ; break;
-     case NIFTI_INTENT_FTEST_NONC: val = fnonc_pq2s   ( pq , p1,p2,p3 ); break;
-     case NIFTI_INTENT_CHISQ_NONC: val = chsqnonc_pq2s( pq , p1,p2    ); break;
-     case NIFTI_INTENT_TTEST_NONC: val = tnonc_pq2s   ( pq , p1,p2 )   ; break;
-     case NIFTI_INTENT_CHI:        val = chi_pq2s     ( pq , p1 )      ; break;
-
-     /* these distributions are shifted and scaled copies of a standard case */
-
-     case NIFTI_INTENT_INVGAUSS:
-        if( p1 > 0.0 && p2 > 0.0 ) val = p1*invgauss_pq2s   ( pq,p2/p1); break;
-
-     case NIFTI_INTENT_WEIBULL:
-        if( p2 > 0.0 && p3 > 0.0 ) val = p1+p2*weibull_pq2s ( pq, p3 ) ; break;
-
-     case NIFTI_INTENT_EXTVAL:
-                    if( p2 > 0.0 ) val = p1+p2*extval1_pq2s ( pq )     ; break;
-
-     case NIFTI_INTENT_NORMAL:
-                    if( p2 > 0.0 ) val = p1+p2*normal_pq2s  ( pq )     ; break;
-
-     case NIFTI_INTENT_LOGISTIC:
-                    if( p2 > 0.0 ) val = p1+p2*logistic_pq2s( pq )     ; break;
-
-     case NIFTI_INTENT_LAPLACE:
-                    if( p2 > 0.0 ) val = p1+p2*laplace_pq2s ( pq )     ; break;
-
-     case NIFTI_INTENT_UNIFORM:
-                    if( p2 > p1  ) val = p1+(p2-p1)*uniform_pq2s(pq)   ; break;
-
-     /* these cases are trivial */
-
-     case NIFTI_INTENT_PVAL:       val = pq.q                          ; break;
-     case NIFTI_INTENT_LOGPVAL:    val = (pq.q > 0.0) ? -log(pq.q)
-                                                      : BIGG           ; break;
-     case NIFTI_INTENT_LOG10PVAL:  val = (pq.q > 0.0) ? -log10(pq.q)
-                                                      : BIGG           ; break;
-   }
-
-   return val ;
+  return val;
 }
 
 /****************************************************************************/
