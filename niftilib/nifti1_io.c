@@ -3180,21 +3180,18 @@ int nifti_type_and_names_match( nifti_image * nim, int show_warn )
             fprintf(stderr,
             "-d NIFTI_FTYPE 1, but no .nii extension in header filename, %s\n",
             nim->fname);
-         errs++;
       }
       if( fileext_n_compare(ext_i,".nii",4) ) {
          if( show_warn )
             fprintf(stderr,
             "-d NIFTI_FTYPE 1, but no .nii extension in image filename, %s\n",
             nim->iname);
-         errs++;
       }
       if( strcmp(nim->fname, nim->iname) != 0 ){
          if( show_warn )
             fprintf(stderr,
             "-d NIFTI_FTYPE 1, but header and image filenames differ: %s, %s\n",
             nim->fname, nim->iname);
-         errs++;
       }
    }
    else if( (nim->nifti_type == NIFTI_FTYPE_NIFTI1_2) || /* .hdr/.img */
@@ -3204,13 +3201,11 @@ int nifti_type_and_names_match( nifti_image * nim, int show_warn )
          if( show_warn )
             fprintf(stderr,"-d no '.hdr' extension, but NIFTI type is %d, %s\n",
                     nim->nifti_type, nim->fname);
-         errs++;
       }
       if( fileext_n_compare(ext_i,".img",4) != 0 ){
          if( show_warn )
             fprintf(stderr,"-d no '.img' extension, but NIFTI type is %d, %s\n",
                     nim->nifti_type, nim->iname);
-         errs++;
       }
    }
    /* ignore any other nifti_type */
@@ -5211,7 +5206,7 @@ static int nifti_write_extensions(znzFile fp, nifti_image *nim)
 {
    nifti1_extension * list;
    char               extdr[4] = { 0, 0, 0, 0 };
-   int                c, size, ok = 1;
+   int                c;
 
    if( znz_isnull(fp) || !nim || nim->num_ext < 0 ){
       if( g_opts.debug > 0 )
@@ -5239,8 +5234,8 @@ static int nifti_write_extensions(znzFile fp, nifti_image *nim)
 
    list = nim->ext_list;
    for ( c = 0; c < nim->num_ext; c++ ){
-      size = (int)nifti_write_buffer(fp, &list->esize, sizeof(int));
-      ok = (size == (int)sizeof(int));
+      int size = (int)nifti_write_buffer(fp, &list->esize, sizeof(int));
+      int ok = (size == (int)sizeof(int));
       if( ok ){
          size = (int)nifti_write_buffer(fp, &list->ecode, sizeof(int));
          ok = (size == (int)sizeof(int));
@@ -6639,7 +6634,6 @@ int nifti_nim_has_valid_dims(nifti_image * nim, int complain)
 
    /**- start with dim[0]: failure here is considered terminal */
    if( nim->dim[0] <= 0 || nim->dim[0] > 7 ){
-      errs++;
       if( complain )
          fprintf(stderr,"** NVd: dim[0] (%d) out of range [1,7]\n",nim->dim[0]);
       return 0;
