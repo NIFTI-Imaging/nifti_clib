@@ -13,11 +13,13 @@ env:
 
 addons:
   apt:
-    packages: cmake
-    packages: valgrind
+    packages:
+      - cmake
+      - valgrind
   homebrew:
-    packages: cmake
-    packages: sed
+    packages:
+      - cmake
+      - sed
 
 # no poppler, openjpeg, uuid, json
 # no swig
