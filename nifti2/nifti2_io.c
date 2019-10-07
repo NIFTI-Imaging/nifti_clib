@@ -1015,7 +1015,7 @@ static int nifti_alloc_NBL_mem(nifti_image * nim, int64_t nbricks,
    }
 
    for( c = 0; c < nbl->nbricks; c++ ){
-      nbl->bricks[c] = (void *)malloc(nbl->bsize);
+      nbl->bricks[c] = malloc(nbl->bsize);
       if( ! nbl->bricks[c] ){
          fprintf(stderr,"** NIFTI NANM: failed to alloc %" PRId64
                  " bytes for brick %" PRId64 "\n", nbl->bsize, c);
@@ -6722,7 +6722,7 @@ int nifti_image_load( nifti_image *nim )
 
    if( nim->data == NULL )
    {
-     nim->data = (void *)calloc(1,ntot) ;  /* create image memory */
+     nim->data = calloc(1,ntot) ;  /* create image memory */
      if( nim->data == NULL ){
         if( g_opts.debug > 0 )
            fprintf(stderr,"** NIFTI: failed to alloc %d bytes for image data\n",
@@ -6939,7 +6939,7 @@ int64_t nifti_write_buffer(znzFile fp, const void *buffer, int64_t numbytes)
       fprintf(stderr,"** ERROR: nifti_write_buffer: null file pointer\n");
       return 0;
    }
-   ss = znzwrite( (const void*)buffer , 1 , numbytes , fp ) ;
+   ss = znzwrite( buffer , 1 , numbytes , fp ) ;
    return ss;
 }
 
@@ -9035,7 +9035,7 @@ int64_t nifti_read_subregion_image( nifti_image * nim,
   for(i = 0; i < nim->ndim; i++) total_alloc_size *= region_size[i];
 
   /* allocate buffer, if necessary */
-  if(! *data) *data = (void *)malloc(total_alloc_size);
+  if(! *data) *data = malloc(total_alloc_size);
 
   if(! *data) {
     if(g_opts.debug > 1)
