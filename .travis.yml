@@ -27,6 +27,7 @@ matrix:
     - compiler: gcc
       os: linux
       env:
+        - BLDPREFIX=coverage
         - PARALLEL_LEVEL=3
         - AGENT_BUILDDIRECTORY=${TRAVIS_BUILD_DIR}/NIFTIworkspace
         - BUILD_SOURCESDIRECTORY=${TRAVIS_BUILD_DIR}
@@ -47,6 +48,7 @@ matrix:
     - compiler: gcc
       os: linux
       env:
+        - BLDPREFIX=valgrind
         - PARALLEL_LEVEL=3
         - AGENT_BUILDDIRECTORY=${TRAVIS_BUILD_DIR}/NIFTIworkspace
         - BUILD_SOURCESDIRECTORY=${TRAVIS_BUILD_DIR}
@@ -67,6 +69,7 @@ matrix:
     - compiler: clang
       os: linux
       env:
+        - BLDPREFIX=sanitize
         - PARALLEL_LEVEL=3
         - AGENT_BUILDDIRECTORY=${TRAVIS_BUILD_DIR}/NIFTIworkspace
         - BUILD_SOURCESDIRECTORY=${TRAVIS_BUILD_DIR}
@@ -89,6 +92,7 @@ matrix:
     - compiler: clang
       os: osx
       env:
+        - BLDPREFIX=rel
         - PARALLEL_LEVEL=3
         - AGENT_BUILDDIRECTORY=${TRAVIS_BUILD_DIR}/NIFTIworkspace
         - BUILD_SOURCESDIRECTORY=${TRAVIS_BUILD_DIR}
