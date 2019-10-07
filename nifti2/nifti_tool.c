@@ -5026,8 +5026,7 @@ int act_run_misc_tests( nt_opts * opts )
 {
    nifti_image * nim;
    const char  * fname;
-   char          mesg[32], *mptr;
-   int           ec, fc;
+   int           fc;
 
    if( g_debug > 1 )
       fprintf(stderr,"-d running misc. tests for %d files...\n",
