@@ -1,4 +1,8 @@
-dist: xenial
+#Ubuntu bionic 18.04
+#Ubuntu xenial 16.04 default
+#Ubuntu trusty 14.04
+#Ubuntu precise 12.04
+dist: bionic
 language: cpp # sets both CXX and CC envirionmental variables
 # Use the faster container-based infrastructure.
 #sudo: false
@@ -15,7 +19,6 @@ addons:
     packages: cmake
     packages: sed
 
-# -m32 is not supported 
 # no poppler, openjpeg, uuid, json
 # no swig
 matrix:
@@ -109,7 +112,7 @@ matrix:
 before_install:
   #- env
   - cd ${TRAVIS_BUILD_DIR}
-  
+
 install: true
 before_script: true
 script:
