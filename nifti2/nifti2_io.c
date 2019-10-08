@@ -1561,8 +1561,7 @@ void nifti_datatype_sizes( int datatype , int *nbyper, int *swapsize )
      default:             break;
    }
 
-   ASSIF(nbyper,nb) ; ASSIF(swapsize,ss) ; return ;
-}
+   ASSIF(nbyper,nb) ; ASSIF(swapsize,ss) ; }
 
 
 /*-----------------------------------------------------------------*/
@@ -1861,7 +1860,6 @@ void nifti_dmat44_to_quatern(nifti_dmat44 R ,
    }
 
    ASSIF(qb,b) ; ASSIF(qc,c) ; ASSIF(qd,d) ;
-   return ;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -2001,7 +1999,6 @@ void nifti_mat44_to_quatern( mat44 R ,
    }
 
    ASSIF(qb,(float)b) ; ASSIF(qc,(float)c) ; ASSIF(qd,(float)d) ;
-   return ;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -2797,8 +2794,7 @@ void nifti_dmat44_to_orientation( nifti_dmat44 R ,
      default: break;
    }
 
-   *icod = i ; *jcod = j ; *kcod = k ; return ;
-}
+   *icod = i ; *jcod = j ; *kcod = k ; }
 
 /*---------------------------------------------------------------------------*/
 /*! compute the (closest) orientation from a 4x4 ijk->xyz tranformation matrix
@@ -2981,8 +2977,7 @@ void nifti_mat44_to_orientation( mat44 R , int *icod, int *jcod, int *kcod )
      default: break;
    }
 
-   *icod = i ; *jcod = j ; *kcod = k ; return ;
-}
+   *icod = i ; *jcod = j ; *kcod = k ; }
 
 /*---------------------------------------------------------------------------*/
 /* Routines to swap byte arrays in various ways:
@@ -3011,8 +3006,7 @@ void nifti_swap_2bytes( int64_t n , void *ar )    /* 2 bytes at a time */
        tval = *cp1;  *cp1 = *cp2;  *cp2 = tval;
        cp1 += 2;
    }
-   return ;
-}
+   }
 
 /*----------------------------------------------------------------------*/
 /*! swap 4 bytes at a time from the given list of n sets of 4 bytes
@@ -3030,8 +3024,7 @@ void nifti_swap_4bytes( int64_t n , void *ar )    /* 4 bytes at a time */
        tval = *cp1;  *cp1 = *cp2;  *cp2 = tval;
        cp0 += 4;
    }
-   return ;
-}
+   }
 
 /*----------------------------------------------------------------------*/
 /*! swap 8 bytes at a time from the given list of n sets of 8 bytes
@@ -3053,8 +3046,7 @@ void nifti_swap_8bytes( int64_t n , void *ar )    /* 8 bytes at a time */
        }
        cp0 += 8;
    }
-   return ;
-}
+   }
 
 /*----------------------------------------------------------------------*/
 /*! swap 16 bytes at a time from the given list of n sets of 16 bytes
@@ -3074,8 +3066,7 @@ void nifti_swap_16bytes( int64_t n , void *ar )    /* 16 bytes at a time */
        }
        cp0 += 16;
    }
-   return ;
-}
+   }
 
 #if 0  /* not important: save for version update     6 Jul 2010 [rickr] */
 
@@ -3117,8 +3108,7 @@ void nifti_swap_Nbytes( int64_t n , int siz , void *ar )  /* subsuming case */
         fprintf(stderr,"** NIfTI: cannot swap in %d byte blocks\n", siz);
         break ;
    }
-   return ;
-}
+   }
 
 
 /*-------------------------------------------------------------------------*/
@@ -3337,8 +3327,7 @@ void old_swap_nifti_header( nifti_1_header *h , int is_nifti )
      nifti_swap_4bytes(4,h->srow_y);
      nifti_swap_4bytes(4,h->srow_z);
    }
-   return ;
-}
+   }
 
 
 #define USE_STAT
@@ -6869,8 +6858,7 @@ void nifti_image_unload( nifti_image *nim )
    if( nim != NULL && nim->data != NULL ){
      free(nim->data) ; nim->data = NULL ;
    }
-   return ;
-}
+   }
 
 /*--------------------------------------------------------------------------*/
 /*! free 'everything' about a nifti_image struct (including the passed struct)
@@ -6889,8 +6877,7 @@ void nifti_image_free( nifti_image *nim )
    if( nim->iname != NULL ) free(nim->iname) ;
    if( nim->data  != NULL ) free(nim->data ) ;
    (void)nifti_free_extensions( nim ) ;
-   free(nim) ; return ;
-}
+   free(nim) ; }
 
 
 /*--------------------------------------------------------------------------*/
@@ -6936,8 +6923,7 @@ void nifti_image_infodump( const nifti_image *nim )
    char *str = nifti_image_to_ascii( nim ) ;
    /* stdout -> stderr   2 Dec 2004 [rickr] */
    if( str != NULL ){ fputs(str,stderr) ; free(str) ; }
-   return ;
-}
+   }
 
 
 /*--------------------------------------------------------------------------
