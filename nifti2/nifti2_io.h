@@ -440,8 +440,8 @@ void         nifti_image_free    ( nifti_image *nim);
 int64_t      nifti_read_collapsed_image( nifti_image * nim,
                                          const int64_t dims[8], void ** data);
 
-int64_t      nifti_read_subregion_image(nifti_image *nim, int64_t *start_index,
-                                        int64_t *region_size, void ** data);
+int64_t      nifti_read_subregion_image(nifti_image *nim, const int64_t *start_index,
+                                        const int64_t *region_size, void ** data);
 
 void         nifti_image_write   ( nifti_image * nim ) ;
 void         nifti_image_write_bricks(nifti_image * nim,

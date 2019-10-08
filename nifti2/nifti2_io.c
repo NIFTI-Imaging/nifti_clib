@@ -479,8 +479,8 @@ static int  nifti_fill_extension(nifti1_extension * ext, const char * data,
 static void compute_strides(int64_t *strides,const int64_t *size,int nbyper);
 
 /* NBL routines */
-static int  nifti_load_NBL_bricks(nifti_image * nim , int64_t * slist,
-                       int64_t * sindex, nifti_brick_list * NBL, znzFile fp );
+static int  nifti_load_NBL_bricks(nifti_image * nim , const int64_t * slist,
+                       const int64_t * sindex, nifti_brick_list * NBL, znzFile fp );
 static int  nifti_alloc_NBL_mem(  nifti_image * nim, int64_t nbricks,
                                   nifti_brick_list * nbl);
 static int  nifti_copynsort(int64_t nbricks, const int64_t *blist,
@@ -492,7 +492,7 @@ static int  nifti_NBL_matches_nim(const nifti_image *nim,
 static int  rci_read_data(nifti_image *nim, int *pivots, int64_t *prods,
                           int nprods, const int64_t dims[], char *data,
                           znzFile fp, int64_t base_offset);
-static int rci_alloc_mem(void **data, int64_t prods[8], int nprods, int nbyper);
+static int rci_alloc_mem(void **data, const int64_t prods[8], int nprods, int nbyper);
 static int  make_pivot_list(nifti_image * nim, const int64_t dims[],
                             int pivots[], int64_t prods[], int * nprods );
 
@@ -902,8 +902,8 @@ void nifti_free_NBL( nifti_brick_list * NBL )
  *
  * return 0 on success, -1 on failure
  *----------------------------------------------------------------------*/
-static int nifti_load_NBL_bricks( nifti_image * nim , int64_t * slist,
-                        int64_t * sindex, nifti_brick_list * NBL, znzFile fp )
+static int nifti_load_NBL_bricks( nifti_image * nim , const int64_t * slist,
+                        const int64_t * sindex, nifti_brick_list * NBL, znzFile fp )
 {
    int64_t oposn, fposn;      /* orig and current file positions */
    int64_t rv, test;
@@ -8981,8 +8981,8 @@ compute_strides(int64_t *strides,const int64_t *size,int nbyper)
         nifti_image_load, nifti_read_collapsed_image
 *//*-------------------------------------------------------------------------*/
 int64_t nifti_read_subregion_image( nifti_image * nim,
-                                int64_t *start_index,
-                                int64_t *region_size,
+                                const int64_t *start_index,
+                                const int64_t *region_size,
                                 void ** data )
 {
   znzFile fp;                   /* file to read */
@@ -9202,7 +9202,7 @@ static int rci_read_data(nifti_image * nim, int * pivots, int64_t * prods,
 
    return total size on success, and < 0 on failure
 */
-static int rci_alloc_mem(void **data, int64_t prods[8], int nprods, int nbyper )
+static int rci_alloc_mem(void **data, const int64_t prods[8], int nprods, int nbyper )
 {
    int64_t size;
    int     memindex;
