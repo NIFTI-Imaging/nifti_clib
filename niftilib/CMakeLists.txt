@@ -141,6 +141,7 @@ if(NIFTI_BUILD_TESTING AND NIFTI_BUILD_APPLICATIONS)
           ${TEST_PREFIX}_tool_disp_ci ${TEST_PREFIX}_tool_disp_ts ${TEST_PREFIX}_tool_strip_extras
           PROPERTIES RESOURCE_LOCK Serial_zn1
           )
+  #==END NIFTI1 and NIFTI2 common tests ============================================
 
   unset(TEST_SUFFIX)
   unset(TEST_PREFIX)
