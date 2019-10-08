@@ -4154,6 +4154,8 @@ int nifti_type_and_names_match( nifti_image * nim, int show_warn )
    }
    /* ignore any other nifti_type */
 
+   if( errs ) return 0;   /* types do not match */
+
    return 1;
 }
 
