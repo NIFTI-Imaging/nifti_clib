@@ -78,7 +78,7 @@ double basym(double*,double*,const double*,const double*);
 double bcorr(const double*,const double*);
 double betaln(const double*,const double*);
 double bfrac(double*,double*,double*,double*,const double*,const double*);
-void bgrat(double*,double*,const double*,const double*,double*,double*,int*i);
+void bgrat(double*,double*,const double*,const double*,double*,double*,int*ierr);
 double bpser(double*,double*,const double*,const double*);
 void bratio(const double*,const double*,const double*,const double*,double*,double*,int*);
 double brcmp1(int*,double*,double*,const double*,const double*);
@@ -92,7 +92,7 @@ void cdfchi(const int*,double*,double*,double*,double*,int*,double*);
 void cdfchn(const int*,double*,double*,double*,double*,double*,int*,double*);
 void cdff(const int*,double*,double*,double*,double*,double*,int*,double*);
 void cdffnc(const int*,double*,double*,double*,double*,double*,double*,
-                   int*s,double*);
+                   int*status,double*);
 void cdfgam(const int*,double*,double*,double*,double*,double*,int*,double*);
 #if defined(__COMPILE_UNUSED_FUNCTIONS__)
 void cdfnbn(int*,double*,double*,double*,double*,double*,double*,
