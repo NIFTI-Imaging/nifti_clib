@@ -133,7 +133,9 @@ if(NIFTI_BUILD_TESTING AND NIFTI_BUILD_APPLICATIONS)
           ${TEST_PREFIX}_tool_disp_ci ${TEST_PREFIX}_tool_disp_ts ${TEST_PREFIX}_tool_strip_extras
           PROPERTIES RESOURCE_LOCK Serial_zn1
           )
+  #==END NIFTI1 and NIFTI2 common tests ============================================
 
+  add_test( NAME ${TEST_PREFIX}_misc_tests COMMAND $<TARGET_FILE:${TOOL_NAME}> -run_misc_tests -debug 2 -infiles ${fetch_testing_data_SOURCE_DIR}/nifti_regress_data/e4.60005.nii.gz )
   if(UNIX AND NIFTI_SHELL_SCRIPT_TESTS) # unix needed to run shell scripts
       set(NIFTI_TEST_SCRIPT_DIR ${CMAKE_CURRENT_LIST_DIR}/nifti_regress_test/cmake_testscripts)
       add_test( NAME ${TEST_PREFIX}_modhdr_exts        COMMAND sh ${NIFTI_TEST_SCRIPT_DIR}/mod_header_test.sh    $<TARGET_FILE:${TOOL_NAME}> ${fetch_testing_data_SOURCE_DIR}/nifti_regress_data )
