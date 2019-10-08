@@ -707,7 +707,6 @@ S70:
                THE EXPANSION CANNOT BE COMPUTED
 */
     *ierr = 1;
-    return;
 } /* END */
 
 /***=====================================================================***/
@@ -1046,7 +1045,6 @@ S320:
     return;
 S330:
     *ierr = 7;
-    return;
 } /* END */
 
 /***=====================================================================***/
@@ -3653,8 +3651,7 @@ S310:
             *status = 0;
         }
     }
-    return;
-#undef tol
+    #undef tol
 #undef atol
 #undef zero
 #undef inf
@@ -4824,10 +4821,6 @@ S10:
     return;
 S20:
     bratio(a,b,x,y,cum,ccum,&ierr);
-/*
-     Call bratio routine
-*/
-    return;
 } /* END */
 
 /***=====================================================================***/
@@ -4947,7 +4940,6 @@ static double a,xx;
     a = *df*0.5e0;
     xx = *x*0.5e0;
     cumgam(&xx,&a,cum,ccum);
-    return;
 } /* END */
 
 /***=====================================================================***/
@@ -5159,7 +5151,6 @@ S70:
 S80:
     *cum = sum;
     *ccum = 0.5e0+(0.5e0-*cum);
-    return;
 #undef dg
 #undef qsmall
 #undef qtired
@@ -5246,7 +5237,6 @@ S10:
     T1 = *dfd*half;
     T2 = *dfn*half;
     bratio(&T1,&T2,&xx,&yy,ccum,cum,&ierr);
-    return;
 #undef half
 #undef done
 } /* END */
@@ -5417,7 +5407,6 @@ S60:
 S70:
     *cum = sum;
     *ccum = 0.5e0+(0.5e0-*cum);
-    return;
 #undef qsmall
 #undef half
 #undef done
@@ -5478,10 +5467,6 @@ static int K1 = 0;
     return;
 S10:
     gratio(a,x,cum,ccum,&K1);
-/*
-     Call gratio routine
-*/
-    return;
 } /* END */
 
 #if defined(__COMPILE_UNUSED_FUNCTIONS__)
@@ -5816,7 +5801,6 @@ static double chi,df;
     df = 2.0e0*(*s+1.0e0);
     chi = 2.0e0**xlam;
     cumchi(&chi,&df,ccum,cum);
-    return;
 } /* END */
 
 /***=====================================================================***/
@@ -8012,7 +7996,6 @@ S350:
 S360:
     *x = xmax;
     *ierr = -8;
-    return;
 } /* END */
 
 /***=====================================================================***/
@@ -8792,7 +8775,6 @@ S430:
                      ERROR RETURN
 */
     *ans = 2.0e0;
-    return;
 } /* END */
 
 /***=====================================================================***/
