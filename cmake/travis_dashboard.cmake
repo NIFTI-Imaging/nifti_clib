@@ -97,6 +97,7 @@ set(dashboard_cache "
     CMAKE_MODULE_LINKER_FLAGS:STRING=$ENV{LDFLAGS}
 " )
 # Eventually USE_NIFTI1_CODE:BOOL=ON must be added.
+message(FATAL_ERROR "${dashboard_cache}")
 
 string(TIMESTAMP build_date "%Y-%m-%d")
 message("CDash Build Identifier: ${build_date} ${CTEST_BUILD_NAME}")
