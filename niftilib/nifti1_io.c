@@ -413,7 +413,7 @@ static int  nifti_fill_extension(nifti1_extension * ext, const char * data,
                                  int len, int ecode);
 
 /* NBL routines */
-static int  nifti_load_NBL_bricks(nifti_image * nim , int * slist, int * sindex,                                  nifti_brick_list * NBL, znzFile fp );
+static int  nifti_load_NBL_bricks(nifti_image * nim , const int * slist, const int * sindex,                                  nifti_brick_list * NBL, znzFile fp );
 static int  nifti_alloc_NBL_mem(  nifti_image * nim, int nbricks,
                                   nifti_brick_list * nbl);
 static int  nifti_copynsort(int nbricks, const int *blist, int **slist,
@@ -424,7 +424,7 @@ static int  nifti_NBL_matches_nim(const nifti_image *nim,
 /* for nifti_read_collapsed_image: */
 static int  rci_read_data(nifti_image *nim, int *pivots, int *prods, int nprods,
                   const int dims[], char *data, znzFile fp, size_t base_offset);
-static int  rci_alloc_mem(void ** data, int prods[8], int nprods, int nbyper );
+static int  rci_alloc_mem(void ** data, const int prods[8], int nprods, int nbyper );
 static int  make_pivot_list(nifti_image * nim, const int dims[], int pivots[],
                             int prods[], int * nprods );
 
@@ -804,7 +804,7 @@ void nifti_free_NBL( nifti_brick_list * NBL )
  *
  * return 0 on success, -1 on failure
  *----------------------------------------------------------------------*/
-static int nifti_load_NBL_bricks( nifti_image * nim , int * slist, int * sindex,
+static int nifti_load_NBL_bricks( nifti_image * nim , const int * slist, const int * sindex,
                                   nifti_brick_list * NBL, znzFile fp )
 {
    size_t oposn, fposn;      /* orig and current file positions */
@@ -6874,8 +6874,8 @@ compute_strides(int *strides,const int *size,int nbyper)
         nifti_image_load, nifti_read_collapsed_image
 *//*-------------------------------------------------------------------------*/
 int nifti_read_subregion_image( nifti_image * nim,
-                                int *start_index,
-                                int *region_size,
+                                const int *start_index,
+                                const int *region_size,
                                 void ** data )
 {
   znzFile fp;                   /* file to read */
@@ -7128,7 +7128,7 @@ static int rci_read_data(nifti_image * nim, int * pivots, int * prods,
 
    return total size on success, and < 0 on failure
 */
-static int rci_alloc_mem(void ** data, int prods[8], int nprods, int nbyper )
+static int rci_alloc_mem(void ** data, const int prods[8], int nprods, int nbyper )
 {
    int size, memindex;
 

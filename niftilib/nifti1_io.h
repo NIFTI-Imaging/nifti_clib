@@ -295,7 +295,7 @@ int          nifti_read_collapsed_image( nifti_image * nim, const int dims [8],
                                          void ** data );
 
 int          nifti_read_subregion_image( nifti_image * nim,
-                                         int *start_index, int *region_size,
+                                         const int *start_index, const int *region_size,
                                          void ** data );
 
 void         nifti_image_write   ( nifti_image * nim ) ;
