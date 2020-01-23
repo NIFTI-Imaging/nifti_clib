@@ -1,6 +1,7 @@
 set(NIFTI_CDFLIB_NAME ${NIFTI_PACKAGE_PREFIX}nifticdf)
 
 add_library(${NIFTI_CDFLIB_NAME} nifticdf.c )
+add_library(NIFTI::${NIFTI_CDFLIB_NAME} ALIAS ${NIFTI_CDFLIB_NAME})
 target_compile_options(${NIFTI_CDFLIB_NAME} PRIVATE "-D__COMPILE_UNUSED_FUNCTIONS__")
 target_link_libraries(${NIFTI_CDFLIB_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}niftiio)
 target_include_directories(${NIFTI_CDFLIB_NAME} PUBLIC

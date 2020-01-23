@@ -3,6 +3,7 @@ include(FindEXPAT)
 set(NIFTI_CIFTILIB_NAME ${NIFTI_PACKAGE_PREFIX}cifti)
 
 add_library(${NIFTI_CIFTILIB_NAME} afni_xml.c afni_xml_io.c )
+add_library(NIFTI::${NIFTI_CIFTILIB_NAME} ALIAS ${NIFTI_CIFTILIB_NAME})
 target_link_libraries( ${NIFTI_CIFTILIB_NAME} PUBLIC EXPAT::EXPAT ${NIFTI_PACKAGE_PREFIX}nifti2)
 target_include_directories(${NIFTI_CIFTILIB_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
