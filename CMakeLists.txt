@@ -73,6 +73,8 @@ option( BUILD_SHARED_LIBS "Toggle building shared libraries." OFF)
 
 #When including nifti as a subpackage, a prefix is often needed to avoid conflicts with sytem installed libraries.
 set_if_not_defined(NIFTI_PACKAGE_PREFIX "")
+set(PACKAGE_NAME ${NIFTI_PACKAGE_PREFIX}NIFTI)
+set_if_not_defined(NIFTI_INSTALL_EXPORT_NAME ${PACKAGE_NAME}Targets)
 
 # Set default shared library version
 # This library version will be applied to all libraries in the package
@@ -169,38 +171,38 @@ if(USE_FSL_CODE)
   add_subdirectory(fsliolib)
 endif()
 
+
 set_if_not_defined(NIFTI_INSTALL_EXPORT_NAME "NIFTITargets")
-if(NIFTI_INSTALL_EXPORT_NAME EQUAL "NIFTITargets")
+if(NIFTI_INSTALL_EXPORT_NAME STREQUAL "NIFTITargets")
   #######################################################################
   # CMake itself and can use some CMake facilities for creating the package files.
   # This allows for find_package(NIFTI 2.1.0 NO_MODULE) to work for pulling in
   # NIFTI libraries into an external project
   include(CMakePackageConfigHelpers)
+  set(CONFIG_SETUP_DIR ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME})
+  set(ConfigPackageLocation share/cmake/${PACKAGE_NAME})
 
   write_basic_package_version_file(
-        "${CMAKE_CURRENT_BINARY_DIR}/NIFTI/NIFTIConfigVersion.cmake"
+        ${CONFIG_SETUP_DIR}/${PACKAGE_NAME}ConfigVersion.cmake
         VERSION ${GIT_REPO_VERSION}
         COMPATIBILITY AnyNewerVersion
   )
 
-  export(EXPORT NIFTITargets
-        FILE "${CMAKE_CURRENT_BINARY_DIR}/NIFTI/NIFTITargets.cmake"
-        NAMESPACE ${NIFTI_PACKAGE_PREFIX}NIFTI::
-        )
   configure_file(cmake/NIFTIConfig.cmake
-        "${CMAKE_CURRENT_BINARY_DIR}/NIFTI/NIFTIConfig.cmake"
+        ${CONFIG_SETUP_DIR}/${PACKAGE_NAME}Config.cmake
         COPYONLY
         )
 
-  set(ConfigPackageLocation lib/cmake/NIFTI)
-  install(EXPORT NIFTITargets
-        FILE          NIFTITargets.cmake
-        NAMESPACE     ${NIFTI_PACKAGE_PREFIX}NIFTI::
+
+  install(EXPORT ${NIFTI_INSTALL_EXPORT_NAME}
+        FILE NIFTITargets.cmake
+        NAMESPACE     ${PACKAGE_NAME}::
         DESTINATION   ${ConfigPackageLocation}
         )
+
   install(FILES
-           cmake/NIFTIConfig.cmake
-           "${CMAKE_CURRENT_BINARY_DIR}/NIFTI/NIFTIConfigVersion.cmake"
+           ${CONFIG_SETUP_DIR}/${PACKAGE_NAME}Config.cmake
+           ${CONFIG_SETUP_DIR}/${PACKAGE_NAME}ConfigVersion.cmake
         DESTINATION   ${ConfigPackageLocation}
         COMPONENT     Development
   )
