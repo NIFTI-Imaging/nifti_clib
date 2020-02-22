@@ -55,6 +55,16 @@ extern "C" {
 /* #define HAVE_FDOPEN */
 
 
+#if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64) || defined(_MSVC)
+#define fseek _fseeki64
+#define ftell _ftelli64
+#define znz_off_t long long
+#elif ( defined(_FILE_OFFSET_BITS) && (_FILE_OFFSET_BITS==64) )
+#define znz_off_t off64_t
+#else
+#define znz_off_t off_t
+#endif
+
 #ifdef HAVE_ZLIB
 #if defined(ITKZLIB) && !defined(ITK_USE_SYSTEM_ZLIB)
 #include "itk_zlib.h"
@@ -97,11 +107,11 @@ size_t znzread(void* buf, size_t size, size_t nmemb, znzFile file);
 
 size_t znzwrite(const void* buf, size_t size, size_t nmemb, znzFile file);
 
-long znzseek(znzFile file, long offset, int whence);
+znz_off_t znzseek(znzFile file, znz_off_t offset, int whence);
 
 int znzrewind(znzFile stream);
 
-long znztell(znzFile file);
+znz_off_t znztell(znzFile file);
 
 int znzputs(const char *str, znzFile file);
 
