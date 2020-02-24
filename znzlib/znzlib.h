@@ -47,6 +47,7 @@ extern "C" {
 #include <string.h>
 #include <stdarg.h>
 
+
 /* include optional check for HAVE_FDOPEN here, from deleted config.h:
 
    uncomment the following line if fdopen() exists for your compiler and
@@ -54,14 +55,20 @@ extern "C" {
 */
 /* #define HAVE_FDOPEN */
 
-
-#if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64) || defined(_MSVC)
+#if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64) || defined(_MSVC) || defined(_MSC_VER)
+#include <io.h>
 #define fseek _fseeki64
 #define ftell _ftelli64
 #define znz_off_t long long
+#elif defined(__APPLE__) || defined(__FreeBSD__)
+#define znz_off_t off_t
 #elif ( defined(_FILE_OFFSET_BITS) && (_FILE_OFFSET_BITS==64) )
+#include <unistd.h>
+#include <sys/types.h>
 #define znz_off_t off64_t
 #else
+#include <unistd.h>
+#include <sys/types.h>
 #define znz_off_t off_t
 #endif
 
