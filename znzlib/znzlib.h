@@ -62,10 +62,6 @@ extern "C" {
 #define znz_off_t long long
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 #define znz_off_t off_t
-#elif ( defined(_FILE_OFFSET_BITS) && (_FILE_OFFSET_BITS==64) )
-#include <unistd.h>
-#include <sys/types.h>
-#define znz_off_t off64_t
 #else
 #include <unistd.h>
 #include <sys/types.h>
