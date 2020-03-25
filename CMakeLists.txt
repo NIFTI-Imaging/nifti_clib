@@ -71,6 +71,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 # current build behavior
 option( BUILD_SHARED_LIBS "Toggle building shared libraries." OFF)
 
+# Include executables as part of the build
+option(NIFTI_BUILD_APPLICATIONS "Build various utility tools" ON)
+mark_as_advanced(NIFTI_BUILD_APPLICATIONS)
+
 #When including nifti as a subpackage, a prefix is often needed to avoid conflicts with sytem installed libraries.
 set_if_not_defined(NIFTI_PACKAGE_PREFIX "")
 set(PACKAGE_NAME ${NIFTI_PACKAGE_PREFIX}NIFTI)
@@ -145,9 +149,6 @@ mark_as_advanced(USE_NIFTICDF_CODE)
 if(USE_NIFTICDF_CODE)
     add_subdirectory(nifticdf)
 endif()
-
-option(NIFTI_BUILD_APPLICATIONS "Build various utility tools" ON)
-mark_as_advanced(NIFTI_BUILD_APPLICATIONS)
 
 option(USE_NIFTI2_CODE "Build the nifti2 library and tools" ON)
 mark_as_advanced(USE_NIFTI2_CODE)
