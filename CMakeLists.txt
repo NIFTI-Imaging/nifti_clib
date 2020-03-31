@@ -110,6 +110,17 @@ cmake_dependent_option(
   TEST_INSTALL "Add a test to check that linking to SO libraries occurs correctly during installation." ON
   "${NIFTI_PACKAGE_PREFIX};${NIFTI_BUILD_APPLICATIONS};${BUILD_SHARED_LIBS};${NIFTI_BUILD_TESTING}" OFF
 )
+
+# Add a default attempt at setting the run path correctly for binaries
+if(NOT CMAKE_SKIP_INSTALL_RPATH)
+  file(RELATIVE_PATH relDir ${NIFTI_INSTALL_RUNTIME_DIR} ${NIFTI_INSTALL_LIBRARY_DIR})
+  if(APPLE)
+    set_if_not_defined(CMAKE_INSTALL_RPATH  "@loader_path/${relDir}")
+  else()
+    set_if_not_defined(CMAKE_INSTALL_RPATH   "\$ORIGIN/${relDir}")
+  endif()
+endif()
+
 #######################################################################
 enable_testing()
 include(CTest)
