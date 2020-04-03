@@ -111,6 +111,11 @@ include(CTest)
 set_if_not_defined(NIFTI_BUILD_TESTING ${BUILD_TESTING})
 
 if (NIFTI_BUILD_TESTING )
+  option(
+    DOWNLOAD_TEST_DATA
+    "Allow download of data used for some tests. Can be used in conjunction with ctest label filter '-LE NEEDS_DATA'"
+    ON
+    )
   set_if_not_defined(NIFTI_SHELL_SCRIPT_TESTS "ON")
   if ( CMAKE_VERSION VERSION_LESS 3.11.0 )
     # CMAKE VERSION 3.11.0 needed for fetching data with cmake
@@ -125,11 +130,11 @@ if (NIFTI_BUILD_TESTING )
           URL_HASH SHA256=5dafec078151018da7aaf3c941bd31f246f590bc34fa3fef29ce77a773db16a6
           )
   FetchContent_GetProperties(fetch_testing_data)
+  if(DOWNLOAD_TEST_DATA)
   if(NOT fetch_testing_data)
     set(FETCHCONTENT_QUIET OFF)
-    message(STATUS "Downloading testing data... please wait")
     FetchContent_Populate( fetch_testing_data )
-    message(STATUS "download complete.")
+  endif()
   endif()
 endif()
 

@@ -84,6 +84,12 @@ if(NIFTI_BUILD_TESTING AND NIFTI_BUILD_APPLICATIONS)
   add_test( NAME ${TEST_PREFIX}_header_check COMMAND $<TARGET_FILE:${TOOL_NAME}> -check_hdr -infiles ${fetch_testing_data_SOURCE_DIR}/nifti_regress_data/anat0.nii )
   add_test( NAME ${TEST_PREFIX}_nim_check    COMMAND $<TARGET_FILE:${TOOL_NAME}> -check_nim -infiles ${fetch_testing_data_SOURCE_DIR}/nifti_regress_data/anat0.nii )
 
+  set_tests_properties(${TEST_PREFIX}_disp_hdr PROPERTIES LABELS NEEDS_DATA)
+  set_tests_properties(${TEST_PREFIX}_disp_nim PROPERTIES LABELS NEEDS_DATA)
+  set_tests_properties(${TEST_PREFIX}_disp_ext PROPERTIES LABELS NEEDS_DATA)
+  set_tests_properties(${TEST_PREFIX}_header_check PROPERTIES LABELS NEEDS_DATA)
+  set_tests_properties(${TEST_PREFIX}_nim_check PROPERTIES LABELS NEEDS_DATA)
+
   #The help screens always return 1; add_test( NAME ${NIFTI_PACKAGE_PREFIX}nifti1_tool1_help COMMAND $<TARGET_FILE:${TOOL_NAME}>)
   add_test( NAME ${TEST_PREFIX}_tool_n1  COMMAND $<TARGET_FILE:${TOOL_NAME}> -disp_hdr -infile ${CMAKE_CURRENT_BINARY_DIR}/n1 )
   add_test( NAME ${TEST_PREFIX}_tool_n2  COMMAND $<TARGET_FILE:${TOOL_NAME}> -disp_hdr -infile ${CMAKE_CURRENT_BINARY_DIR}/n2 )
@@ -125,6 +131,7 @@ if(NIFTI_BUILD_TESTING AND NIFTI_BUILD_APPLICATIONS)
       message(STATUS "NiftiTestGeneratedFiles_${testsuffix}" )
     set_tests_properties( ${TEST_PREFIX}_tool_${testsuffix} ${TEST_PREFIX}_test_${testsuffix}
             PROPERTIES RESOURCE_LOCK Serial_${testsuffix}
+            LABELS NEEDS_DATA
             )
     set_tests_properties(cleanup_${testsuffix} PROPERTIES FIXTURES_CLEANUP  NiftiTestGeneratedFiles_${testsuffix} )
   endforeach()
@@ -135,14 +142,15 @@ if(NIFTI_BUILD_TESTING AND NIFTI_BUILD_APPLICATIONS)
   set_tests_properties( ${TEST_PREFIX}_tool_disp_ci          PROPERTIES FIXTURES_REQUIRED NiftiTestGeneratedFiles_zn1)
   set_tests_properties( ${TEST_PREFIX}_tool_disp_ts          PROPERTIES FIXTURES_REQUIRED NiftiTestGeneratedFiles_zn1)
   set_tests_properties( ${TEST_PREFIX}_tool_strip_extras     PROPERTIES FIXTURES_REQUIRED NiftiTestGeneratedFiles_zn1)
-  set_tests_properties( ${TEST_PREFIX}_tool_check_hdr        PROPERTIES FIXTURES_REQUIRED NiftiTestGeneratedFiles_za2)
-  set_tests_properties( ${TEST_PREFIX}_tool_check_nim        PROPERTIES FIXTURES_REQUIRED NiftiTestGeneratedFiles_za2)
+  set_tests_properties( ${TEST_PREFIX}_tool_check_hdr        PROPERTIES FIXTURES_REQUIRED NiftiTestGeneratedFiles_za2  LABELS NEEDS_DATA)
+  set_tests_properties( ${TEST_PREFIX}_tool_check_nim        PROPERTIES FIXTURES_REQUIRED NiftiTestGeneratedFiles_za2  LABELS NEEDS_DATA)
   #set_tests_properties( ${TEST_PREFIX}_tool_copy_collapsed_image PROPERTIES FIXTURES_REQUIRED NiftiTestGeneratedFileszn1)
 
   set_tests_properties( ${TEST_PREFIX}_tool_diff_hdr ${TEST_PREFIX}_tool_diff_nims
           ${TEST_PREFIX}_tool_copy_brick_list
           ${TEST_PREFIX}_tool_disp_ci ${TEST_PREFIX}_tool_disp_ts ${TEST_PREFIX}_tool_strip_extras
           PROPERTIES RESOURCE_LOCK Serial_zn1
+          LABELS NEEDS_DATA
           )
   #==END NIFTI1 and NIFTI2 common tests ============================================
 
