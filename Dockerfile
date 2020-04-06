@@ -21,6 +21,8 @@ RUN cmake \
     -DNIFTI_USE_PACKAGING=ON \
     -DUSE_CIFTI_CODE=ON \
     -DUSE_FSL_CODE=ON \
+    -DNIFTI_BUILD_APPLICATIONS=ON \
+    -DTEST_INSTALL=ON \
     /opt/src/nifti_clib \
     && make \
     && ctest --output-on-failure

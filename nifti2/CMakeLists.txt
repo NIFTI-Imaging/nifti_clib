@@ -181,7 +181,16 @@ if(NIFTI_BUILD_TESTING AND NIFTI_BUILD_APPLICATIONS)
       set_tests_properties(${TEST_PREFIX}_c21_b_cifti_in_test PROPERTIES LABELS NEEDS_DATA)
       set_tests_properties(${TEST_PREFIX}_c21_c_make_im_test PROPERTIES LABELS NEEDS_DATA)
       set_tests_properties(${TEST_PREFIX}_c21_d_misc_tests PROPERTIES LABELS NEEDS_DATA)
+
+      # Test that installed linking works
+      if(TEST_INSTALL)
+        add_test(
+          NAME install_linking
+          COMMAND sh ${NIFTI_TEST_SCRIPT_DIR}/install_linking_test.sh ${CMAKE_MAKE_PROGRAM}
+          WORKING_DIRECTORY ${PROJECT_BINARY_DIR} )
+      endif()
   endif()
+
   unset(TEST_SUFFIX)
   unset(TEST_PREFIX)
   unset(TOOL_NAME)
