@@ -65,7 +65,7 @@ endmacro()
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
-
+include(CMakeDependentOption)
 
 # add option to build shared libraries. The default is OFF to maintain the
 # current build behavior
@@ -104,6 +104,12 @@ add_definitions(-DHAVE_ZLIB)
 set_if_not_defined(NIFTI_INSTALL_NO_DEVELOPMENT 0)
 set_if_not_defined(NIFTI_INSTALL_NO_LIBRARIES 0)
 
+# Include test to verify linking in installed executables
+# The test should only be added when applications are built, and no prefix string is set.
+cmake_dependent_option(
+  TEST_INSTALL "Add a test to check that linking to SO libraries occurs correctly during installation." ON
+  "${NIFTI_PACKAGE_PREFIX};${NIFTI_BUILD_APPLICATIONS};${BUILD_SHARED_LIBS};${NIFTI_BUILD_TESTING}" OFF
+)
 #######################################################################
 enable_testing()
 include(CTest)
