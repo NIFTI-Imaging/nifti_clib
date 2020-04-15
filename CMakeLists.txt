@@ -102,18 +102,20 @@ if(NOT CMAKE_SKIP_INSTALL_RPATH)
 endif()
 
 #######################################################################
-enable_testing()
-include(CTest)
-#Needs an if clause and more work before testing can take place.
-set_if_not_defined(NIFTI_BUILD_TESTING ${BUILD_TESTING})
 
+set_if_not_defined(BUILD_TESTING ON)
+set_if_not_defined(NIFTI_BUILD_TESTING ${BUILD_TESTING})
 if (NIFTI_BUILD_TESTING )
+  include(CTest)
+  enable_testing()
+  #Needs an if clause and more work before testing can take place.
   option(
     DOWNLOAD_TEST_DATA
     "Allow download of data used for some tests. Can be used in conjunction with ctest label filter '-LE NEEDS_DATA'"
     ON
     )
   set_if_not_defined(NIFTI_SHELL_SCRIPT_TESTS "ON")
+  if(DOWNLOAD_TEST_DATA)
   if ( CMAKE_VERSION VERSION_LESS 3.11.0 )
     # CMAKE VERSION 3.11.0 needed for fetching data with cmake
     message(FATAL_ERROR "ERROR:  The testing framework for nifti_clib requires CMake version 3.11.0 or greater")
@@ -127,8 +129,7 @@ if (NIFTI_BUILD_TESTING )
           URL_HASH SHA256=5dafec078151018da7aaf3c941bd31f246f590bc34fa3fef29ce77a773db16a6
           )
   FetchContent_GetProperties(fetch_testing_data)
-  if(DOWNLOAD_TEST_DATA)
-  if(NOT fetch_testing_data)
+  if(NOT fetch_testing_data_POPULATED)
     set(FETCHCONTENT_QUIET OFF)
     FetchContent_Populate( fetch_testing_data )
   endif()
