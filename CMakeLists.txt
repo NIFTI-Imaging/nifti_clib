@@ -155,7 +155,6 @@ endif()
 
 option(USE_NIFTI2_CODE "Build the nifti2 library and tools" ON)
 mark_as_advanced(USE_NIFTI2_CODE)
-include(CMakeDependentOption)
 cmake_dependent_option(USE_CIFTI_CODE "Build the cifti library and tools" OFF "USE_NIFTI2_CODE" OFF)
 mark_as_advanced(USE_CIFTI_CODE)
 
@@ -189,7 +188,6 @@ if(NOT TARGET uninstall)
   )
 endif()
 
-set_if_not_defined(NIFTI_INSTALL_EXPORT_NAME "NIFTITargets")
 if(NIFTI_INSTALL_EXPORT_NAME STREQUAL "NIFTITargets")
   #######################################################################
   # CMake itself and can use some CMake facilities for creating the package files.
