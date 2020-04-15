@@ -63,10 +63,12 @@ if(BUILD_SHARED_LIBS AND NOT NIFTI_LIBRARY_PROPERTIES)
   )
 endif()
 
-set_if_not_defined(NIFTI_INSTALL_RUNTIME_DIR "${CMAKE_INSTALL_PREFIX}/bin")
-set_if_not_defined(NIFTI_INSTALL_LIBRARY_DIR "${CMAKE_INSTALL_PREFIX}/lib")
-set_if_not_defined(NIFTI_INSTALL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include/nifti")
+set_if_not_defined(NIFTI_INSTALL_RUNTIME_DIR bin)
+set_if_not_defined(NIFTI_INSTALL_LIBRARY_DIR lib)
+set_if_not_defined(NIFTI_INSTALL_ARCHIVE_DIR ${NIFTI_INSTALL_LIBRARY_DIR})
+set_if_not_defined(NIFTI_INSTALL_INCLUDE_DIR include/nifti)
 set_if_not_defined(NIFTI_ZLIB_LIBRARIES "")
+set_if_not_defined(ZNZ_COMPILE_DEF "")
 if(NOT NIFTI_ZLIB_LIBRARIES) # If using a custom zlib library, skip the find package
   ###  USE AS STAND ALONE PACKAGE
   find_package(ZLIB REQUIRED)
@@ -86,7 +88,12 @@ cmake_dependent_option(
 
 # Add a default attempt at setting the run path correctly for binaries
 if(NOT CMAKE_SKIP_INSTALL_RPATH)
-  file(RELATIVE_PATH relDir ${NIFTI_INSTALL_RUNTIME_DIR} ${NIFTI_INSTALL_LIBRARY_DIR})
+  file(
+    RELATIVE_PATH
+    relDir
+    ${CMAKE_INSTALL_PREFIX}/${NIFTI_INSTALL_RUNTIME_DIR}
+    ${CMAKE_INSTALL_PREFIX}/${NIFTI_INSTALL_LIBRARY_DIR}
+  )
   if(APPLE)
     set_if_not_defined(CMAKE_INSTALL_RPATH  "@loader_path/${relDir}")
   else()
