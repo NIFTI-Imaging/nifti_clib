@@ -1,41 +1,23 @@
 set(NIFTI_NIFTILIB_NAME ${NIFTI_PACKAGE_PREFIX}niftiio)
 
-add_library(${NIFTI_NIFTILIB_NAME} nifti1_io.c )
-add_library(NIFTI::${NIFTI_NIFTILIB_NAME} ALIAS ${NIFTI_NIFTILIB_NAME})
-set_target_properties(${NIFTI_NIFTILIB_NAME} PROPERTIES PUBLIC_HEADER "nifti1_io.h;nifti1.h")
+add_nifti_library(${NIFTI_NIFTILIB_NAME} nifti1_io.c )
 target_link_libraries( ${NIFTI_NIFTILIB_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}znz ${NIFTI_SYSTEM_MATH_LIB})
-target_include_directories(${NIFTI_NIFTILIB_NAME} PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-        $<INSTALL_INTERFACE:${NIFTI_INSTALL_INCLUDE_DIR}>
-        )
-
-if(NIFTI_BUILD_APPLICATIONS)
-  add_executable(${NIFTI_PACKAGE_PREFIX}nifti1_tool nifti1_tool.c)
-  target_link_libraries(${NIFTI_PACKAGE_PREFIX}nifti1_tool PUBLIC ${NIFTI_NIFTILIB_NAME})
-  set(NIFTI1_APPS ${NIFTI_PACKAGE_PREFIX}nifti1_tool)
-endif()
-
+set_target_properties(
+  ${NIFTI_NIFTILIB_NAME}
+  PROPERTIES
+    PUBLIC_HEADER
+      "${CMAKE_CURRENT_LIST_DIR}/nifti1_io.h;${CMAKE_CURRENT_LIST_DIR}/nifti1.h"
+  )
 # Set library version when building shared libs.
 if(BUILD_SHARED_LIBS)
   set_target_properties(${NIFTI_NIFTILIB_NAME} PROPERTIES ${NIFTI_LIBRARY_PROPERTIES})
 endif()
+install_nifti_target(${NIFTI_NIFTILIB_NAME})
 
-if(NOT NIFTI_INSTALL_NO_LIBRARIES)
-  install(TARGETS ${NIFTI_NIFTILIB_NAME} ${NIFTI1_APPS}
-          EXPORT ${NIFTI_INSTALL_EXPORT_NAME}
-          RUNTIME DESTINATION ${NIFTI_INSTALL_RUNTIME_DIR} COMPONENT RuntimeLibraries
-          LIBRARY DESTINATION ${NIFTI_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries
-          ARCHIVE DESTINATION ${NIFTI_INSTALL_LIBRARY_DIR} COMPONENT Development
-          INCLUDES DESTINATION ${NIFTI_INSTALL_INCLUDE_DIR}
-          PUBLIC_HEADER DESTINATION ${NIFTI_INSTALL_INCLUDE_DIR}
-          )
-endif()
-
-if(NOT NIFTI_INSTALL_NO_DEVELOPMENT)
-  file(GLOB __files "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
-  install(FILES ${__files}
-    DESTINATION ${NIFTI_INSTALL_INCLUDE_DIR}
-    COMPONENT Development)
+if(NIFTI_BUILD_APPLICATIONS)
+  add_nifti_executable(${NIFTI_PACKAGE_PREFIX}nifti1_tool nifti1_tool.c)
+  target_link_libraries(${NIFTI_PACKAGE_PREFIX}nifti1_tool PUBLIC ${NIFTI_NIFTILIB_NAME})
+  install_nifti_target(${NIFTI_PACKAGE_PREFIX}nifti1_tool)
 endif()
 
 
