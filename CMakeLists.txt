@@ -42,7 +42,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 include(CMakeDependentOption)
 
 if("${CMAKE_VERSION}" VERSION_GREATER_EQUAL "3.13")
-set(INSTALL_CONFIG_SUPPORTED 1 CACHE BOOL "Is set for cmake >=3.13")
+set(CMAKE_VER_AT_LEAST_3_13 1 CACHE BOOL "Is set for cmake >=3.13")
 endif()
 
 # add option to build shared libraries. The default is OFF to maintain the
@@ -194,55 +194,56 @@ if(NOT TARGET uninstall)
   )
 endif()
 
+# Report installed targets
+get_property(installed_targets GLOBAL PROPERTY installed_targets)
+message("Installed_targets: ${installed_targets}")
 
-if(INSTALL_CONFIG_SUPPORTED)
+if(CMAKE_VER_AT_LEAST_3_13)
   # Target installation for CMake versions >=3.13
-  get_property(installed_targets GLOBAL PROPERTY installed_targets)
-  message("Installed_targets: ${installed_targets}")
   foreach(targ ${installed_targets})
     install_nifti_target(${targ})
   endforeach()
+endif()
 
-  if(NIFTI_INSTALL_EXPORT_NAME STREQUAL "NIFTITargets")
-    #######################################################################
-    # CMake itself and can use some CMake facilities for creating the package files.
-    # This allows for find_package(NIFTI 2.1.0 NO_MODULE) to work for pulling in
-    # NIFTI libraries into an external project
-    include(CMakePackageConfigHelpers)
-    set(CONFIG_SETUP_DIR ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME})
-    set(ConfigPackageLocation share/cmake/${PACKAGE_NAME})
-
-    write_basic_package_version_file(
-          ${CONFIG_SETUP_DIR}/${PACKAGE_NAME}ConfigVersion.cmake
-          VERSION ${GIT_REPO_VERSION}
-          COMPATIBILITY AnyNewerVersion
-    )
-
-    configure_file(cmake/NIFTIConfig.cmake
-          ${CONFIG_SETUP_DIR}/${PACKAGE_NAME}Config.cmake
-          COPYONLY
-          )
-
-
-    install(EXPORT ${NIFTI_INSTALL_EXPORT_NAME}
-          FILE NIFTITargets.cmake
-          NAMESPACE     ${PACKAGE_NAME}::
-          DESTINATION   ${ConfigPackageLocation}
-          )
-
-    install(FILES
-             ${CONFIG_SETUP_DIR}/${PACKAGE_NAME}Config.cmake
-             ${CONFIG_SETUP_DIR}/${PACKAGE_NAME}ConfigVersion.cmake
-          DESTINATION   ${ConfigPackageLocation}
-          COMPONENT     Development
-    )
-  endif()
-
+if(NIFTI_INSTALL_EXPORT_NAME STREQUAL "NIFTITargets")
   #######################################################################
-  ## Add the cpack configuration settings last
-  option(NIFTI_USE_PACKAGING "Configure the packaging options for NIFTI" OFF)
-  mark_as_advanced(NIFTI_USE_PACKAGING)
-  if(NIFTI_USE_PACKAGING)
-    include(cmake/NIFTICPackConfig.cmake)
-  endif()
+  # CMake itself and can use some CMake facilities for creating the package files.
+  # This allows for find_package(NIFTI 2.1.0 NO_MODULE) to work for pulling in
+  # NIFTI libraries into an external project
+  include(CMakePackageConfigHelpers)
+  set(CONFIG_SETUP_DIR ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME})
+  set(ConfigPackageLocation share/cmake/${PACKAGE_NAME})
+
+  write_basic_package_version_file(
+        ${CONFIG_SETUP_DIR}/${PACKAGE_NAME}ConfigVersion.cmake
+        VERSION ${GIT_REPO_VERSION}
+        COMPATIBILITY AnyNewerVersion
+  )
+
+  configure_file(cmake/NIFTIConfig.cmake
+        ${CONFIG_SETUP_DIR}/${PACKAGE_NAME}Config.cmake
+        COPYONLY
+        )
+
+
+  install(EXPORT ${NIFTI_INSTALL_EXPORT_NAME}
+        FILE NIFTITargets.cmake
+        NAMESPACE     ${PACKAGE_NAME}::
+        DESTINATION   ${ConfigPackageLocation}
+        )
+
+  install(FILES
+           ${CONFIG_SETUP_DIR}/${PACKAGE_NAME}Config.cmake
+           ${CONFIG_SETUP_DIR}/${PACKAGE_NAME}ConfigVersion.cmake
+        DESTINATION   ${ConfigPackageLocation}
+        COMPONENT     Development
+  )
+endif()
+
+#######################################################################
+## Add the cpack configuration settings last
+option(NIFTI_USE_PACKAGING "Configure the packaging options for NIFTI" OFF)
+mark_as_advanced(NIFTI_USE_PACKAGING)
+if(NIFTI_USE_PACKAGING)
+  include(cmake/NIFTICPackConfig.cmake)
 endif()
