@@ -15,9 +15,10 @@ endif()
 install_nifti_target(${NIFTI_NIFTILIB2_NAME})
 
 if(NIFTI_BUILD_APPLICATIONS)
-  add_nifti_executable(nifti_tool nifti_tool.c)
-  target_link_libraries(nifti_tool PUBLIC ${NIFTI_NIFTILIB2_NAME})
-  install_nifti_target(nifti_tool)
+  set(NIFTI_TOOL ${NIFTI_PACKAGE_PREFIX}nifti_tool)
+  add_nifti_executable(${NIFTI_TOOL} nifti_tool.c)
+  target_link_libraries(${NIFTI_TOOL} PUBLIC ${NIFTI_NIFTILIB2_NAME})
+  install_nifti_target(${NIFTI_TOOL})
 endif()
 
 
