@@ -1,6 +1,12 @@
 set(NIFTI_CDFLIB_NAME ${NIFTI_PACKAGE_PREFIX}nifticdf)
 
 add_nifti_library(${NIFTI_CDFLIB_NAME} nifticdf.c )
+set_target_properties(
+  ${NIFTI_CDFLIB_NAME}
+  PROPERTIES
+    PUBLIC_HEADER
+    "${CMAKE_CURRENT_LIST_DIR}/nifticdf.h"
+  )
 target_compile_options(${NIFTI_CDFLIB_NAME} PRIVATE "-D__COMPILE_UNUSED_FUNCTIONS__")
 target_link_libraries(${NIFTI_CDFLIB_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}niftiio)
 if(BUILD_SHARED_LIBS)
