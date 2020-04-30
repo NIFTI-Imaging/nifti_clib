@@ -35,7 +35,7 @@ project(NIFTI
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 include(nifti_macros)
 
-set_property(GLOBAL PROPERTY installed_targets)
+set_property(GLOBAL PROPERTY nifti_installed_targets)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
@@ -195,12 +195,12 @@ if(NOT TARGET uninstall)
 endif()
 
 # Report installed targets
-get_property(installed_targets GLOBAL PROPERTY installed_targets)
-message("Installed_targets: ${installed_targets}")
+get_property(nifti_installed_targets GLOBAL PROPERTY nifti_installed_targets)
+message("nifti_installed_targets: ${nifti_installed_targets}")
 
 if(CMAKE_VER_AT_LEAST_3_13)
   # Target installation for CMake versions >=3.13
-  foreach(targ ${installed_targets})
+  foreach(targ ${nifti_installed_targets})
     install_nifti_target(${targ})
   endforeach()
 endif()
