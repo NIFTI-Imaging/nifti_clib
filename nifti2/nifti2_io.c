@@ -1,6 +1,7 @@
 #define _NIFTI2_IO_C_
 
 #include "nifti2_io.h"   /* typedefs, prototypes, macros, etc. */
+#include "nifti2_io_version.h"
 
 /*****===================================================================*****/
 /*****     Sample functions to deal with NIFTI-1,2 and ANALYZE files     *****/
