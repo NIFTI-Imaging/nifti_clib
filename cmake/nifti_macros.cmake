@@ -102,3 +102,15 @@ function(install_nifti_target target_name)
             )
     endif()
 endfunction()
+
+
+function(get_lib_version_vars version_header libver libver_major)
+    # Function reads a file containing the lib version and sets the
+    # approprioate variables in the parent scope
+    file(READ ${version_header} VER_FILE)
+    string(REGEX MATCH "[0-9]*\\.[0-9]*\\.[0-9]*" LIB_VERSION ${VER_FILE})
+    string(SUBSTRING ${LIB_VERSION} 0 1 LIB_MAJOR_VERSION)
+
+    set(${libver} "${LIB_VERSION}" PARENT_SCOPE)
+    set(${libver_major} "${LIB_MAJOR_VERSION}" PARENT_SCOPE)
+endfunction()

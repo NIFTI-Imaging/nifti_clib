@@ -10,7 +10,13 @@ set_target_properties(
   )
 # Set library version when building shared libs.
 if(BUILD_SHARED_LIBS)
-  set_target_properties(${NIFTI_NIFTILIB2_NAME} PROPERTIES ${NIFTI_LIBRARY_PROPERTIES})
+    get_lib_version_vars("nifti2_io_version.h" NIFTI2_VERSION NIFTI2_MAJOR_VERSION)
+    set_target_properties(${NIFTI_NIFTILIB2_NAME}
+      PROPERTIES
+        ${NIFTI_LIBRARY_PROPERTIES}
+        VERSION ${NIFTI2_VERSION}
+        SOVERSION ${NIFTI2_MAJOR_VERSION}
+        )
 endif()
 install_nifti_target(${NIFTI_NIFTILIB2_NAME})
 
