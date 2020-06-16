@@ -108,9 +108,21 @@ function(get_lib_version_vars version_header libver libver_major)
     # Function reads a file containing the lib version and sets the
     # approprioate variables in the parent scope
     file(READ ${version_header} VER_FILE)
-    string(REGEX MATCH "[0-9]*\\.[0-9]*\\.[0-9]*" LIB_VERSION ${VER_FILE})
-    string(SUBSTRING ${LIB_VERSION} 0 1 LIB_MAJOR_VERSION)
+    string(REGEX MATCHALL "(_MAJOR|_MINOR|_PATCH) \"([0-9]*)\"" VER_MATCHES ${VER_FILE})
+    list(TRANSFORM VER_MATCHES REPLACE "(_MAJOR|_MINOR|_PATCH) *" "") 
+    list(TRANSFORM VER_MATCHES REPLACE "\"" "")
+    list(GET VER_MATCHES 0 LIB_MAJOR_VERSION )
+    list(GET VER_MATCHES 1 LIB_MINOR_VERSION )
+    list(GET VER_MATCHES 2 LIB_PATCH_VERSION )
+    set(LIB_VERSION "${LIB_MAJOR_VERSION}.${LIB_MINOR_VERSION}.${LIB_PATCH_VERSION}")
 
+    # Check that a valid version has been specified (of the form XX.XX.XX)
+    string(REGEX MATCH "^[0-9]*\.[0-9]*\.[0-9]*$" VER_MATCHED "${LIB_VERSION}" )
+    if("" STREQUAL "${VER_MATCHED}")
+        message("matched ${VER_MATCHED}")
+        message(FATAL_ERROR "Cannot find a valid version in the version header file ${version_header} (Found: '${LIB_VERSION}')")
+    endif()
+    # Set outputs in calling scope
     set(${libver} "${LIB_VERSION}" PARENT_SCOPE)
     set(${libver_major} "${LIB_MAJOR_VERSION}" PARENT_SCOPE)
 endfunction()
