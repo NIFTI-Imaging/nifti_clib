@@ -108,9 +108,8 @@ function(get_lib_version_vars version_header libver libver_major)
     # Function reads a file containing the lib version and sets the
     # approprioate variables in the parent scope
     file(READ ${version_header} VER_FILE)
-    string(REGEX MATCHALL "(_MAJOR|_MINOR|_PATCH) \"([0-9]*)\"" VER_MATCHES ${VER_FILE})
+    string(REGEX MATCHALL "(_MAJOR|_MINOR|_PATCH) ([0-9]*)" VER_MATCHES ${VER_FILE})
     string(REGEX REPLACE "(_MAJOR |_MINOR |_PATCH )" "" VER_MATCHES ${VER_MATCHES})
-    string(REGEX REPLACE "\"" "" VER_MATCHES ${VER_MATCHES})
     string(SUBSTRING ${VER_MATCHES} 0 1 LIB_MAJOR_VERSION )
     string(SUBSTRING ${VER_MATCHES} 1 1 LIB_MINOR_VERSION )
     string(SUBSTRING ${VER_MATCHES} 2 1 LIB_PATCH_VERSION )
