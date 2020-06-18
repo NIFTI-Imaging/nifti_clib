@@ -103,16 +103,20 @@ function(install_nifti_target target_name)
     endif()
 endfunction()
 
+function(get_lib_version_var ver_header_text ver_type version_out)
+  # Gets version for MAJOR/MINOR or PATCH from version header file
+  string(REGEX MATCH "_${ver_type} [0-9]*" MATCHED "${ver_header_text}")
+  string(REGEX REPLACE "_${ver_type} " "" OUTPUT "${MATCHED}")
+  set(${version_out} ${OUTPUT} PARENT_SCOPE)
+endfunction()
 
 function(get_lib_version_vars version_header libver libver_major)
     # Function reads a file containing the lib version and sets the
     # approprioate variables in the parent scope
     file(READ ${version_header} VER_FILE)
-    string(REGEX MATCHALL "(_MAJOR|_MINOR|_PATCH) ([0-9]*)" VER_MATCHES ${VER_FILE})
-    string(REGEX REPLACE "(_MAJOR |_MINOR |_PATCH )" "" VER_MATCHES ${VER_MATCHES})
-    string(SUBSTRING ${VER_MATCHES} 0 1 LIB_MAJOR_VERSION )
-    string(SUBSTRING ${VER_MATCHES} 1 1 LIB_MINOR_VERSION )
-    string(SUBSTRING ${VER_MATCHES} 2 1 LIB_PATCH_VERSION )
+    get_lib_version_var(${VER_FILE} "MAJOR" LIB_MAJOR_VERSION )
+    get_lib_version_var(${VER_FILE} "MINOR"  LIB_MINOR_VERSION )
+    get_lib_version_var(${VER_FILE} "PATCH"  LIB_PATCH_VERSION )
     set(LIB_VERSION "${LIB_MAJOR_VERSION}.${LIB_MINOR_VERSION}.${LIB_PATCH_VERSION}")
 
     # Check that a valid version has been specified (of the form XX.XX.XX)
