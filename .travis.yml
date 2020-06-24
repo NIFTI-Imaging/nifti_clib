@@ -16,10 +16,12 @@ addons:
     packages:
       - cmake
       - valgrind
+      - help2man
   homebrew:
     packages:
       - cmake
       - sed
+      - help2man
 
 # no poppler, openjpeg, uuid, json
 # no swig
