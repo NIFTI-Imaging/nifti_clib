@@ -9,8 +9,8 @@ set_target_properties(
   )
 target_compile_options(${NIFTI_CDFLIB_NAME} PRIVATE "-D__COMPILE_UNUSED_FUNCTIONS__")
 target_link_libraries(${NIFTI_CDFLIB_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}niftiio)
+get_lib_version_vars("nifticdf_version.h" NIFTICDF_VERSION NIFTICDF_MAJOR_VERSION)
 if(BUILD_SHARED_LIBS)
-    get_lib_version_vars("nifticdf_version.h" NIFTICDF_VERSION NIFTICDF_MAJOR_VERSION)
     set_target_properties(${NIFTI_CDFLIB_NAME}
       PROPERTIES
         ${NIFTI_LIBRARY_PROPERTIES}
@@ -19,14 +19,13 @@ if(BUILD_SHARED_LIBS)
         )
 endif()
 install_nifti_target(${NIFTI_CDFLIB_NAME})
-
 if(NIFTI_BUILD_APPLICATIONS)
   add_nifti_executable(${NIFTI_PACKAGE_PREFIX}nifti_stats nifti_stats.c)
   target_link_libraries( ${NIFTI_PACKAGE_PREFIX}nifti_stats PUBLIC ${NIFTI_PACKAGE_PREFIX}niftiio ${NIFTI_PACKAGE_PREFIX}nifticdf)
   install_nifti_target(${NIFTI_PACKAGE_PREFIX}nifti_stats)
   install_man_page(
     ${NIFTI_PACKAGE_PREFIX}nifti_stats
-    OPTS "--help-option=-help;--version-option=-ver_man;--no-info"
+    OPTS "--help-option=-help;--version-string=${NIFTICDF_VERSION};--no-info"
               )
 endif()
 
