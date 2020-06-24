@@ -112,6 +112,7 @@ matrix:
         - CCC_CXX=clang++
     - compiler: clang
       os: osx
+      osx_image: xcode11
       env:
         - BLDPREFIX=rel
         - PARALLEL_LEVEL=3
