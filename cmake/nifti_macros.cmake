@@ -48,6 +48,59 @@ function(add_nifti_executable target_in)
   endif()
 endfunction()
 
+function(install_man_page target)
+  # uses help2man to generate manpages for an executable sections can be added
+  # to the man page by populating the OPTIONS_FOR_SECTIONS argument. For
+  # example setting this to "-see_also" will include the output of the
+  # "executable -see_also" in a "see_also" section of the final manpage.
+  # Additional arguments to the help2man call can be provided in the OPTS
+  # argument
+  set(MAN_DEPENDS "")
+  set(INCLUDE_STRING "")
+  if(NIFTI_INSTALL_NO_DOCS)
+    return()
+  endif()
+
+  # Parse args
+  cmake_parse_arguments(ARG
+      ""
+      ""
+      "OPTIONS_FOR_SECTIONS;OPTS"
+      ${ARGN}
+        )
+    #message(FATAL_ERROR "${ARG_OPTS}:::::::: ${ARG_OPTIONS_FOR_SECTIONS}:::::: ${ARGN}")
+  # generate additional sections for inclusion in manpage
+  foreach(section ${ARG_OPTIONS_FOR_SECTIONS})
+    string(REGEX REPLACE "-" "" SECTION_NAME ${section})
+    set(SECTION_FILE  ${MAN_DIR}/${SECTION_NAME}.h2m)
+    add_custom_command(
+        OUTPUT ${SECTION_FILE}
+        COMMAND   ${CMAKE_COMMAND} -E echo \"[ ${SECTION_NAME} ]\" > ${SECTION_FILE}
+        COMMAND $<TARGET_FILE:${target}> ${section} >> ${SECTION_FILE}
+        USES_TERMINAL
+        COMMENT Generating ${SECTION_NAME} for ${target}
+        )
+    list(APPEND MAN_DEPENDS ${SECTION_FILE})
+    list(APPEND INCLUDE_STRING "--include=${SECTION_FILE} ")
+  endforeach()
+
+  # Generate the man-page
+  set(MAN_PAGE ${MAN_DIR}/${target}_manpage.1)
+  add_custom_command(
+      OUTPUT ${MAN_PAGE}
+      DEPENDS ${MAN_DEPENDS}
+      WORKING_DIRECTORY ${MAN_DIR}
+      COMMAND ${HELP2MAN} $<TARGET_FILE:${target}> ${ARG_OPTS} ${INCLUDE_STRING} -o ${MAN_PAGE}
+      COMMAND gzip -f ${MAN_PAGE}
+      USES_TERMINAL
+      COMMENT Generating man page for ${target}
+      )
+  add_custom_target(${target}_man
+      ALL
+      DEPENDS ${MAN_PAGE}
+      )
+endfunction()
+
 function(install_nifti_target target_name)
   # Check if the current directory is the base directory of the project
   if("${PROJECT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_LIST_DIR}")

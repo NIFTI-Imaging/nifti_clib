@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y -q eatmydata \
         cmake \
         gcc \
         git \
+        help2man \
         libexpat1-dev \
         make \
         wget \

@@ -72,6 +72,8 @@ set_if_not_defined(NIFTI_INSTALL_RUNTIME_DIR bin)
 set_if_not_defined(NIFTI_INSTALL_LIBRARY_DIR lib)
 set_if_not_defined(NIFTI_INSTALL_ARCHIVE_DIR ${NIFTI_INSTALL_LIBRARY_DIR})
 set_if_not_defined(NIFTI_INSTALL_INCLUDE_DIR include/nifti)
+set_if_not_defined(NIFTI_INSTALL_MAN_DIR share/man/man1)
+set_if_not_defined(NIFTI_INSTALL_DOC_DIR share/doc/${PROJECT_NAME})
 set_if_not_defined(NIFTI_ZLIB_LIBRARIES "")
 set_if_not_defined(ZNZ_COMPILE_DEF "")
 if(NOT NIFTI_ZLIB_LIBRARIES) # If using a custom zlib library, skip the find package
@@ -84,6 +86,7 @@ add_definitions(-DHAVE_ZLIB)
 set_if_not_defined(NIFTI_INSTALL_NO_DEVELOPMENT 0)
 set_if_not_defined(NIFTI_INSTALL_NO_LIBRARIES 0)
 set_if_not_defined(NIFTI_INSTALL_NO_APPLICATIONS 0)
+set_if_not_defined(NIFTI_INSTALL_NO_DOCS 0)
 
 # Include test to verify linking in installed executables
 # The test should only be added when applications are built, and no prefix string is set.
@@ -107,6 +110,11 @@ if(NOT CMAKE_SKIP_INSTALL_RPATH)
   endif()
 endif()
 
+if(NOT NIFTI_INSTALL_NO_DOCS)
+      find_program(HELP2MAN help2man REQUIRED)
+      set(MAN_DIR ${PROJECT_BINARY_DIR}/manpages)
+      file(MAKE_DIRECTORY ${MAN_DIR})
+endif()
 #######################################################################
 
 set_if_not_defined(BUILD_TESTING ON)
@@ -203,6 +211,23 @@ if(CMAKE_VER_AT_LEAST_3_13)
   foreach(targ ${nifti_installed_targets})
     install_nifti_target(${targ})
   endforeach()
+endif()
+
+if(NOT NIFTI_INSTALL_NO_DOCS)
+  install(
+      DIRECTORY ${MAN_DIR}/
+      DESTINATION ${NIFTI_INSTALL_MAN_DIR}
+      FILES_MATCHING REGEX ".*.1.gz"
+      PERMISSIONS OWNER_READ WORLD_READ
+      )
+  install(
+    FILES ${PROJECT_SOURCE_DIR}/README.md
+    DESTINATION ${NIFTI_INSTALL_DOC_DIR}
+    )
+  install(
+    DIRECTORY ${PROJECT_SOURCE_DIR}/real_easy/
+    DESTINATION ${NIFTI_INSTALL_DOC_DIR}/examples
+    )
 endif()
 
 if(NIFTI_INSTALL_EXPORT_NAME STREQUAL "NIFTITargets")

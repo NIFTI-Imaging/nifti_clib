@@ -24,6 +24,10 @@ if(NIFTI_BUILD_APPLICATIONS)
   add_nifti_executable(${NIFTI_PACKAGE_PREFIX}nifti_stats nifti_stats.c)
   target_link_libraries( ${NIFTI_PACKAGE_PREFIX}nifti_stats PUBLIC ${NIFTI_PACKAGE_PREFIX}niftiio ${NIFTI_PACKAGE_PREFIX}nifticdf)
   install_nifti_target(${NIFTI_PACKAGE_PREFIX}nifti_stats)
+  install_man_page(
+    ${NIFTI_PACKAGE_PREFIX}nifti_stats
+    OPTS "--help-option=-help;--version-option=-ver_man;--no-info"
+              )
 endif()
 
 
