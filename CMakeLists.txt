@@ -253,13 +253,14 @@ if(NIFTI_INSTALL_EXPORT_NAME STREQUAL "NIFTITargets")
         FILE NIFTITargets.cmake
         NAMESPACE     ${PACKAGE_NAME}::
         DESTINATION   ${ConfigPackageLocation}
+        COMPONENT     Development
         )
 
   install(FILES
            ${CONFIG_SETUP_DIR}/${PACKAGE_NAME}Config.cmake
            ${CONFIG_SETUP_DIR}/${PACKAGE_NAME}ConfigVersion.cmake
-        DESTINATION   ${ConfigPackageLocation}
         COMPONENT     Development
+        DESTINATION   ${ConfigPackageLocation}
   )
 endif()
 
