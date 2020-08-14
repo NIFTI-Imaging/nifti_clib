@@ -3825,6 +3825,7 @@ char * nifti_findimgname(const char* fname , int nifti_type)
       /* if we get 3 or more extensions, can make a loop here... */
 
       if (nifti_type == NIFTI_FTYPE_NIFTI1_1) first = 0; /* should match .nii */
+      else if (nifti_type == NIFTI_FTYPE_NIFTI2_1) first = 0;
       else                                    first = 1; /* should match .img */
 
       strcpy(imgname,basename);
@@ -3906,6 +3907,7 @@ char * nifti_makehdrname(const char * prefix, int nifti_type, int check,
    }
    /* otherwise, make one up */
    else if( nifti_type == NIFTI_FTYPE_NIFTI1_1 ) strcat(iname, extnii);
+   else if( nifti_type == NIFTI_FTYPE_NIFTI2_1 ) strcat(iname, extnii);
    else if( nifti_type == NIFTI_FTYPE_ASCII )    strcat(iname, extnia);
    else                                          strcat(iname, exthdr);
 
@@ -3980,6 +3982,7 @@ char * nifti_makeimgname(const char * prefix, int nifti_type, int check,
    }
    /* otherwise, make one up */
    else if( nifti_type == NIFTI_FTYPE_NIFTI1_1 ) strcat(iname, extnii);
+   else if( nifti_type == NIFTI_FTYPE_NIFTI2_1 ) strcat(iname, extnii);
    else if( nifti_type == NIFTI_FTYPE_ASCII )    strcat(iname, extnia);
    else                                          strcat(iname, extimg);
 
@@ -4118,7 +4121,8 @@ int nifti_type_and_names_match( nifti_image * nim, int show_warn )
    if( errs ) return 0;   /* do not proceed, but this is just a mis-match */
 
    /* general tests */
-   if( nim->nifti_type == NIFTI_FTYPE_NIFTI1_1 ){  /* .nii */
+   if( (nim->nifti_type == NIFTI_FTYPE_NIFTI1_1) ||
+       (nim->nifti_type == NIFTI_FTYPE_NIFTI2_1) ){  /* .nii */
       if( fileext_n_compare(ext_h,".nii",4) ) {
          if( show_warn )
             fprintf(stderr,
@@ -4142,6 +4146,7 @@ int nifti_type_and_names_match( nifti_image * nim, int show_warn )
       }
    }
    else if( (nim->nifti_type == NIFTI_FTYPE_NIFTI1_2) || /* .hdr/.img */
+            (nim->nifti_type == NIFTI_FTYPE_NIFTI2_2) ||
             (nim->nifti_type == NIFTI_FTYPE_ANALYZE) )
    {
       if( fileext_n_compare(ext_h,".hdr",4) != 0 ){
@@ -4374,9 +4379,11 @@ int nifti_set_type_from_names( nifti_image * nim )
    } else {
       /* not too picky here, do what must be done, and then verify */
       if( strcmp(nim->fname, nim->iname) == 0 )          /* one file, type 1 */
-         nim->nifti_type = NIFTI_FTYPE_NIFTI1_1;
+         nim->nifti_type = (nim->nifti_type >= NIFTI_FTYPE_NIFTI2_1) ? NIFTI_FTYPE_NIFTI2_1 : NIFTI_FTYPE_NIFTI1_1;
       else if( nim->nifti_type == NIFTI_FTYPE_NIFTI1_1 ) /* cannot be type 1 */
          nim->nifti_type = NIFTI_FTYPE_NIFTI1_2;
+      else if( nim->nifti_type == NIFTI_FTYPE_NIFTI2_1 )
+         nim->nifti_type = NIFTI_FTYPE_NIFTI2_2;
    }
 
    if( g_opts.debug > 2 ) fprintf(stderr," -> %d\n",nim->nifti_type);
@@ -5005,7 +5012,7 @@ nifti_image* nifti_convert_n2hdr2nim(nifti_2_header nhdr, const char * fname)
 
    is_onefile = (ni_ver > 0) && NIFTI_ONEFILE(nhdr) ;
 
-   nim->nifti_type = (is_onefile) ? NIFTI_FTYPE_NIFTI1_1 : NIFTI_FTYPE_NIFTI1_2;
+   nim->nifti_type = (is_onefile) ? NIFTI_FTYPE_NIFTI2_1 : NIFTI_FTYPE_NIFTI2_2;
 
    ii = nifti_short_order() ;
    if( doswap )   nim->byteorder = REVERSE_ORDER(ii) ;
@@ -7717,6 +7724,7 @@ void nifti_set_iname_offset(nifti_image *nim, int nifti_ver)
 
      /* NIFTI-1 single binary file - always update */
      case NIFTI_FTYPE_NIFTI1_1:
+     case NIFTI_FTYPE_NIFTI2_1:
        offset = nifti_extension_size(nim) + hsize + 4;
        /* be sure offset is aligned to a 16 byte boundary */
        if ( ( offset % 16 ) != 0 )  offset = ((offset + 0xf) & ~0xf);
@@ -7832,7 +7840,7 @@ znzFile nifti_image_write_hdr_img2(nifti_image *nim, int write_opts,
    }
 
    /* if writing to 2 files, make sure iname is set and different from fname */
-   if( nim->nifti_type != NIFTI_FTYPE_NIFTI1_1 ){
+   if( (nim->nifti_type != NIFTI_FTYPE_NIFTI1_1) && (nim->nifti_type != NIFTI_FTYPE_NIFTI2_1) ){
        if( nim->iname && strcmp(nim->iname,nim->fname) == 0 ){
          free(nim->iname) ; nim->iname = NULL ;
        }
@@ -7843,7 +7851,7 @@ znzFile nifti_image_write_hdr_img2(nifti_image *nim, int write_opts,
    }
 
    /* if we have an imgfile and will write the header there, use it */
-   if( ! znz_isnull(imgfile) && nim->nifti_type == NIFTI_FTYPE_NIFTI1_1 ){
+   if( ! znz_isnull(imgfile) && (nim->nifti_type == NIFTI_FTYPE_NIFTI1_1 || nim->nifti_type == NIFTI_FTYPE_NIFTI2_1) ){
       if( g_opts.debug > 2 ) fprintf(stderr,"+d using passed file for hdr\n");
       fp = imgfile;
    }
@@ -7877,7 +7885,7 @@ znzFile nifti_image_write_hdr_img2(nifti_image *nim, int write_opts,
       znzclose(fp); return(fp);
    }
 
-   if( nim->nifti_type != NIFTI_FTYPE_NIFTI1_1 ){ /* get a new file pointer */
+   if( (nim->nifti_type != NIFTI_FTYPE_NIFTI1_1) && (nim->nifti_type != NIFTI_FTYPE_NIFTI2_1) ){ /* get a new file pointer */
       znzclose(fp);         /* first, close header file */
       if( ! znz_isnull(imgfile) ){
          if(g_opts.debug > 2) fprintf(stderr,"+d using passed file for img\n");
