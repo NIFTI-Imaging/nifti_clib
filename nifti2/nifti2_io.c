@@ -7512,8 +7512,8 @@ int nifti_convert_nim2n2hdr(const nifti_image * nim, nifti_2_header * hdr)
    /**- load the ANALYZE-7.5 generic parts of the header struct */
 
    nhdr.sizeof_hdr = sizeof(nhdr) ;
-   if( nim->nifti_type == NIFTI_FTYPE_NIFTI2_1 ) strcpy(nhdr.magic,"n+2") ;
-   else                                          strcpy(nhdr.magic,"ni2") ;
+   memcpy(nhdr.magic, nifti2_magic, 8);
+   if( nim->nifti_type == NIFTI_FTYPE_NIFTI2_2 ) nhdr.magic[1] = 'i';
 
    nhdr.datatype = nim->datatype ;
    nhdr.bitpix   = 8 * nim->nbyper ;
