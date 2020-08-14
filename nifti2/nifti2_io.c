@@ -8214,6 +8214,8 @@ char *nifti_image_to_ascii( const nifti_image *nim )
               (nim->nifti_type == NIFTI_FTYPE_NIFTI1_1) ? "NIFTI-1+"
              :(nim->nifti_type == NIFTI_FTYPE_NIFTI1_2) ? "NIFTI-1"
              :(nim->nifti_type == NIFTI_FTYPE_ASCII   ) ? "NIFTI-1A"
+             :(nim->nifti_type == NIFTI_FTYPE_NIFTI2_1) ? "NIFTI-2+"
+             :(nim->nifti_type == NIFTI_FTYPE_NIFTI2_2) ? "NIFTI-2"
              :                         "ANALYZE-7.5" ) ;
 
    /** Strings that we don't control (filenames, etc.) that might
@@ -8561,6 +8563,10 @@ nifti_image *nifti_image_from_ascii( const char *str, int * bytes_read )
                nim->nifti_type = NIFTI_FTYPE_NIFTI1_2 ;
        else if( strcmp(rhs,"NIFTI-1A")    == 0 )
                nim->nifti_type = NIFTI_FTYPE_ASCII ;
+       else if( strcmp(rhs,"NIFTI-2+")    == 0 )
+               nim->nifti_type = NIFTI_FTYPE_NIFTI2_1 ;
+       else if( strcmp(rhs,"NIFTI-2")     == 0 )
+               nim->nifti_type = NIFTI_FTYPE_NIFTI2_2 ;
      }
      else if( strcmp(lhs,"header_filename") == 0 ){
        nim->fname = nifti_strdup(rhs) ;
