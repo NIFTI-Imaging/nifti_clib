@@ -7815,8 +7815,6 @@ znzFile nifti_image_write_hdr_img2(nifti_image *nim, int write_opts,
    if( write_data && NBL && ! nifti_NBL_matches_nim(nim, NBL) )
       ERREX("NBL does not match nim");
 
-   nifti_set_iname_offset(nim, 1);
-
    if( g_opts.debug > 1 ){
       fprintf(stderr,"-d writing nifti file '%s'...\n", nim->fname);
       if( g_opts.debug > 2 )
@@ -7826,17 +7824,15 @@ znzFile nifti_image_write_hdr_img2(nifti_image *nim, int write_opts,
 
    if( nim->nifti_type == NIFTI_FTYPE_ASCII )   /* non-standard case */
       return nifti_write_ascii_image(nim,NBL,opts,write_data,leave_open);
-
-   /* create the nifti header struct                  5 Aug, 2015 [rickr]
-        - default is NIFTI-1 (option?)
-        - if that fails try NIFTI-2
-   */
-   if( nifti_convert_nim2n1hdr(nim, &n1hdr) ) {
+   else if( nim->nifti_type == NIFTI_FTYPE_NIFTI2_1 || nim->nifti_type == NIFTI_FTYPE_NIFTI2_2 ) {
       nifti_set_iname_offset(nim, 2);
       if( nifti_convert_nim2n2hdr(nim, &n2hdr) ) return NULL;
-      fprintf(stderr,"+d writing %s as NIFTI-2, instead...\n", nim->fname);
       nver = 2; /* we will write NIFTI-2 */
       hsize = (int)sizeof(nifti_2_header);
+   }
+   else {
+      nifti_set_iname_offset(nim, 1);
+      if( nifti_convert_nim2n1hdr(nim, &n1hdr) ) return NULL;
    }
 
    /* if writing to 2 files, make sure iname is set and different from fname */
