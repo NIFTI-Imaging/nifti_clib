@@ -4378,8 +4378,10 @@ int nifti_set_type_from_names( nifti_image * nim )
       nim->nifti_type = NIFTI_FTYPE_ASCII;
    } else {
       /* not too picky here, do what must be done, and then verify */
-      if( strcmp(nim->fname, nim->iname) == 0 )          /* one file, type 1 */
-         nim->nifti_type = (nim->nifti_type >= NIFTI_FTYPE_NIFTI2_1) ? NIFTI_FTYPE_NIFTI2_1 : NIFTI_FTYPE_NIFTI1_1;
+      if( strcmp(nim->fname, nim->iname) == 0 ) {        /* one file, type 1 */
+         nim->nifti_type = (nim->nifti_type >= NIFTI_FTYPE_NIFTI2_1) ?
+                              NIFTI_FTYPE_NIFTI2_1 : NIFTI_FTYPE_NIFTI1_1;
+      }
       else if( nim->nifti_type == NIFTI_FTYPE_NIFTI1_1 ) /* cannot be type 1 */
          nim->nifti_type = NIFTI_FTYPE_NIFTI1_2;
       else if( nim->nifti_type == NIFTI_FTYPE_NIFTI2_1 )
@@ -7824,7 +7826,8 @@ znzFile nifti_image_write_hdr_img2(nifti_image *nim, int write_opts,
 
    if( nim->nifti_type == NIFTI_FTYPE_ASCII )   /* non-standard case */
       return nifti_write_ascii_image(nim,NBL,opts,write_data,leave_open);
-   else if( nim->nifti_type == NIFTI_FTYPE_NIFTI2_1 || nim->nifti_type == NIFTI_FTYPE_NIFTI2_2 ) {
+   else if( nim->nifti_type == NIFTI_FTYPE_NIFTI2_1 ||
+            nim->nifti_type == NIFTI_FTYPE_NIFTI2_2 ) {
       nifti_set_iname_offset(nim, 2);
       if( nifti_convert_nim2n2hdr(nim, &n2hdr) ) return NULL;
       nver = 2; /* we will write NIFTI-2 */
@@ -7836,7 +7839,8 @@ znzFile nifti_image_write_hdr_img2(nifti_image *nim, int write_opts,
    }
 
    /* if writing to 2 files, make sure iname is set and different from fname */
-   if( (nim->nifti_type != NIFTI_FTYPE_NIFTI1_1) && (nim->nifti_type != NIFTI_FTYPE_NIFTI2_1) ){
+   if( (nim->nifti_type != NIFTI_FTYPE_NIFTI1_1) &&
+       (nim->nifti_type != NIFTI_FTYPE_NIFTI2_1) ){
        if( nim->iname && strcmp(nim->iname,nim->fname) == 0 ){
          free(nim->iname) ; nim->iname = NULL ;
        }
@@ -7847,7 +7851,8 @@ znzFile nifti_image_write_hdr_img2(nifti_image *nim, int write_opts,
    }
 
    /* if we have an imgfile and will write the header there, use it */
-   if( ! znz_isnull(imgfile) && (nim->nifti_type == NIFTI_FTYPE_NIFTI1_1 || nim->nifti_type == NIFTI_FTYPE_NIFTI2_1) ){
+   if( ! znz_isnull(imgfile) && (nim->nifti_type == NIFTI_FTYPE_NIFTI1_1 ||
+                                 nim->nifti_type == NIFTI_FTYPE_NIFTI2_1) ){
       if( g_opts.debug > 2 ) fprintf(stderr,"+d using passed file for hdr\n");
       fp = imgfile;
    }
@@ -7881,7 +7886,8 @@ znzFile nifti_image_write_hdr_img2(nifti_image *nim, int write_opts,
       znzclose(fp); return(fp);
    }
 
-   if( (nim->nifti_type != NIFTI_FTYPE_NIFTI1_1) && (nim->nifti_type != NIFTI_FTYPE_NIFTI2_1) ){ /* get a new file pointer */
+   if( (nim->nifti_type != NIFTI_FTYPE_NIFTI1_1) &&
+       (nim->nifti_type != NIFTI_FTYPE_NIFTI2_1) ){ /* get a new file pointer */
       znzclose(fp);         /* first, close header file */
       if( ! znz_isnull(imgfile) ){
          if(g_opts.debug > 2) fprintf(stderr,"+d using passed file for img\n");
