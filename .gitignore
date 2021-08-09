@@ -34,7 +34,7 @@ CMakeLists.txt.user*
 # Mac System File
 .DS_Store
 
-# A common file writen from vim by accident
+# A common file written from vim by accident
 :w
 
 # Files when cmake builds in the source tree
