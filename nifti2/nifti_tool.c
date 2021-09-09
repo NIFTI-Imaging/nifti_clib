@@ -289,7 +289,7 @@ int main( int argc, char * argv[] )
    if((opts.swap_hdr  || opts.swap_ana || opts.swap_old )
                       && ((rv = act_swap_hdrs (&opts)) != 0) ) FREE_RETURN(rv);
 
-   /* if a diff, return wither a difference exists (like the UNIX command) */
+   /* if a diff, return whether, a difference exists (like the UNIX command) */
    if( opts.diff_hdr  && ((rv = act_diff_hdrs (&opts)) != 0) ) FREE_RETURN(rv);
    if( opts.diff_hdr1 && ((rv = act_diff_hdr1s(&opts)) != 0) ) FREE_RETURN(rv);
    if( opts.diff_hdr2 && ((rv = act_diff_hdr2s(&opts)) != 0) ) FREE_RETURN(rv);

@@ -696,7 +696,7 @@ typedef struct {
     char const * const name;           /* text string to match #define */
 } nifti_type_ele;
 
-#undef  LNI_FERR /* local nifti file error, to be compact and repetative */
+#undef  LNI_FERR /* local nifti file error, to be compact and repetitive */
 #define LNI_FERR(func,msg,file)                                      \
             fprintf(stderr,"** ERROR (%s): %s '%s'\n",func,msg,file)
 
