@@ -868,7 +868,7 @@ int nifti_image_load_bricks( nifti_image * nim , int64_t nbricks,
 
    if( rv != 0 ){
       nifti_free_NBL( NBL );  /* failure! */
-      NBL->nbricks = 0; /* repetative, but clear */
+      NBL->nbricks = 0; /* repetitive, but clear */
    }
 
    if( slist ){ free(slist); free(sindex); }
@@ -4723,7 +4723,7 @@ nifti_image* nifti_convert_n1hdr2nim(nifti_1_header nhdr, const char * fname)
      if( nhdr.dim[ii] <= 0 ) nhdr.dim[ii] = 1 ;
 
    /* fix any remaining bad dim[] values, so garbage does not propagate */
-   /* (only values 0 or 1 seem rational, otherwise set to arbirary 1)   */
+   /* (only values 0 or 1 seem rational, otherwise set to arbitrary 1)   */
    for( ii=nhdr.dim[0]+1 ; ii <= 7 ; ii++ )
      if( nhdr.dim[ii] != 1 && nhdr.dim[ii] != 0) nhdr.dim[ii] = 1 ;
 
@@ -5002,7 +5002,7 @@ nifti_image* nifti_convert_n2hdr2nim(nifti_2_header nhdr, const char * fname)
      if( nhdr.dim[ii] <= 0 ) nhdr.dim[ii] = 1 ;
 
    /* fix any remaining bad dim[] values, so garbage does not propagate */
-   /* (only values 0 or 1 seem rational, otherwise set to arbirary 1)   */
+   /* (only values 0 or 1 seem rational, otherwise set to arbitrary 1)   */
    for( ii=nhdr.dim[0]+1 ; ii <= 7 ; ii++ )
      if( nhdr.dim[ii] != 1 && nhdr.dim[ii] != 0) nhdr.dim[ii] = 1 ;
 
