@@ -150,7 +150,9 @@ endif()
 
 #######################################################################
 # Find unix math libraries
-if(NOT WIN32)
+if(EMSCRIPTEN OR WASI)
+    set(NIFTI_SYSTEM_MATH_LIB m)
+elseif(NOT WIN32)
     find_library(NIFTI_SYSTEM_MATH_LIB m)
 else()
     set(NIFTI_SYSTEM_MATH_LIB "")
