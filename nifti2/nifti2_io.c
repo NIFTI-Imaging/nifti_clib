@@ -1,9 +1,9 @@
 #define _NIFTI2_IO_C_
 
 //FSLSTYLE: generate error if both img.nii and img.nii.gz exists
-#define FSLSTYLE 
+// #define FSLSTYLE 
 //PIGZ: Use PIGZ parallel compression if environment includes "AFNI_COMPRESSOR=PIGZ"
-#define PIGZ
+// #define PIGZ
 //REJECT_COMPLEX: generate error if file is complex datatype
 // #define REJECT_COMPLEX
 
