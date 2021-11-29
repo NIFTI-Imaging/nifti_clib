@@ -10,8 +10,8 @@ IFLAGS          = -I. -I../niftilib -I../znzlib
 CFLAGS          = -Wall -std=gnu99 -pedantic $(USEZLIB) $(IFLAGS)
 
 
-#run "FSL=1 make" for JPEGLS build
-ifeq "$(FSL)" "1"
+#run "FSLSTYLE=1 make" for JPEGLS build
+ifeq "$(FSLSTYLE)" "1"
 	CFLAGS += -DFSLSTYLE -DPIGZ -DREJECT_COMPLEX
 endif
 

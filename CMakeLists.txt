@@ -50,7 +50,7 @@ endif()
 option( BUILD_SHARED_LIBS "Toggle building shared libraries." OFF)
 
 # add option to mimic FSL
-option( FSL "FSL name conflicts (img.nii and img.nii.gz), PIGZ support, reject complex images." OFF)
+option( FSLSTYLE "FSL name conflicts (img.nii and img.nii.gz), PIGZ support, reject complex images." OFF)
 
 # Include executables as part of the build
 option(NIFTI_BUILD_APPLICATIONS "Build various utility tools" ON)
