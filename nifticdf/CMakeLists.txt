@@ -11,11 +11,13 @@ target_compile_options(${NIFTI_CDFLIB_NAME} PRIVATE "-D__COMPILE_UNUSED_FUNCTION
 target_link_libraries(${NIFTI_CDFLIB_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}niftiio)
 get_lib_version_vars("nifticdf_version.h" NIFTICDF_VERSION NIFTICDF_MAJOR_VERSION)
 if(BUILD_SHARED_LIBS)
+    configure_file(nifticdf.pc.in nifticdf.pc @ONLY)
     set_target_properties(${NIFTI_CDFLIB_NAME}
       PROPERTIES
         ${NIFTI_LIBRARY_PROPERTIES}
         VERSION ${NIFTICDF_VERSION}
         SOVERSION ${NIFTICDF_MAJOR_VERSION}
+        PKG_CONFIG nifticdf.pc
         )
 endif()
 install_nifti_target(${NIFTI_CDFLIB_NAME})

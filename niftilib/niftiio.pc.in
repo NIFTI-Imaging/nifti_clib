@@ -1,0 +1,11 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix="${prefix}"
+libdir="${prefix}/@NIFTI_INSTALL_LIBRARY_DIR@"
+includedir="${prefix}/@NIFTI_INSTALL_INCLUDE_DIR@"
+
+Name: niftiio
+Description: Core i/o routines for reading and writing nifti-1 format files
+Version: @PROJECT_VERSION@
+Requires: znzlib
+Libs: -L${libdir} -lnitfiio
+Cflags: -I${includedir}

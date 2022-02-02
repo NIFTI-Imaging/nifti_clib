@@ -1,0 +1,12 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix="${prefix}"
+libdir="${prefix}/@NIFTI_INSTALL_LIBRARY_DIR@"
+includedir="${prefix}/@NIFTI_INSTALL_INCLUDE_DIR@"
+zlib_support=true
+
+Name: znzlib
+Description: Low level library for handling read/write of compressed files
+Version: @PROJECT_VERSION@
+Requires: zlib
+Libs: -L${libdir} -lznz
+Cflags: -I${includedir}

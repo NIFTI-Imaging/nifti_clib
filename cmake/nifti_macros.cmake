@@ -135,6 +135,9 @@ function(install_nifti_target target_name)
             COMPONENT Development
           INCLUDES
             DESTINATION ${NIFTI_INSTALL_INCLUDE_DIR}
+          PKG_CONFIG
+            DESTINATION ${NIFTI_INSTALL_PKGCONFIG_DIR}
+            COMPONENT Development
           )
 endfunction()
 

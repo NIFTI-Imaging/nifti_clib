@@ -11,11 +11,13 @@ target_compile_definitions(${NIFTI_ZNZLIB_NAME} PUBLIC  ${ZNZ_COMPILE_DEF})
 # Set library version if building shared libs.
 if(BUILD_SHARED_LIBS)
     get_lib_version_vars("znzlib_version.h" ZNZLIB_VERSION ZNZLIB_MAJOR_VERSION)
+    configure_file(znzlib.pc.in znzlib.pc @ONLY)
     set_target_properties(${NIFTI_ZNZLIB_NAME}
       PROPERTIES
         ${NIFTI_LIBRARY_PROPERTIES}
         VERSION ${ZNZLIB_VERSION}
         SOVERSION ${ZNZLIB_MAJOR_VERSION}
+        PKG_CONFIG znzlib.pc
         )
 endif()
 install_nifti_target(${NIFTI_ZNZLIB_NAME})
