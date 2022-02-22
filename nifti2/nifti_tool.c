@@ -197,10 +197,12 @@ static const char * g_history[] =
   "   - nt_image_read() takes a new make_ver parameter\n",
   "   - possibly convert default NIFTI-2 MAKE_IM result to NIFTI-1\n"
   "2.11 29 Dec 2020 [rickr] - add example to create dset from raw data\n",
+  "2.12 21 Feb 2022 [rickr]\n"
+  "   - start to deprecate -copy_im (bad name; -cbl can alter hdr on read)\n",
   "----------------------------------------------------------------------\n"
 };
-static char g_version[] = "2.11";
-static char g_version_date[] = "December 29, 2020";
+static char g_version[] = "2.12";
+static char g_version_date[] = "February 21, 2022";
 static int  g_debug = 1;
 
 #define _NIFTI_TOOL_C_
@@ -424,6 +426,8 @@ int process_opts( int argc, char * argv[], nt_opts * opts )
                ! strcmp(argv[ac], "-copy_im") ||
                ! strcmp(argv[ac], "-cbl") )
       {
+         if( ! strcmp(argv[ac], "-copy_im") )
+            fprintf(stderr,"** copy_im is being deprecated, please use -cbl\n");
          opts->cbl = 1;
       }
       else if( ! strcmp(argv[ac], "-copy_collapsed_image") ||
@@ -1070,7 +1074,6 @@ int use_full()
    printf(
    "    nifti_tool -copy_brick_list -infiles f1'[indices...]'\n"
    "    nifti_tool -copy_collapsed_image I J K T U V W -infiles f1\n"
-   "    nifti_tool -copy_im -infiles f1\n"
    "\n");
    printf(
    "    nifti_tool -make_im -prefix new_im.nii\n"
@@ -1175,7 +1178,7 @@ int use_full()
    printf(
    "    E. copy dataset, brick list or collapsed image:\n"
    "\n"
-   "      1. nifti_tool -copy_im -prefix new.nii -infiles dset0.nii\n"
+   "      1. nifti_tool -cbl -prefix new.nii -infiles dset0.nii\n"
    "      2. nifti_tool -cbl -prefix new_07.nii -infiles dset0.nii'[0,7]'\n"
    "      3. nifti_tool -cbl -prefix new_partial.nii \\\n"
    "                    -infiles dset0.nii'[3..$(2)]'\n"
@@ -1317,7 +1320,6 @@ int use_full()
    "\n"
    "    -copy_brick_list   : copy a list of volumes to a new dataset\n"
    "    -cbl               : (a shorter, alternative form)\n"
-   "    -copy_im           : (a shorter, alternative form)\n"
    "\n");
    printf(
    "       This action allows the user to copy a list of volumes (over time)\n"
@@ -1346,12 +1348,15 @@ int use_full()
    "           example: 2 through 95 with a step of 3, i.e. {2,5,8,11,...,95}\n"
    "             e.g. -infiles dset0.nii'[2..95(3)]'\n"
    "\n");
-   printf(
+#if 0
+                  /* rcr add as -copy_image? */
+
    "       This functionality applies only to 3 or 4-dimensional datasets.\n"
    "\n"
    "       e.g. to copy a dataset:\n"
-   "       nifti_tool -copy_im -prefix new.nii -infiles dset0.nii\n"
+   "       nifti_tool -copy_image -prefix new.nii -infiles dset0.nii\n"
    "\n");
+#endif
    printf(
    "       e.g. to copy sub-bricks 0 and 7:\n"
    "       nifti_tool -cbl -prefix new_07.nii -infiles dset0.nii'[0,7]'\n"
