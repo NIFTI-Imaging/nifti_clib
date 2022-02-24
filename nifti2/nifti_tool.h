@@ -113,6 +113,44 @@ typedef struct {
 #define NT_MAKE_IM_NAME "MAKE_IM"
 
 /* ================================================================= */
+/* data conversionn operations                                       */
+
+/* -------------------------------------------- */
+/* copy from src to dest, chaning type enroute  */
+/* dtype, dptr : destination type and pointer   */
+/* stype, sptr : source type and pointer        */
+/* nvals       : number of values to copy       */
+#define NT_DCONVERT_NO_CHECKS(dptr, dtype, sptr, stype, nvals) \
+   do {                                         \
+      dtype   * pd = dptr;                      \
+      stype   * ps = sptr;                      \
+      int64_t   index;                          \
+      for(index=0; index<nvals; index++) {      \
+         *pd = (dtype)*ps;                      \
+         pd++; ps++;                            \
+      } } while(0)
+
+/* --------------------------------------------- */
+/* copy from src to dest, chaning type enroute   */
+/* (like NT_DCONVERT_NO_CHECKS, but WITH checks) */
+/* fail         : (returned) conversion failures */
+#define NT_DCONVERT_W_CHECKS(dptr, dtype, sptr, stype, nvals, failure) \
+   do {                                         \
+      dtype   * pd = dptr;                      \
+      stype   * ps = sptr;                      \
+      int64_t   index;                          \
+      /* init bounds with first */              \
+      failure = 0;                              \
+      for(index=0; index<nvals; index++) {      \
+         *pd = (dtype)*ps;                      \
+         /* fail when we cannot invert */       \
+         if( !failure && *ps != (stype)*pd )    \
+            failure = 1;                        \
+         pd++; ps++;                            \
+      } } while(0)
+
+
+/* ================================================================= */
 /* matrix operations                                                 */
 /* (macros allow them to apply to either mat44 or dmat44)            */ 
 

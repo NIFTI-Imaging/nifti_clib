@@ -218,7 +218,10 @@ static char * read_file_text(const char * filename, int * length);
 /* prototypes associated with data conversion */
 static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
                             int new_type, int verify, int fail_choice);
+static int convert_nifti_data(nifti_image * nim, int new_type, int verify,
+                              int fail_choice);
 static int is_lossless(int old_type, int new_type);
+static int is_valid_conversion_type(int dtype);
 static int int_size_of_type(int dtype);
 static int type_is_complex(int dtype);
 static int type_is_signed(int dtype);
@@ -3895,6 +3898,12 @@ static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
               is_lossless(nim->datatype, new_type));
    }
 
+   /* rcr - to be deleted, hopefully */
+   if( NBL ) {
+      fprintf(stderr,"** convert_datatype: not ready for NBL\n");
+      return 1;
+   }
+
    /* handle the most challenging case, first - no data */
    if( (!nim->data && !NBL) || nim->nvox <= 0 ) {
       nim->datatype = new_type;
@@ -3906,8 +3915,1230 @@ static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
    if( is_lossless(nim->datatype, new_type) )
       verify = 0;
 
+   /* do the actual conversion */
+   if( convert_nifti_data(nim, new_type, verify, fail_choice) )
+      return 1;
+
    fprintf(stderr,"** convert_datatype is not ready for prime-time\n");
    return 1; /* fail; we are not emotionally prepared for success */
+}
+
+/*----------------------------------------------------------------------
+ * perform actual data conversion (basic checks are already done)
+ *
+ * It is not clear how to do this without an NxN set of cases, since 
+ * the types must be expicitly noted for each pair, even with macros.
+ *
+ * So it is all written out, even when in and out types match, so that
+ * the case blocks only vary in the I/O types.  If someone wants to
+ * convert from f32 to f32, we will still go through with the casting
+ * process.  It builds character.
+ *
+ * return 0 on success
+ *----------------------------------------------------------------------*/
+static int convert_nifti_data(nifti_image * nim, int new_type, int verify,
+                              int fail_choice)
+{
+   void       * newdata=NULL, * olddata;
+   const char * typestr;
+   int64_t      nvox = nim->nvox;
+   int          nbyper, errs=0;  /* were the conversion errors? */
+   int          tried;           /* did we even try (unapplied types) */
+
+   /* for any messages */
+   typestr = nifti_datatype_string(new_type);
+
+   /* do not allow some cases for either type (e.g. where we do not have
+    * a simple datum to apply (RGB, complex)) */
+   if( ! is_valid_conversion_type(nim->datatype) ) {
+      fprintf(stderr,"** data conversion not ready for orig datatype %s\n",
+              nifti_datatype_string(nim->datatype));
+      return 1;
+   }
+   if( ! is_valid_conversion_type(new_type) ) {
+      fprintf(stderr,"** data conversion not ready for new datatype %s\n",
+              typestr);
+      return 1;
+   }
+
+   /* allocate new memory (calloc, in case of partial filling) */
+   nifti_datatype_sizes(new_type, &nbyper, NULL);   /* get nbyper */
+   newdata = calloc(nvox, nbyper);
+   if( !newdata ) {
+      fprintf(stderr,"** failed to alloc for %" PRId64 " %s elements\n",
+              nvox, typestr);
+      return 1;
+   }
+
+   /* for visual clarity */
+   olddata = nim->data;
+
+   /* ----------------------------------------------------------------------
+    * Enter the dragon.
+    *
+    * I do not see how to do this without an NxN list, even with macros.
+    * So live with a nested set of switch cases spanning 1000+ lines...
+    * BTW, I visually tested by separating every new_type case into its
+    * own file and diffing against the first.  Good times.
+    */
+   tried = 0;  /* verify that we get to a conversion case */
+   switch( new_type ) {
+
+      case NIFTI_TYPE_INT8:            /* new type */
+      {
+         switch( nim->datatype ) {
+            case NIFTI_TYPE_INT8: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, char,
+                                       olddata, char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, char,
+                                        olddata, char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT8: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, char,
+                                       olddata, unsigned char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, char,
+                                        olddata, unsigned char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT16: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, char,
+                                       olddata, short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, char,
+                                        olddata, short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT16: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, char,
+                                       olddata, unsigned short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, char,
+                                        olddata, unsigned short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT32: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, char,
+                                       olddata, int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, char,
+                                        olddata, int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT32: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, char,
+                                       olddata, unsigned int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, char,
+                                        olddata, unsigned int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT64: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, char,
+                                       olddata, int64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, char,
+                                        olddata, int64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT64: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, char,
+                                       olddata, uint64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, char,
+                                        olddata, uint64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT32: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, char,
+                                       olddata, float, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, char,
+                                        olddata, float, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT64: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, char,
+                                       olddata, double, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, char,
+                                        olddata, double, nvox);
+               tried = 1;
+               break;
+            }
+
+            default:    /* not reachable */
+               break;
+
+         } /* switch on old type */
+
+         break;
+      }
+      case NIFTI_TYPE_UINT8:           /* new type */
+      {
+         switch( nim->datatype ) {
+            case NIFTI_TYPE_INT8: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned char,
+                                       olddata, char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned char,
+                                        olddata, char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT8: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned char,
+                                       olddata, unsigned char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned char,
+                                        olddata, unsigned char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT16: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned char,
+                                       olddata, short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned char,
+                                        olddata, short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT16: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned char,
+                                       olddata, unsigned short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned char,
+                                        olddata, unsigned short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT32: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned char,
+                                       olddata, int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned char,
+                                        olddata, int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT32: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned char,
+                                       olddata, unsigned int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned char,
+                                        olddata, unsigned int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT64: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned char,
+                                       olddata, int64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned char,
+                                        olddata, int64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT64: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned char,
+                                       olddata, uint64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned char,
+                                        olddata, uint64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT32: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned char,
+                                       olddata, float, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned char,
+                                        olddata, float, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT64: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned char,
+                                       olddata, double, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned char,
+                                        olddata, double, nvox);
+               tried = 1;
+               break;
+            }
+
+            default:    /* not reachable */
+               break;
+
+         } /* switch on old type */
+
+         break;
+      }
+      case NIFTI_TYPE_INT16:           /* new type */
+      {
+         switch( nim->datatype ) {
+            case NIFTI_TYPE_INT8: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, short,
+                                       olddata, char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, short,
+                                        olddata, char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT8: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, short,
+                                       olddata, unsigned char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, short,
+                                        olddata, unsigned char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT16: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, short,
+                                       olddata, short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, short,
+                                        olddata, short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT16: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, short,
+                                       olddata, unsigned short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, short,
+                                        olddata, unsigned short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT32: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, short,
+                                       olddata, int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, short,
+                                        olddata, int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT32: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, short,
+                                       olddata, unsigned int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, short,
+                                        olddata, unsigned int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT64: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, short,
+                                       olddata, int64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, short,
+                                        olddata, int64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT64: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, short,
+                                       olddata, uint64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, short,
+                                        olddata, uint64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT32: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, short,
+                                       olddata, float, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, short,
+                                        olddata, float, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT64: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, short,
+                                       olddata, double, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, short,
+                                        olddata, double, nvox);
+               tried = 1;
+               break;
+            }
+
+            default:    /* not reachable */
+               break;
+
+         } /* switch on old type */
+
+         break;
+      }
+      case NIFTI_TYPE_UINT16:          /* new type */
+      {
+         switch( nim->datatype ) {
+            case NIFTI_TYPE_INT8: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned short,
+                                       olddata, char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned short,
+                                        olddata, char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT8: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned short,
+                                       olddata, unsigned char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned short,
+                                        olddata, unsigned char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT16: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned short,
+                                       olddata, short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned short,
+                                        olddata, short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT16: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned short,
+                                       olddata, unsigned short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned short,
+                                        olddata, unsigned short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT32: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned short,
+                                       olddata, int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned short,
+                                        olddata, int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT32: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned short,
+                                       olddata, unsigned int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned short,
+                                        olddata, unsigned int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT64: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned short,
+                                       olddata, int64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned short,
+                                        olddata, int64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT64: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned short,
+                                       olddata, uint64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned short,
+                                        olddata, uint64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT32: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned short,
+                                       olddata, float, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned short,
+                                        olddata, float, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT64: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned short,
+                                       olddata, double, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned short,
+                                        olddata, double, nvox);
+               tried = 1;
+               break;
+            }
+
+            default:    /* not reachable */
+               break;
+
+         } /* switch on old type */
+
+         break;
+      }
+      case NIFTI_TYPE_INT32:           /* new type */
+      {
+         switch( nim->datatype ) {
+            case NIFTI_TYPE_INT8: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int,
+                                       olddata, char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int,
+                                        olddata, char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT8: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int,
+                                       olddata, unsigned char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int,
+                                        olddata, unsigned char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT16: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int,
+                                       olddata, short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int,
+                                        olddata, short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT16: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int,
+                                       olddata, unsigned short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int,
+                                        olddata, unsigned short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT32: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int,
+                                       olddata, int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int,
+                                        olddata, int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT32: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int,
+                                       olddata, unsigned int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int,
+                                        olddata, unsigned int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT64: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int,
+                                       olddata, int64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int,
+                                        olddata, int64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT64: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int,
+                                       olddata, uint64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int,
+                                        olddata, uint64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT32: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int,
+                                       olddata, float, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int,
+                                        olddata, float, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT64: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int,
+                                       olddata, double, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int,
+                                        olddata, double, nvox);
+               tried = 1;
+               break;
+            }
+
+            default:    /* not reachable */
+               break;
+
+         } /* switch on old type */
+
+         break;
+      }
+      case NIFTI_TYPE_UINT32:          /* new type */
+      {
+         switch( nim->datatype ) {
+            case NIFTI_TYPE_INT8: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned int,
+                                       olddata, char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned int,
+                                        olddata, char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT8: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned int,
+                                       olddata, unsigned char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned int,
+                                        olddata, unsigned char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT16: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned int,
+                                       olddata, short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned int,
+                                        olddata, short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT16: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned int,
+                                       olddata, unsigned short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned int,
+                                        olddata, unsigned short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT32: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned int,
+                                       olddata, int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned int,
+                                        olddata, int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT32: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned int,
+                                       olddata, unsigned int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned int,
+                                        olddata, unsigned int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT64: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned int,
+                                       olddata, int64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned int,
+                                        olddata, int64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT64: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned int,
+                                       olddata, uint64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned int,
+                                        olddata, uint64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT32: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned int,
+                                       olddata, float, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned int,
+                                        olddata, float, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT64: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, unsigned int,
+                                       olddata, double, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, unsigned int,
+                                        olddata, double, nvox);
+               tried = 1;
+               break;
+            }
+
+            default:    /* not reachable */
+               break;
+
+         } /* switch on old type */
+
+         break;
+      }
+      case NIFTI_TYPE_INT64:           /* new type */
+      {
+         switch( nim->datatype ) {
+            case NIFTI_TYPE_INT8: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int64_t,
+                                       olddata, char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int64_t,
+                                        olddata, char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT8: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int64_t,
+                                       olddata, unsigned char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int64_t,
+                                        olddata, unsigned char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT16: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int64_t,
+                                       olddata, short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int64_t,
+                                        olddata, short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT16: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int64_t,
+                                       olddata, unsigned short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int64_t,
+                                        olddata, unsigned short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT32: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int64_t,
+                                       olddata, int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int64_t,
+                                        olddata, int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT32: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int64_t,
+                                       olddata, unsigned int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int64_t,
+                                        olddata, unsigned int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT64: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int64_t,
+                                       olddata, int64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int64_t,
+                                        olddata, int64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT64: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int64_t,
+                                       olddata, uint64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int64_t,
+                                        olddata, uint64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT32: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int64_t,
+                                       olddata, float, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int64_t,
+                                        olddata, float, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT64: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, int64_t,
+                                       olddata, double, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, int64_t,
+                                        olddata, double, nvox);
+               tried = 1;
+               break;
+            }
+
+            default:    /* not reachable */
+               break;
+
+         } /* switch on old type */
+
+         break;
+      }
+      case NIFTI_TYPE_UINT64:          /* new type */
+      {
+         switch( nim->datatype ) {
+            case NIFTI_TYPE_INT8: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, uint64_t,
+                                       olddata, char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, uint64_t,
+                                        olddata, char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT8: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, uint64_t,
+                                       olddata, unsigned char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, uint64_t,
+                                        olddata, unsigned char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT16: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, uint64_t,
+                                       olddata, short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, uint64_t,
+                                        olddata, short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT16: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, uint64_t,
+                                       olddata, unsigned short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, uint64_t,
+                                        olddata, unsigned short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT32: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, uint64_t,
+                                       olddata, int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, uint64_t,
+                                        olddata, int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT32: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, uint64_t,
+                                       olddata, unsigned int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, uint64_t,
+                                        olddata, unsigned int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT64: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, uint64_t,
+                                       olddata, int64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, uint64_t,
+                                        olddata, int64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT64: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, uint64_t,
+                                       olddata, uint64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, uint64_t,
+                                        olddata, uint64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT32: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, uint64_t,
+                                       olddata, float, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, uint64_t,
+                                        olddata, float, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT64: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, uint64_t,
+                                       olddata, double, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, uint64_t,
+                                        olddata, double, nvox);
+               tried = 1;
+               break;
+            }
+
+            default:    /* not reachable */
+               break;
+
+         } /* switch on old type */
+
+         break;
+      }
+      case NIFTI_TYPE_FLOAT32:         /* new type */
+      {
+         switch( nim->datatype ) {
+            case NIFTI_TYPE_INT8: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, float,
+                                       olddata, char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, float,
+                                        olddata, char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT8: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, float,
+                                       olddata, unsigned char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, float,
+                                        olddata, unsigned char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT16: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, float,
+                                       olddata, short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, float,
+                                        olddata, short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT16: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, float,
+                                       olddata, unsigned short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, float,
+                                        olddata, unsigned short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT32: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, float,
+                                       olddata, int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, float,
+                                        olddata, int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT32: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, float,
+                                       olddata, unsigned int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, float,
+                                        olddata, unsigned int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT64: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, float,
+                                       olddata, int64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, float,
+                                        olddata, int64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT64: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, float,
+                                       olddata, uint64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, float,
+                                        olddata, uint64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT32: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, float,
+                                       olddata, float, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, float,
+                                        olddata, float, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT64: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, float,
+                                       olddata, double, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, float,
+                                        olddata, double, nvox);
+               tried = 1;
+               break;
+            }
+
+            default:    /* not reachable */
+               break;
+
+         } /* switch on old type */
+
+         break;
+      }
+      case NIFTI_TYPE_FLOAT64:         /* new type */
+      {
+         switch( nim->datatype ) {
+            case NIFTI_TYPE_INT8: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, double,
+                                       olddata, char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, double,
+                                        olddata, char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT8: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, double,
+                                       olddata, unsigned char, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, double,
+                                        olddata, unsigned char, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT16: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, double,
+                                       olddata, short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, double,
+                                        olddata, short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT16: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, double,
+                                       olddata, unsigned short, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, double,
+                                        olddata, unsigned short, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT32: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, double,
+                                       olddata, int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, double,
+                                        olddata, int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT32: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, double,
+                                       olddata, unsigned int, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, double,
+                                        olddata, unsigned int, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_INT64: {      /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, double,
+                                       olddata, int64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, double,
+                                        olddata, int64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_UINT64: {     /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, double,
+                                       olddata, uint64_t, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, double,
+                                        olddata, uint64_t, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT32: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, double,
+                                       olddata, float, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, double,
+                                        olddata, float, nvox);
+               tried = 1;
+               break;
+            }
+            case NIFTI_TYPE_FLOAT64: {    /* old type */
+               if( verify )
+                  NT_DCONVERT_W_CHECKS(newdata, double,
+                                       olddata, double, nvox, errs);
+               else
+                  NT_DCONVERT_NO_CHECKS(newdata, double,
+                                        olddata, double, nvox);
+               tried = 1;
+               break;
+            }
+
+            default:    /* not reachable */
+               break;
+
+         } /* switch on old type */
+
+         break;
+      }
+
+      default:    /* not reachable */
+         break;
+   }
+
+   /* we should have at least tried every given case */
+   if ( !tried ) {
+      fprintf(stderr, "** CND: did not try %s to %s\n",
+              nifti_datatype_string(nim->datatype),
+              nifti_datatype_string(new_type));
+      return 1;
+   }
+
+   return 0;
+}
+
+/*----------------------------------------------------------------------
+ * types will be made valid for conversion over time
+ * todo:
+ *    NIFTI_TYPE_RGB24
+ *    NIFTI_TYPE_RGBA32
+      NIFTI_TYPE_FLOAT128:    - long double is not reliably 16 bytes?
+ *    NIFTI_TYPE_COMPLEX64
+ *    NIFTI_TYPE_COMPLEX128
+ *    NIFTI_TYPE_COMPLEX256
+ *----------------------------------------------------------------------*/
+static int is_valid_conversion_type(int dtype)
+{
+   switch( dtype ) {
+      case NIFTI_TYPE_INT8:
+      case NIFTI_TYPE_UINT8:
+      case NIFTI_TYPE_INT16:
+      case NIFTI_TYPE_UINT16:
+      case NIFTI_TYPE_INT32:
+      case NIFTI_TYPE_UINT32:
+      case NIFTI_TYPE_INT64:
+      case NIFTI_TYPE_UINT64:
+      case NIFTI_TYPE_FLOAT32:
+      case NIFTI_TYPE_FLOAT64:
+         return 1;
+
+      default:
+         break;
+   }
+   return 0;
 }
 
 /*----------------------------------------------------------------------
@@ -6051,3 +7282,4 @@ nifti_image * nt_read_bricks(nt_opts * opts, char * fname, int len,
 
     return nim;
 }
+
