@@ -199,10 +199,11 @@ static const char * g_history[] =
   "2.11 29 Dec 2020 [rickr] - add example to create dset from raw data\n",
   "2.12 21 Feb 2022 [rickr]\n"
   "   - start to deprecate -copy_im (bad name; -cbl can alter hdr on read)\n",
+  "2.13 24 Feb 2022 [rickr] - prep for -copy_image (w/data conversion)\n"
   "----------------------------------------------------------------------\n"
 };
-static char g_version[] = "2.12";
-static char g_version_date[] = "February 21, 2022";
+static char g_version[] = "2.13";
+static char g_version_date[] = "February 24, 2022";
 static int  g_debug = 1;
 
 #define _NIFTI_TOOL_C_
@@ -213,6 +214,14 @@ static int  g_debug = 1;
 static int free_opts_mem(nt_opts * nopt);
 static int num_volumes(nifti_image * nim);
 static char * read_file_text(const char * filename, int * length);
+
+/* prototypes associated with data conversion */
+static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
+                            int new_type, int verify, int fail_choice);
+static int is_lossless(int old_type, int new_type);
+static int int_size_of_type(int dtype);
+static int type_is_complex(int dtype);
+static int type_is_signed(int dtype);
 
 #define NTL_FERR(func,msg,file)                                      \
             fprintf(stderr,"** ERROR (%s): %s '%s'\n",func,msg,file)
@@ -276,6 +285,7 @@ int main( int argc, char * argv[] )
    /* copy or dts functions  -- do not continue after these */
    if( opts.cbl )             FREE_RETURN( act_cbl(&opts) );
    if( opts.cci )             FREE_RETURN( act_cci(&opts) );
+   if( opts.copy_image )      FREE_RETURN( act_copy(&opts) );
    if( opts.dts || opts.dci ) FREE_RETURN( act_disp_ci(&opts) );
 
    /* perform modifications early, in case we allow multiple actions */
@@ -422,12 +432,14 @@ int process_opts( int argc, char * argv[], nt_opts * opts )
          opts->check_hdr = 1;
       else if( ! strcmp(argv[ac], "-check_nim") )
          opts->check_nim = 1;
+      else if( ! strcmp(argv[ac], "-copy_image") )
+         opts->copy_image = 1;
       else if( ! strcmp(argv[ac], "-copy_brick_list") ||
                ! strcmp(argv[ac], "-copy_im") ||
                ! strcmp(argv[ac], "-cbl") )
       {
          if( ! strcmp(argv[ac], "-copy_im") )
-            fprintf(stderr,"** copy_im is being deprecated, please use -cbl\n");
+           fprintf(stderr,"** -copy_im is being deprecated, please use -cbl\n");
          opts->cbl = 1;
       }
       else if( ! strcmp(argv[ac], "-copy_collapsed_image") ||
@@ -698,6 +710,7 @@ int verify_opts( nt_opts * opts, char * prog )
    ac +=  opts->rm_exts;
    ac +=  opts->run_misc_tests;
    ac += (opts->strip                                          ) ? 1 : 0;
+   ac += (opts->copy_image                                     ) ? 1 : 0;
    ac += (opts->cbl                                            ) ? 1 : 0;
    ac += (opts->cci                                            ) ? 1 : 0;
    ac += (opts->dts       || opts->dci                         ) ? 1 : 0;
@@ -715,7 +728,8 @@ int verify_opts( nt_opts * opts, char * prog )
       fprintf(stderr,
          "** only one action option is allowed, please use only one of:\n"
          "        '-add_...', '-check_...', '-diff_...', '-disp_...',\n"
-         "        '-mod_...', '-strip', '-dts', '-cbl' or '-cci'\n"
+         "        '-mod_...', '-strip', '-dts', '-cbl', '-cci'\n"
+         "        '-copy_image'\n"
          "   (see '%s -help' for details)\n", prog);
       return 1;
    }
@@ -1178,6 +1192,7 @@ int use_full()
    printf(
    "    E. copy dataset, brick list or collapsed image:\n"
    "\n"
+   "      0. nifti_tool -copy_image -prefix new.nii -infiles dset0.nii\n"
    "      1. nifti_tool -cbl -prefix new.nii -infiles dset0.nii\n"
    "      2. nifti_tool -cbl -prefix new_07.nii -infiles dset0.nii'[0,7]'\n"
    "      3. nifti_tool -cbl -prefix new_partial.nii \\\n"
@@ -1317,7 +1332,16 @@ int use_full()
    printf(
    "\n"
    "  options for copy actions:\n"
+   "\n");
+   printf(
+   "    -copy_image        : copy a NIFTI dataset to a new one\n"
    "\n"
+   "       This basic action allows the user to copy a dataset to a new one.\n"
+   "\n"
+   "       This offers a more pure NIFTI I/O copy, while still allowing for\n"
+   "       options like alteration of the datatype.\n"
+   "\n");
+   printf(
    "    -copy_brick_list   : copy a list of volumes to a new dataset\n"
    "    -cbl               : (a shorter, alternative form)\n"
    "\n");
@@ -1348,15 +1372,6 @@ int use_full()
    "           example: 2 through 95 with a step of 3, i.e. {2,5,8,11,...,95}\n"
    "             e.g. -infiles dset0.nii'[2..95(3)]'\n"
    "\n");
-#if 0
-                  /* rcr add as -copy_image? */
-
-   "       This functionality applies only to 3 or 4-dimensional datasets.\n"
-   "\n"
-   "       e.g. to copy a dataset:\n"
-   "       nifti_tool -copy_image -prefix new.nii -infiles dset0.nii\n"
-   "\n");
-#endif
    printf(
    "       e.g. to copy sub-bricks 0 and 7:\n"
    "       nifti_tool -cbl -prefix new_07.nii -infiles dset0.nii'[0,7]'\n"
@@ -3839,6 +3854,234 @@ int modify_field(void * basep, field_s * field, const char * data)
    return 0;
 }
 
+/*----------------------------------------------------------------------
+ * These type conversion functions might be worth putting in the library,
+ * but we can try them in nifti_tool for now.
+ *----------------------------------------------------------------------
+ */
+
+/*----------------------------------------------------------------------
+ * convert the actual data to the given new_type
+ *
+ * MODIFY: nim->nbyper, datatype, data (or NBL)
+ *
+ *    new_type    : NIFTI_TYPE to convert to
+ *    verify      : flag: verify conversion accuracy
+ *                  (clear this if conversion is_lossless())
+ *                  (fails if conversion does not invert)
+ *    fail_choice : what to do if a check fails
+ *                  0 : nothing
+ *                  1 : warn
+ *                  2 : panic; abort; planetary meltdown; take ball, go home
+ *
+ *  
+ *
+ * return 0 on success
+ *----------------------------------------------------------------------*/
+static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
+                            int new_type, int verify, int fail_choice)
+{
+   if( !nim || !nifti_datatype_is_valid(new_type, 1) ) {
+      fprintf(stderr, "** convert_datatype: no data (%p) or bad type (%d)\n",
+              nim, new_type);
+      return 1;
+   }
+
+   if( g_debug > 1 ) {
+      fprintf(stderr, "++ convert_datatype: %s to %s, v,f = %d,%d\n",
+              nifti_datatype_string(nim->datatype),
+              nifti_datatype_string(new_type), verify, fail_choice);
+      fprintf(stderr, "   lossless = %d\n", 
+              is_lossless(nim->datatype, new_type));
+   }
+
+   /* handle the most challenging case, first - no data */
+   if( (!nim->data && !NBL) || nim->nvox <= 0 ) {
+      nim->datatype = new_type;
+      nifti_datatype_sizes(nim->datatype, &(nim->nbyper), NULL);
+      return 0;   /* done <whew!> */
+   }
+
+   /* if doing a lossless conversion, do not check */
+   if( is_lossless(nim->datatype, new_type) )
+      verify = 0;
+
+   fprintf(stderr,"** convert_datatype is not ready for prime-time\n");
+   return 1; /* fail; we are not emotionally prepared for success */
+}
+
+/*----------------------------------------------------------------------
+ * return whether a conversion can be done without checks
+ * (e.g. int16 to int32, or int32 to float64)
+ *
+ * - note general type (int, float, complex), nbyper and whether signed
+ *
+ * Order of logic: consider int, float, complex, and RGB general types
+ *
+ *    - any RGB     (if either type is RGB/RGBA)
+ *    - any complex (if either type is complex)
+ *    - any float   (float or int, others are gone)
+ *    - both ints   (signed or unsigned ints, others are gone)
+ *
+ * return 1 if lossless, 0 if lossy, -1 on error
+ *----------------------------------------------------------------------*/
+static int is_lossless(int old_type, int new_type)
+{
+   int o_signed, n_signed; /* is signed type     (old,new) */
+   int o_inttyp;           /* is integral type   (old)     */
+   int o_rgbtyp, n_rgbtyp; /* is RGB type        (old,new) */
+   int has_int_space;      /* is there int/mati ssa space? */
+
+   /*-- invalid types are either binary (bits) or unknown --*/
+   if( ! nifti_datatype_is_valid(old_type, 1) || 
+       ! nifti_datatype_is_valid(new_type, 1) ) {
+      if( g_debug > 0 )
+         fprintf(stderr,"** is_lossless: invalid types %d, %d\n",
+                 old_type, new_type);
+      return -1;
+   }
+
+   /*---- assign general attributes (populate all local vars) ----*/
+
+   o_signed = type_is_signed(old_type);   /* signed? */
+   n_signed = type_is_signed(new_type);
+   o_inttyp = nifti_is_inttype(old_type); /* integral?  only using old */
+   
+   /* RGB? */
+   o_rgbtyp = ( old_type == NIFTI_TYPE_RGB24 || old_type == NIFTI_TYPE_RGBA32 );
+   n_rgbtyp = ( new_type == NIFTI_TYPE_RGB24 || new_type == NIFTI_TYPE_RGBA32 );
+
+   /* integral space */
+   has_int_space = int_size_of_type(new_type) >= int_size_of_type(old_type);
+
+   /*---- RGB type (either) ----*/
+   if( o_rgbtyp || n_rgbtyp ) {
+      /* if old is RGB, just require int space */
+      if( o_rgbtyp )
+         return has_int_space;
+      /* else only new is RGB/A */
+
+      /* if old is signed or not an int type, return lossy */
+      if( o_signed || !o_inttyp )
+         return 0;
+      /* else, just require space */
+      return has_int_space;
+   }
+
+   /*---- complex type (either) ----*/
+   if( type_is_complex(old_type) || type_is_complex(new_type) ) {
+      /* complex to non-complex: lossy */
+      if( ! type_is_complex(new_type) )
+         return 0;
+
+      /* so new type is complex, it just needs to be big enough   */
+      /* (it is sufficient to compare int portions)               */
+      return has_int_space;
+   }
+
+   /*---- float (non-int) type - similar to complex ----*/
+   if( !nifti_is_inttype(old_type) || !nifti_is_inttype(new_type) ) {
+      /* non-int to int: lossy */
+      if( nifti_is_inttype(new_type) )
+         return 0;
+
+      /* so new type is float, it just needs to be big enough     */
+      /* (it is sufficient to compare int portions)               */
+      return has_int_space;
+   }
+
+   /*---- int type (signed or unsigned, no RGB) ----*/
+   /* signed to unsigned is lossy, else just require space */
+   if( o_signed && !n_signed )
+      return 0;      /* lossy (lost sign) */
+
+   /* just left with need for int bits space */
+   return has_int_space;
+}
+
+/*----------------------------------------------------------------------
+ * return the size of int precision, in bits
+ * (the sign does not count)
+ *
+ * Doing this is bits allows us to deal with the sign.
+ *
+ * assuming IEEE 754 standard:
+ *    float32  handles  24 bits ( 3 bytes)
+ *    float64  handles  53 bits ( 6 bytes)
+ *    float128 handles 113 bits (14 bytes)
+ *
+ * Assume a proper type, only test in main or exported functions.
+ *----------------------------------------------------------------------*/
+static int int_size_of_type(int dtype)
+{
+   switch( dtype ) {
+
+      /* sort by ints (unsigned, signed), RGB, float */
+      case DT_BINARY:               return   1; /* these use the full size */
+      case NIFTI_TYPE_UINT8:        return   8;
+      case NIFTI_TYPE_UINT16:       return  16;
+      case NIFTI_TYPE_UINT32:       return  32;
+      case NIFTI_TYPE_UINT64:       return  64;
+
+      case NIFTI_TYPE_INT8:         return   7; /* these lose 1 sign bit */
+      case NIFTI_TYPE_INT16:        return  15;
+      case NIFTI_TYPE_INT32:        return  31;
+      case NIFTI_TYPE_INT64:        return  63;
+
+      case NIFTI_TYPE_RGB24:        return  24; /* RGB: full size as UINT */
+      case NIFTI_TYPE_RGBA32:       return  32;
+
+      /* have complex match the float of half size */
+      case NIFTI_TYPE_FLOAT32:      return  24; /* float: use mantissa */
+      case NIFTI_TYPE_COMPLEX64:    return  24; /* complex: match half float */
+      case NIFTI_TYPE_FLOAT64:      return  53;
+      case NIFTI_TYPE_COMPLEX128:   return  53;
+      case NIFTI_TYPE_FLOAT128:     return 113;
+      case NIFTI_TYPE_COMPLEX256:   return 113;
+
+      default:                      break;      /* prefer return at end */
+   }
+
+   return 0;
+}
+
+/*----------------------------------------------------------------------
+ * Is the type a signed one?
+ * Assume a proper type, only test in main or exported functions.
+ *----------------------------------------------------------------------*/
+static int type_is_signed(int dtype)
+{
+   switch( dtype ) {
+      case NIFTI_TYPE_UINT8:
+      case NIFTI_TYPE_RGB24:
+      case NIFTI_TYPE_UINT16:
+      case NIFTI_TYPE_UINT32:
+      case NIFTI_TYPE_UINT64:
+      case NIFTI_TYPE_RGBA32:
+         return 0;
+
+      default:
+         return 1;
+   }
+   return 1;  /* unnecessary, but let's avoid compiler whining */
+}
+
+/*----------------------------------------------------------------------
+ * Is the type a complex one?
+ * Assume a proper type, only test in main or exported functions.
+ *----------------------------------------------------------------------*/
+static int type_is_complex(int dtype)
+{
+   switch ( dtype ) {
+      case NIFTI_TYPE_COMPLEX64:
+      case NIFTI_TYPE_COMPLEX128:
+      case NIFTI_TYPE_COMPLEX256:
+         return 1;
+      default:
+         break;
+   }
+   return 0;
+}
 
 /*----------------------------------------------------------------------
  * fill the nifti_1_header field list
@@ -5386,6 +5629,53 @@ int act_cbl( nt_opts * opts )
 
 
 /*----------------------------------------------------------------------
+ * copy an image to a new file
+ * 
+ * This is a straight NIFTI copy, without cbl (so upper dims are intact).
+ *
+ * Note: nt_image_read() allows for modificatons, e.g. to the datatype.
+ *----------------------------------------------------------------------*/
+int act_copy( nt_opts * opts )
+{
+   nifti_image * nim;
+   const char  * fname;
+
+   /* sanity checks (allow no prefix, just for testing) */
+   if( opts->infiles.len > 1 ) {
+      fprintf(stderr,"** error: -copy_image allows only 1 input\n");
+      return 1;
+   }
+
+   fname = opts->infiles.list[0];
+
+   if( g_debug > 2 )
+      fprintf(stderr,"-d copying image from '%s' to '%s'\n",
+              fname, opts->prefix ? opts->prefix : "NO_PREFIX");
+
+   /* read image (nt_image_read() allows modification) */
+   nim = nt_image_read(opts, fname, 1, 0);
+   if( !nim ) return 1;  /* errors are printed from library */
+
+   /* write output, if requested */
+   if( opts->prefix ) {
+      /* set output filename */
+      if( nifti_set_filenames(nim, opts->prefix, 1, 1) ) {
+         fprintf(stderr,"** NT copy: failed to set names, prefix = '%s'\n",
+                 opts->prefix);
+         nifti_image_free(nim);
+         return 1;
+      }
+
+      /* and write out results */
+      if( nifti_nim_is_valid(nim, g_debug) ) nifti_image_write(nim);
+   }
+
+   nifti_image_free(nim);
+
+   return 0;
+}
+
+/*----------------------------------------------------------------------
  * create a new dataset using read_collapsed_image
  *----------------------------------------------------------------------*/
 int act_cci( nt_opts * opts )
@@ -5471,7 +5761,7 @@ static int free_opts_mem( nt_opts * nopt )
  *   - in the case of MAKE_IM, use make_ver to specify the NIFTI version
  *     (so possibly mod nifti_type and iname_offset)
  *----------------------------------------------------------------------*/
-nifti_image * nt_image_read( nt_opts * opts, const char * fname, int doread,
+nifti_image * nt_image_read( nt_opts * opts, const char * fname, int read_data,
                              int make_ver )
 {
     nifti_image * nim;
@@ -5485,8 +5775,31 @@ nifti_image * nt_image_read( nt_opts * opts, const char * fname, int doread,
     /* if the user does not want an empty image, do normal image_read */
     if( strncmp(fname,NT_MAKE_IM_NAME,strlen(NT_MAKE_IM_NAME)) ) {
         if(g_debug > 1)
-            fprintf(stderr,"-d calling nifti_image_read(%s,%d)\n",fname,doread);
-        return nifti_image_read(fname, doread);
+            fprintf(stderr,"-d calling nifti_image_read(%s,%d)\n",
+                    fname, read_data);
+
+        /* normal image read */
+        nim = nifti_image_read(fname, read_data);
+
+        /* possibly convert to a new datatype   [24 Feb 2022 rickr] */
+        /* alters nim->data,datatype,nbyper                         */
+        if( opts->convert2dtype ) {
+           if( !read_data ) {
+              /* is there a reason to allow this? */
+              fprintf(stderr,"** error: convert2dtype, but without data\n");
+              nifti_image_free(nim);
+              return NULL;
+           }
+
+           if( convert_datatype(nim, NULL, opts->convert2dtype,
+                                opts->cnvt_verify, opts->cnvt_fail_choice) )
+           {
+              nifti_image_free(nim);
+              return NULL;
+           }
+        }
+
+        return nim;
     }
 
     /* so generate an empty image */
@@ -5501,9 +5814,9 @@ nifti_image * nt_image_read( nt_opts * opts, const char * fname, int doread,
         }
     }
 
-    /* create a new nifti_image, with data depending on doread   */
-    /* (and possibly alter, if make_ver is not the default of 2) */
-    nim = nifti_make_new_nim(opts->new_dim, opts->new_datatype, doread);
+    /* create a new nifti_image, with data depending on read_data */
+    /* (and possibly alter, if make_ver is not the default of 2)  */
+    nim = nifti_make_new_nim(opts->new_dim, opts->new_datatype, read_data);
 
     /* if NIFTI-1 is requested, alter nim for it */
     if( nim && make_ver == 1 ) {
@@ -5664,7 +5977,27 @@ nifti_image * nt_read_bricks(nt_opts * opts, char * fname, int len,
     if( strncmp(fname,NT_MAKE_IM_NAME,strlen(NT_MAKE_IM_NAME)) ) {
         if(g_debug > 1)
            fprintf(stderr,"-d calling nifti_image_read_bricks(%s,...)\n",fname);
-        return nifti_image_read_bricks(fname, len, list, NBL);
+
+        /* do normal read */
+        nim = nifti_image_read_bricks(fname, len, list, NBL);
+
+        /* possibly convert to a new datatype   [24 Feb 2022 rickr] */
+        /* would alter NBL,datatype,nbyper     (save for later....) */
+        if( opts->convert2dtype ) {
+           /* convert each brick */
+           fprintf(stderr,"** convert2dtype not ready for brick list\n");
+           if( 1 || convert_datatype(nim, NULL, opts->convert2dtype,
+                                  opts->cnvt_verify, opts->cnvt_fail_choice) )
+           {
+              /* more work to do on failure here */
+              nifti_image_free(nim);
+              nifti_free_NBL(NBL);
+              NBL->nbricks = 0;
+              return NULL;
+           }
+        }
+
+        return nim;
     }
 
     /* so generate an empty image */
