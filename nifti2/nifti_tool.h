@@ -25,11 +25,15 @@ typedef struct{
 
    int      strip;               /* strip extras from dataset(s)  */
    int      cbl, cci;            /* -copy_XXX option flags        */
+   int      copy_image;          /* straight read (no cci)        */
    int      dts, dci, dci_lines; /* display collapsed img flags   */
    int      make_im;             /* create a new image on the fly */
    int64_t  ci_dims[8];          /* user dims list (last 7 valid) */
    int64_t  new_dim[8];          /* user dim list for new image   */
    int      new_datatype;        /* datatype for new image        */
+   int      convert2dtype;       /* convert data to new type      */
+   int      cnvt_verify;         /* do we verify the conversion   */
+   int      cnvt_fail_choice;    /* what if conversion fails      */
    int      debug, keep_hist;    /* debug level and history flag  */
    int      overwrite;           /* overwrite flag                */
    char *   prefix;              /* for output file               */
@@ -191,6 +195,7 @@ typedef struct {
 int    act_add_exts   ( nt_opts * opts );
 int    act_cbl        ( nt_opts * opts );  /* copy brick list */
 int    act_cci        ( nt_opts * opts );  /* copy collapsed dimensions */
+int    act_copy       ( nt_opts * opts );  /* straight library copy */
 int    act_check_hdrs ( nt_opts * opts );  /* check for valid hdr or nim */
 int    act_diff_hdrs  ( nt_opts * opts );
 int    act_diff_hdr1s ( nt_opts * opts );
@@ -259,7 +264,7 @@ int write_hdr2_to_file(nifti_2_header * nhdr, const char * fname);
 
 /* wrappers for nifti reading functions (allow MAKE_IM) */
 nifti_image    * nt_image_read (nt_opts * opts, const char * fname,
-                                int doread, int make_ver);
+                                int read_data, int make_ver);
 nifti_image    * nt_read_bricks(nt_opts * opts, char * fname, int len,
                                 int64_t * list, nifti_brick_list * NBL);
 void * nt_read_header(const char * fname, int * nver, int * swapped, int check,
