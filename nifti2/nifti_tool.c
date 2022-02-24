@@ -218,8 +218,8 @@ static char * read_file_text(const char * filename, int * length);
 /* prototypes associated with data conversion */
 static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
                             int new_type, int verify, int fail_choice);
-static int convert_nifti_data(nifti_image * nim, int new_type, int verify,
-                              int fail_choice);
+static int convert_raw_data(void ** retdata, void * olddata, int old_type,
+                               int new_type, int64_t nvox, int verify);
 static int is_lossless(int old_type, int new_type);
 static int is_valid_conversion_type(int dtype);
 static int int_size_of_type(int dtype);
@@ -3877,13 +3877,16 @@ int modify_field(void * basep, field_s * field, const char * data)
  *                  1 : warn
  *                  2 : panic; abort; planetary meltdown; take ball, go home
  *
- *  
+ * On success, replace the data (and type and nbyper) in question.
  *
  * return 0 on success
  *----------------------------------------------------------------------*/
 static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
                             int new_type, int verify, int fail_choice)
 {
+   void * newdata=NULL;
+   int    rv;
+
    if( !nim || !nifti_datatype_is_valid(new_type, 1) ) {
       fprintf(stderr, "** convert_datatype: no data (%p) or bad type (%d)\n",
               nim, new_type);
@@ -3898,13 +3901,13 @@ static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
               is_lossless(nim->datatype, new_type));
    }
 
-   /* rcr - to be deleted, hopefully */
+   /* rcr - to be eventually handled, hopefully */
    if( NBL ) {
       fprintf(stderr,"** convert_datatype: not ready for NBL\n");
       return 1;
    }
 
-   /* handle the most challenging case, first - no data */
+   /* handle the most challenging case, first: no data */
    if( (!nim->data && !NBL) || nim->nvox <= 0 ) {
       nim->datatype = new_type;
       nifti_datatype_sizes(nim->datatype, &(nim->nbyper), NULL);
@@ -3915,12 +3918,41 @@ static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
    if( is_lossless(nim->datatype, new_type) )
       verify = 0;
 
-   /* do the actual conversion */
-   if( convert_nifti_data(nim, new_type, verify, fail_choice) )
-      return 1;
+   /* do the actual conversion (newdata will get allocated) */
+   rv = convert_raw_data(&newdata, nim->data, nim->datatype, new_type,
+                         nim->nvox, verify);
 
-   fprintf(stderr,"** convert_datatype is not ready for prime-time\n");
-   return 1; /* fail; we are not emotionally prepared for success */
+   /* 0:success,  1:whine or die, -1:other error */
+   if( g_debug > 2 )
+      fprintf(stderr,"++ convert_RD: rv %d, newdata %p\n", rv, newdata);
+
+   /* handle cases where we do not keep the new data first */
+   if( rv < 0 )
+      return 1;      /* some unknown failure, already reported */
+
+   /* destroy old data if conversion failed and choice == 2 */
+   if( rv > 0 && fail_choice == 2 ) {
+      if( g_debug > 2 ) fprintf(stderr,"-- convert_RD: destroying new data\n");
+      free(newdata);
+      newdata = NULL;
+   } else {
+      /* else, for conversion failure or success, we keep the data */
+      if( g_debug > 2 ) fprintf(stderr,"-- convert_RD: keeping new data\n");
+      free(nim->data);
+      nim->data = newdata;
+      nim->datatype = new_type;
+      nifti_datatype_sizes(new_type, &(nim->nbyper), NULL);
+   }
+
+   /* whine, if we feel it is necessary */
+   if( rv > 0 ) {
+      fprintf(stderr, "** inaccurate data conversion from %s to %s\n",
+              nifti_datatype_string(nim->datatype),
+              nifti_datatype_string(new_type));
+      return 1;
+   }
+
+   return 0;
 }
 
 /*----------------------------------------------------------------------
@@ -3934,31 +3966,41 @@ static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
  * convert from f32 to f32, we will still go through with the casting
  * process.  It builds character.
  *
- * return 0 on success
+ * If verify, warn on any conversion errors.
+ *
+ * return allocated data in 'retdata'
+ * return :    0 on success
+ *             1 on conversion errors
+ *            -1 on other failures
  *----------------------------------------------------------------------*/
-static int convert_nifti_data(nifti_image * nim, int new_type, int verify,
-                              int fail_choice)
+static int convert_raw_data(void ** retdata, void * olddata, int old_type,
+                            int new_type, int64_t nvox, int verify)
 {
-   void       * newdata=NULL, * olddata;
+   void       * newdata=NULL;
    const char * typestr;
-   int64_t      nvox = nim->nvox;
    int          nbyper, errs=0;  /* were the conversion errors? */
    int          tried;           /* did we even try (unapplied types) */
 
    /* for any messages */
    typestr = nifti_datatype_string(new_type);
 
+   if( !retdata ) {
+      fprintf(stderr, "** convert_raw_data: missing retdata to fill\n");
+      return -1;
+   }
+   *retdata = NULL;  /* init, just in case */
+
    /* do not allow some cases for either type (e.g. where we do not have
     * a simple datum to apply (RGB, complex)) */
-   if( ! is_valid_conversion_type(nim->datatype) ) {
+   if( ! is_valid_conversion_type(old_type) ) {
       fprintf(stderr,"** data conversion not ready for orig datatype %s\n",
-              nifti_datatype_string(nim->datatype));
-      return 1;
+              nifti_datatype_string(old_type));
+      return -1;
    }
    if( ! is_valid_conversion_type(new_type) ) {
       fprintf(stderr,"** data conversion not ready for new datatype %s\n",
               typestr);
-      return 1;
+      return -1;
    }
 
    /* allocate new memory (calloc, in case of partial filling) */
@@ -3967,11 +4009,8 @@ static int convert_nifti_data(nifti_image * nim, int new_type, int verify,
    if( !newdata ) {
       fprintf(stderr,"** failed to alloc for %" PRId64 " %s elements\n",
               nvox, typestr);
-      return 1;
+      return -1;
    }
-
-   /* for visual clarity */
-   olddata = nim->data;
 
    /* ----------------------------------------------------------------------
     * Enter the dragon.
@@ -3986,7 +4025,7 @@ static int convert_nifti_data(nifti_image * nim, int new_type, int verify,
 
       case NIFTI_TYPE_INT8:            /* new type */
       {
-         switch( nim->datatype ) {
+         switch( old_type ) {
             case NIFTI_TYPE_INT8: {    /* old type */
                if( verify )
                   NT_DCONVERT_W_CHECKS(newdata, char,
@@ -4097,7 +4136,7 @@ static int convert_nifti_data(nifti_image * nim, int new_type, int verify,
       }
       case NIFTI_TYPE_UINT8:           /* new type */
       {
-         switch( nim->datatype ) {
+         switch( old_type ) {
             case NIFTI_TYPE_INT8: {    /* old type */
                if( verify )
                   NT_DCONVERT_W_CHECKS(newdata, unsigned char,
@@ -4208,7 +4247,7 @@ static int convert_nifti_data(nifti_image * nim, int new_type, int verify,
       }
       case NIFTI_TYPE_INT16:           /* new type */
       {
-         switch( nim->datatype ) {
+         switch( old_type ) {
             case NIFTI_TYPE_INT8: {    /* old type */
                if( verify )
                   NT_DCONVERT_W_CHECKS(newdata, short,
@@ -4319,7 +4358,7 @@ static int convert_nifti_data(nifti_image * nim, int new_type, int verify,
       }
       case NIFTI_TYPE_UINT16:          /* new type */
       {
-         switch( nim->datatype ) {
+         switch( old_type ) {
             case NIFTI_TYPE_INT8: {    /* old type */
                if( verify )
                   NT_DCONVERT_W_CHECKS(newdata, unsigned short,
@@ -4430,7 +4469,7 @@ static int convert_nifti_data(nifti_image * nim, int new_type, int verify,
       }
       case NIFTI_TYPE_INT32:           /* new type */
       {
-         switch( nim->datatype ) {
+         switch( old_type ) {
             case NIFTI_TYPE_INT8: {    /* old type */
                if( verify )
                   NT_DCONVERT_W_CHECKS(newdata, int,
@@ -4541,7 +4580,7 @@ static int convert_nifti_data(nifti_image * nim, int new_type, int verify,
       }
       case NIFTI_TYPE_UINT32:          /* new type */
       {
-         switch( nim->datatype ) {
+         switch( old_type ) {
             case NIFTI_TYPE_INT8: {    /* old type */
                if( verify )
                   NT_DCONVERT_W_CHECKS(newdata, unsigned int,
@@ -4652,7 +4691,7 @@ static int convert_nifti_data(nifti_image * nim, int new_type, int verify,
       }
       case NIFTI_TYPE_INT64:           /* new type */
       {
-         switch( nim->datatype ) {
+         switch( old_type ) {
             case NIFTI_TYPE_INT8: {    /* old type */
                if( verify )
                   NT_DCONVERT_W_CHECKS(newdata, int64_t,
@@ -4763,7 +4802,7 @@ static int convert_nifti_data(nifti_image * nim, int new_type, int verify,
       }
       case NIFTI_TYPE_UINT64:          /* new type */
       {
-         switch( nim->datatype ) {
+         switch( old_type ) {
             case NIFTI_TYPE_INT8: {    /* old type */
                if( verify )
                   NT_DCONVERT_W_CHECKS(newdata, uint64_t,
@@ -4874,7 +4913,7 @@ static int convert_nifti_data(nifti_image * nim, int new_type, int verify,
       }
       case NIFTI_TYPE_FLOAT32:         /* new type */
       {
-         switch( nim->datatype ) {
+         switch( old_type ) {
             case NIFTI_TYPE_INT8: {    /* old type */
                if( verify )
                   NT_DCONVERT_W_CHECKS(newdata, float,
@@ -4985,7 +5024,7 @@ static int convert_nifti_data(nifti_image * nim, int new_type, int verify,
       }
       case NIFTI_TYPE_FLOAT64:         /* new type */
       {
-         switch( nim->datatype ) {
+         switch( old_type ) {
             case NIFTI_TYPE_INT8: {    /* old type */
                if( verify )
                   NT_DCONVERT_W_CHECKS(newdata, double,
@@ -5102,11 +5141,20 @@ static int convert_nifti_data(nifti_image * nim, int new_type, int verify,
    /* we should have at least tried every given case */
    if ( !tried ) {
       fprintf(stderr, "** CND: did not try %s to %s\n",
-              nifti_datatype_string(nim->datatype),
+              nifti_datatype_string(old_type),
               nifti_datatype_string(new_type));
-      return 1;
+      free(newdata);
+      return -1;
    }
 
+   /* assign converted data */
+   *retdata = newdata;
+
+   /* possibly prepare to whine */
+   if ( verify && errs )
+      return 1;
+
+   /* success */
    return 0;
 }
 
