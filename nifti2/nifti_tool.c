@@ -3888,13 +3888,13 @@ static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
    int    rv;
 
    if( !nim || !nifti_datatype_is_valid(new_type, 1) ) {
-      fprintf(stderr, "** convert_datatype: no data (%p) or bad type (%d)\n",
+      fprintf(stderr, "** convert datatype: no data (%p) or bad type (%d)\n",
               nim, new_type);
       return 1;
    }
 
    if( g_debug > 1 ) {
-      fprintf(stderr, "++ convert_datatype: %s to %s, v,f = %d,%d\n",
+      fprintf(stderr, "++ convert datatype: %s to %s, v,f = %d,%d\n",
               nifti_datatype_string(nim->datatype),
               nifti_datatype_string(new_type), verify, fail_choice);
       fprintf(stderr, "   lossless = %d\n", 
@@ -3903,7 +3903,7 @@ static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
 
    /* rcr - to be eventually handled, hopefully */
    if( NBL ) {
-      fprintf(stderr,"** convert_datatype: not ready for NBL\n");
+      fprintf(stderr,"** convert datatype: not ready for NBL\n");
       return 1;
    }
 
@@ -3926,32 +3926,34 @@ static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
    if( g_debug > 2 )
       fprintf(stderr,"++ convert_RD: rv %d, newdata %p\n", rv, newdata);
 
-   /* handle cases where we do not keep the new data first */
+   /* some unknown failure, already reported */
    if( rv < 0 )
-      return 1;      /* some unknown failure, already reported */
+      return 1;
+
+   /* whine, if we feel it is necessary (then just deal with data and rv) */
+   if( rv > 0 )
+      fprintf(stderr, "** inaccurate data conversion from %s to %s\n",
+              nifti_datatype_string(nim->datatype),
+              nifti_datatype_string(new_type));
 
    /* destroy old data if conversion failed and choice == 2 */
    if( rv > 0 && fail_choice == 2 ) {
       if( g_debug > 2 ) fprintf(stderr,"-- convert_RD: destroying new data\n");
       free(newdata);
       newdata = NULL;
-   } else {
-      /* else, for conversion failure or success, we keep the data */
-      if( g_debug > 2 ) fprintf(stderr,"-- convert_RD: keeping new data\n");
-      free(nim->data);
-      nim->data = newdata;
-      nim->datatype = new_type;
-      nifti_datatype_sizes(new_type, &(nim->nbyper), NULL);
+
+      return 1;        /* return failure */
    }
 
-   /* whine, if we feel it is necessary */
-   if( rv > 0 ) {
-      fprintf(stderr, "** inaccurate data conversion from %s to %s\n",
-              nifti_datatype_string(nim->datatype),
-              nifti_datatype_string(new_type));
-      return 1;
-   }
+   /* else, for conversion failure or success, keep data and return success */
+   if( g_debug > 2 ) fprintf(stderr,"-- convert_RD: keeping new data\n");
 
+   free(nim->data);
+   nim->data = newdata;
+   nim->datatype = new_type;
+   nifti_datatype_sizes(new_type, &(nim->nbyper), NULL);
+
+   /* return success, new data was applied */
    return 0;
 }
 
@@ -5140,7 +5142,7 @@ static int convert_raw_data(void ** retdata, void * olddata, int old_type,
 
    /* we should have at least tried every given case */
    if ( !tried ) {
-      fprintf(stderr, "** CND: did not try %s to %s\n",
+      fprintf(stderr, "** CND: did not try to convert %s to %s\n",
               nifti_datatype_string(old_type),
               nifti_datatype_string(new_type));
       free(newdata);
@@ -7264,11 +7266,9 @@ nifti_image * nt_read_bricks(nt_opts * opts, char * fname, int len,
         /* would alter NBL,datatype,nbyper     (save for later....) */
         if( opts->convert2dtype ) {
            /* convert each brick */
-           fprintf(stderr,"** convert2dtype not ready for brick list\n");
-           if( 1 || convert_datatype(nim, NULL, opts->convert2dtype,
+           if( convert_datatype(nim, NBL, opts->convert2dtype,
                                   opts->cnvt_verify, opts->cnvt_fail_choice) )
            {
-              /* more work to do on failure here */
               nifti_image_free(nim);
               nifti_free_NBL(NBL);
               NBL->nbricks = 0;
