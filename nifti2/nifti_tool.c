@@ -3916,7 +3916,7 @@ static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
  *
  * - note general type (int, float, complex), nbyper and whether signed
  *
- * Order of logic: consider int, float, complex, and RGB general types
+ * Order of logic: consider RGB, complex, float and int general types
  *
  *    - any RGB     (if either type is RGB/RGBA)
  *    - any complex (if either type is complex)
