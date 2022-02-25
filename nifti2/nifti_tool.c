@@ -199,13 +199,13 @@ static const char * g_history[] =
   "2.11 29 Dec 2020 [rickr] - add example to create dset from raw data\n",
   "2.12 21 Feb 2022 [rickr]\n"
   "   - start to deprecate -copy_im (bad name; -cbl can alter hdr on read)\n",
-  "2.13 24 Feb 2022 [rickr]\n"
+  "2.13 25 Feb 2022 [rickr]\n"
   "   - add -copy_image (w/data conversion)\n"
   "   - add -convert2dtype, -convert_verify, -convert_fail_choice\n",
   "----------------------------------------------------------------------\n"
 };
 static char g_version[] = "2.13";
-static char g_version_date[] = "February 24, 2022";
+static char g_version_date[] = "February 25, 2022";
 static int  g_debug = 1;
 
 #define _NIFTI_TOOL_C_
@@ -466,6 +466,8 @@ int process_opts( int argc, char * argv[], nt_opts * opts )
            fprintf(stderr,"   (must be ignore, warn or fail)\n");
            return -1;
          }
+         /* have fail_choice imply verify */
+         opts->cnvt_verify = 1;
       }
       else if( ! strcmp(argv[ac], "-copy_brick_list") ||
                ! strcmp(argv[ac], "-copy_im") ||
@@ -1277,11 +1279,11 @@ int use_full()
    "      1. nifti_tool -copy_image -infiles dset0.nii    \\\n"
    "                    -prefix copy_f32.nii              \\\n"
    "                    -convert2dtype NIFTI_TYPE_FLOAT32 \\\n"
-   "                    -convert_verify -convert_fail_choice warn\n"
+   "                    -convert_fail_choice warn\n"
    "      2. nifti_tool -copy_image -infiles dset0.nii    \\\n"
    "                    -prefix copy_i32.nii              \\\n"
    "                    -convert2dtype NIFTI_TYPE_INT32   \\\n"
-   "                    -convert_verify -convert_fail_choice fail\n"
+   "                    -convert_fail_choice fail\n"
    "\n"
 /* ignore, warn, fail */
    );
@@ -1427,6 +1429,8 @@ int use_full()
    "           ignore   : just let the failures happen\n"
    "           warn     : warn about errors, but still convert\n"
    "           fail     : bad conversions are terminal failures\n"
+   "\n"
+   "       This option implies -convert_verify, so they are not both needed.\n"
    "\n"
    "       See also -convert2dtype, -convert_verify\n"
    "\n");
