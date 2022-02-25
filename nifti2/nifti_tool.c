@@ -199,7 +199,9 @@ static const char * g_history[] =
   "2.11 29 Dec 2020 [rickr] - add example to create dset from raw data\n",
   "2.12 21 Feb 2022 [rickr]\n"
   "   - start to deprecate -copy_im (bad name; -cbl can alter hdr on read)\n",
-  "2.13 24 Feb 2022 [rickr] - prep for -copy_image (w/data conversion)\n"
+  "2.13 24 Feb 2022 [rickr]\n"
+  "   - add -copy_image (w/data conversion)\n"
+  "   - add -convert2dtype, -convert_verify, -convert_fail_choice\n",
   "----------------------------------------------------------------------\n"
 };
 static char g_version[] = "2.13";
@@ -337,6 +339,7 @@ int process_opts( int argc, char * argv[], nt_opts * opts )
 
    opts->prefix = NULL;
    opts->debug = 1;  /* init debug level to basic output */
+   opts->cnvt_fail_choice = 1;  /* default to warn on convert failure */
 
    /* init options for creating a new dataset via "MAKE_IM" */
    opts->new_datatype = NIFTI_TYPE_INT16;
@@ -437,6 +440,33 @@ int process_opts( int argc, char * argv[], nt_opts * opts )
          opts->check_nim = 1;
       else if( ! strcmp(argv[ac], "-copy_image") )
          opts->copy_image = 1;
+      else if( ! strcmp(argv[ac], "-convert2dtype") ) {
+         ac++;
+         CHECK_NEXT_OPT(ac, argc, "-convert2dtype");
+         opts->convert2dtype = nifti_datatype_from_string(argv[ac]);
+         if( opts->convert2dtype == 0 ) {
+            fprintf(stderr,"** -convert2dtype: invalid datatype %s\n",argv[ac]);
+            fprintf(stderr,"   consider: nifti_tool -help_datatypes\n");
+            return -1;
+         }
+      }
+      else if( ! strcmp(argv[ac], "-convert_verify") )
+         opts->cnvt_verify = 1;
+      else if( ! strcmp(argv[ac], "-convert_fail_choice") ) {
+         ac++;
+         CHECK_NEXT_OPT(ac, argc, "-convert_fail_choice");
+         if( !strcmp( argv[ac], "ignore") )
+            opts->cnvt_fail_choice = 0;
+         else if( !strcmp( argv[ac], "warn") )
+            opts->cnvt_fail_choice = 1;
+         else if( !strcmp( argv[ac], "fail") )
+            opts->cnvt_fail_choice = 2;
+         else {
+           fprintf(stderr,"** invalid -convert_fail_choice parameter\n");
+           fprintf(stderr,"   (must be ignore, warn or fail)\n");
+           return -1;
+         }
+      }
       else if( ! strcmp(argv[ac], "-copy_brick_list") ||
                ! strcmp(argv[ac], "-copy_im") ||
                ! strcmp(argv[ac], "-cbl") )
@@ -1238,8 +1268,24 @@ int use_full()
    "      4. nifti_tool -rm_ext ALL -prefix dset1 -infiles dset0.nii\n"
    "      5. nifti_tool -rm_ext 2 -rm_ext 3 -rm_ext 5 -overwrite \\\n"
    "                    -infiles dset0.nii\n"
+   "\n");
+   printf(
+   "    H. convert to a different datatype (from whatever is there):\n"
+   "       (possibly warn or fail if conversion is not perfect)\n"
    "\n"
-   "  ------------------------------\n");
+   "      0. nifti_tool -copy_image -prefix copy.nii -infiles dset0.nii\n"
+   "      1. nifti_tool -copy_image -infiles dset0.nii    \\\n"
+   "                    -prefix copy_f32.nii              \\\n"
+   "                    -convert2dtype NIFTI_TYPE_FLOAT32 \\\n"
+   "                    -convert_verify -convert_fail_choice warn\n"
+   "      2. nifti_tool -copy_image -infiles dset0.nii    \\\n"
+   "                    -prefix copy_i32.nii              \\\n"
+   "                    -convert2dtype NIFTI_TYPE_INT32   \\\n"
+   "                    -convert_verify -convert_fail_choice fail\n"
+   "\n"
+/* ignore, warn, fail */
+   );
+   printf("  ------------------------------\n");
    printf(
    "\n"
    "  options for check actions:\n"
@@ -1343,6 +1389,56 @@ int use_full()
    "\n"
    "       This offers a more pure NIFTI I/O copy, while still allowing for\n"
    "       options like alteration of the datatype.\n"
+   "\n");
+   printf(
+   "    -convert2dtype TYPE : convert input dset to given TYPE\n"
+   "\n"
+   "       This option allows one to convert the data to a new datatype\n"
+   "       upon read.  If both the input and new types are valid, the\n"
+   "       the conversion will be attempted.\n"
+   "\n"
+   "       As values cannot always be copied correctly, one should decide\n"
+   "       what to do in case of a conversion error.  To control response\n"
+   "       to a conversion error, consider options -convert_verify and\n"
+   "       -convert_fail_choice.\n"
+   "\n");
+   printf(
+   "       For example, converting NIFTI_TYPE_FLOAT32 to NIFTI_TYPE_UINT16,\n"
+   "       a value of 53000.0 would exceed the maximum short, while 7.25\n"
+   "       could not be exactly represented as a short.\n"
+   "\n");
+   printf(
+   "       Valid TYPE values include all NIFTI types, except for\n"
+   "           FLOAT128 and any RGB or COMPLEX one.\n"
+   "\n"
+   "       For a list of potential values for TYPE, see the output from:\n"
+   "           nifti_tool -help_datatypes\n"
+   "\n"
+   "       See also -convert_verify, -convert_fail_choice\n"
+   "\n");
+   printf(
+   "    -convert_fail_choice CHOICE : set what to do on conversion failures\n"
+   "\n"
+   "       Used with -convert2dtype and -convert_verify, this option\n"
+   "       specifies how to behave when a datatype conversion is not exact\n"
+   "       (e.g. 7.25 converted to a short integer would be 7).\n"
+   "\n"
+   "       Valid values for CHOICE are:\n"
+   "           ignore   : just let the failures happen\n"
+   "           warn     : warn about errors, but still convert\n"
+   "           fail     : bad conversions are terminal failures\n"
+   "\n"
+   "       See also -convert2dtype, -convert_verify\n"
+   "\n");
+   printf(
+   "    -convert_verify    : verify that conversions were exact\n"
+   "\n"
+   "       Used with -convert2dtype, this option specifies that any\n"
+   "       conversions should be verified for exactness.  What to do in the\n"
+   "       case of a bad conversion is controlled by -convert_fail_choice,\n"
+   "       with a default of warning.\n"
+   "\n"
+   "       See also -convert2dtype, -convert_fail_choice\n"
    "\n");
    printf(
    "    -copy_brick_list   : copy a list of volumes to a new dataset\n"
@@ -3895,8 +3991,8 @@ static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
 
    if( g_debug > 1 ) {
       fprintf(stderr, "++ convert datatype: %s to %s, v,f = %d,%d\n",
-              nifti_datatype_string(nim->datatype),
-              nifti_datatype_string(new_type), verify, fail_choice);
+              nifti_datatype_to_string(nim->datatype),
+              nifti_datatype_to_string(new_type), verify, fail_choice);
       fprintf(stderr, "   lossless = %d\n", 
               is_lossless(nim->datatype, new_type));
    }
@@ -3933,8 +4029,8 @@ static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
    /* whine, if we feel it is necessary (then just deal with data and rv) */
    if( rv > 0 )
       fprintf(stderr, "** inaccurate data conversion from %s to %s\n",
-              nifti_datatype_string(nim->datatype),
-              nifti_datatype_string(new_type));
+              nifti_datatype_to_string(nim->datatype),
+              nifti_datatype_to_string(new_type));
 
    /* destroy old data if conversion failed and choice == 2 */
    if( rv > 0 && fail_choice == 2 ) {
@@ -3984,7 +4080,7 @@ static int convert_raw_data(void ** retdata, void * olddata, int old_type,
    int          tried;           /* did we even try (unapplied types) */
 
    /* for any messages */
-   typestr = nifti_datatype_string(new_type);
+   typestr = nifti_datatype_to_string(new_type);
 
    if( !retdata ) {
       fprintf(stderr, "** convert_raw_data: missing retdata to fill\n");
@@ -3996,7 +4092,7 @@ static int convert_raw_data(void ** retdata, void * olddata, int old_type,
     * a simple datum to apply (RGB, complex)) */
    if( ! is_valid_conversion_type(old_type) ) {
       fprintf(stderr,"** data conversion not ready for orig datatype %s\n",
-              nifti_datatype_string(old_type));
+              nifti_datatype_to_string(old_type));
       return -1;
    }
    if( ! is_valid_conversion_type(new_type) ) {
@@ -5143,8 +5239,8 @@ static int convert_raw_data(void ** retdata, void * olddata, int old_type,
    /* we should have at least tried every given case */
    if ( !tried ) {
       fprintf(stderr, "** CND: did not try to convert %s to %s\n",
-              nifti_datatype_string(old_type),
-              nifti_datatype_string(new_type));
+              nifti_datatype_to_string(old_type),
+              nifti_datatype_to_string(new_type));
       free(newdata);
       return -1;
    }
