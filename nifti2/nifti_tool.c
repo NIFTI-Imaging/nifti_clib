@@ -1285,7 +1285,6 @@ int use_full()
    "                    -convert2dtype NIFTI_TYPE_INT32   \\\n"
    "                    -convert_fail_choice fail\n"
    "\n"
-/* ignore, warn, fail */
    );
    printf("  ------------------------------\n");
    printf(
