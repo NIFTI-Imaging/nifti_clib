@@ -199,13 +199,13 @@ static const char * g_history[] =
   "2.11 29 Dec 2020 [rickr] - add example to create dset from raw data\n",
   "2.12 21 Feb 2022 [rickr]\n"
   "   - start to deprecate -copy_im (bad name; -cbl can alter hdr on read)\n",
-  "2.13 25 Feb 2022 [rickr]\n"
+  "2.13 27 Feb 2022 [rickr]\n"
   "   - add -copy_image (w/data conversion)\n"
   "   - add -convert2dtype, -convert_verify, -convert_fail_choice\n",
   "----------------------------------------------------------------------\n"
 };
 static char g_version[] = "2.13";
-static char g_version_date[] = "February 25, 2022";
+static char g_version_date[] = "February 27, 2022";
 static int  g_debug = 1;
 
 #define _NIFTI_TOOL_C_
@@ -217,16 +217,6 @@ static int free_opts_mem(nt_opts * nopt);
 static int num_volumes(nifti_image * nim);
 static char * read_file_text(const char * filename, int * length);
 
-/* prototypes associated with data conversion */
-static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
-                            int new_type, int verify, int fail_choice);
-static int convert_raw_data(void ** retdata, void * olddata, int old_type,
-                               int new_type, int64_t nvox, int verify);
-static int is_lossless(int old_type, int new_type);
-static int is_valid_conversion_type(int dtype);
-static int int_size_of_type(int dtype);
-static int type_is_complex(int dtype);
-static int type_is_signed(int dtype);
 
 #define NTL_FERR(func,msg,file)                                      \
             fprintf(stderr,"** ERROR (%s): %s '%s'\n",func,msg,file)
@@ -4000,24 +3990,36 @@ static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
               is_lossless(nim->datatype, new_type));
    }
 
-   /* rcr - to be eventually handled, hopefully */
-   if( NBL ) {
-      fprintf(stderr,"** convert datatype: not ready for NBL\n");
-      return 1;
+   /* handle the most challenging case first: same type */
+   if( nim->datatype == new_type ){
+      if( g_debug > 1)
+         fprintf(stderr,"-- convert_DT: same datatype, nothing to do\n");
+      return 0;
    }
 
-   /* handle the most challenging case, first: no data */
+   /* handle the second most challenging case next: no data */
    if( (!nim->data && !NBL) || nim->nvox <= 0 ) {
       nim->datatype = new_type;
       nifti_datatype_sizes(nim->datatype, &(nim->nbyper), NULL);
       return 0;   /* done <whew!> */
    }
 
-   /* if doing a lossless conversion, do not check */
+   /* if doing a lossless conversion, do not check (faster) */
    if( is_lossless(nim->datatype, new_type) )
       verify = 0;
 
-   /* do the actual conversion (newdata will get allocated) */
+   /* if NBL, finish here, since we have to deal with the NBL struct */
+   if( NBL ) {
+      if( convert_NBL_data(NBL, nim->datatype, new_type, verify,fail_choice) )
+         return 1; /* failure has been dealt with already */
+
+      /* success (data pointers have been replaced in NBL) */
+      nim->datatype = new_type;
+      nifti_datatype_sizes(new_type, &(nim->nbyper), NULL);
+      return 0;
+   }
+
+   /* non-NBL: do the actual conversion (newdata will get allocated) */
    rv = convert_raw_data(&newdata, nim->data, nim->datatype, new_type,
                          nim->nvox, verify);
 
@@ -4031,7 +4033,8 @@ static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
 
    /* whine, if we feel it is necessary (then just deal with data and rv) */
    if( rv > 0 )
-      fprintf(stderr, "** inaccurate data conversion from %s to %s\n",
+      fprintf(stderr, "** %s: inaccurate data conversion from %s to %s\n",
+              (fail_choice==2) ? "error" : "warning",
               nifti_datatype_to_string(nim->datatype),
               nifti_datatype_to_string(new_type));
 
@@ -4053,6 +4056,90 @@ static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
    nifti_datatype_sizes(new_type, &(nim->nbyper), NULL);
 
    /* return success, new data was applied */
+   return 0;
+}
+
+/*----------------------------------------------------------------------
+ * replace NBL data via conversion, complete as in convert_datatype()
+ * - need to call convert_raw_data() per volume
+ * - have full operation pass or fail - so create new NBL
+ * - return 0 on success (match convert_datatype)
+ *----------------------------------------------------------------------*/
+static int convert_NBL_data(nifti_brick_list * NBL, int old_type, int new_type,
+                            int verify, int fail_choice)
+{
+   nifti_brick_list   NBLnew;       /* NBL to replace old one */
+   int64_t            nbvals, bind; /* nvals per brick, brick index */
+   int                nbyper=0, rv=0, cfail=0;
+
+   if( g_debug > 1 ) fprintf(stderr,"-- convert_NBL_data ...\n");
+
+   /* is there anything to work with? */
+   if( NBL->nbricks <= 0 || NBL->bsize <= 0 || !NBL->bricks ) {
+      if( g_debug > 1 )
+         fprintf(stderr,"-- cNBLd: no NBL data to convert\n");
+      return 0;
+   }
+
+   /* be "sure" there is something to convert */
+   for( bind=0; bind<NBL->nbricks; bind++ )
+      if( !NBL->bricks[bind] ) {
+         fprintf(stderr,"** cNBLd: empty brick %" PRId64 "\n", bind);
+         return 1;
+      }
+
+   /* set nbvals */
+   nifti_datatype_sizes(old_type, &nbyper, NULL);
+   nbvals = NBL->bsize / nbyper;
+   if( NBL->bsize != nbyper*nbvals ) {
+      fprintf(stderr,"** cNBLd: bad bsize,nbyper: %" PRId64 ", %d\n",
+              NBL->bsize, nbyper);
+      return 1;
+   }
+
+   /* start real work: populate NBLnew */
+   nifti_datatype_sizes(new_type, &nbyper, NULL);
+   NBLnew.bsize = nbvals * nbyper;
+   NBLnew.nbricks = NBL->nbricks;
+   NBLnew.bricks = (void **)calloc(NBLnew.nbricks, sizeof(void *));
+   if( ! NBLnew.bricks ) {
+      fprintf(stderr,"** cNBLd: failed to allocate %" PRId64 " void pointers\n",
+              NBLnew.nbricks);
+      return 1;
+   }
+
+   /* fill the bricks until done or error */
+   for( bind=0; bind < NBLnew.nbricks; bind++ ) {
+      rv = convert_raw_data(NBLnew.bricks+bind, NBL->bricks[bind], old_type,
+                            new_type, nbvals, verify);
+      /* break on serious error */
+      if( rv < 0 ) break;
+      /* track any conversion failures, but continue */
+      if( rv > 0 ) cfail = 1;
+   }
+
+   /* whine on conversion failure */
+   if( cfail )
+      fprintf(stderr, "** NBL %s: inaccurate data conversion from %s to %s\n",
+              (fail_choice==2) ? "error" : "warning",
+              nifti_datatype_to_string(old_type),
+              nifti_datatype_to_string(new_type));
+
+   /* if there was a serious error, free everything and return failure */
+   if( rv < 0 || (cfail && fail_choice == 2) ) {
+      if( g_debug > 2 ) fprintf(stderr,"-- cNBLd: destroying new data\n");
+      nifti_free_NBL(&NBLnew);
+      return 1;
+   }
+
+   if( g_debug > 2 ) fprintf(stderr,"-- NBL convert_RD: keeping new data\n");
+
+   /* replace old NBL */
+   nifti_free_NBL(NBL);
+   NBL->nbricks = NBLnew.nbricks;
+   NBL->bsize = NBLnew.bsize;
+   NBL->bricks = NBLnew.bricks;
+
    return 0;
 }
 
@@ -7161,16 +7248,13 @@ nifti_image * nt_image_read( nt_opts * opts, const char * fname, int read_data,
         /* normal image read */
         nim = nifti_image_read(fname, read_data);
 
+        /* if no data requested, just return */
+        if( !read_data )
+           return nim;
+
         /* possibly convert to a new datatype   [24 Feb 2022 rickr] */
         /* alters nim->data,datatype,nbyper                         */
         if( opts->convert2dtype ) {
-           if( !read_data ) {
-              /* is there a reason to allow this? */
-              fprintf(stderr,"** error: convert2dtype, but without data\n");
-              nifti_image_free(nim);
-              return NULL;
-           }
-
            if( convert_datatype(nim, NULL, opts->convert2dtype,
                                 opts->cnvt_verify, opts->cnvt_fail_choice) )
            {

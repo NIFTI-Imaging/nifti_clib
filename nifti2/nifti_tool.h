@@ -308,6 +308,19 @@ nifti_image    * nt_read_bricks(nt_opts * opts, char * fname, int len,
 void * nt_read_header(const char * fname, int * nver, int * swapped, int check,
                       int new_datatype, int64_t new_dim[8]);
 
+/* prototypes associated with data conversion */
+static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
+                            int new_type, int verify, int fail_choice);
+static int convert_NBL_data(nifti_brick_list * NBL, int old_type, int new_type,
+                            int verify, int fail_choice);
+static int convert_raw_data(void ** retdata, void * olddata, int old_type,
+                               int new_type, int64_t nvox, int verify);
+static int is_lossless(int old_type, int new_type);
+static int is_valid_conversion_type(int dtype);
+static int int_size_of_type(int dtype);
+static int type_is_complex(int dtype);
+static int type_is_signed(int dtype);
+
 
 /* misc functions */
 int           nt_run_misc_nim_tests (nifti_image * nim);
