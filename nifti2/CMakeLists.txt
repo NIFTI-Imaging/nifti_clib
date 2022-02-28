@@ -176,6 +176,7 @@ if(NIFTI_BUILD_TESTING AND NIFTI_BUILD_APPLICATIONS)
       set_tests_properties(${TEST_PREFIX}_c21_b_cifti_in_test PROPERTIES LABELS NEEDS_DATA)
       set_tests_properties(${TEST_PREFIX}_c21_c_make_im_test PROPERTIES LABELS NEEDS_DATA)
       set_tests_properties(${TEST_PREFIX}_c21_d_misc_tests PROPERTIES LABELS NEEDS_DATA)
+      set_tests_properties(${TEST_PREFIX}_c22_copy_image PROPERTIES LABELS NEEDS_DATA)
 
       # Test that installed linking works
       if(TEST_INSTALL)
