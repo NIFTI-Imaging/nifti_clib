@@ -631,7 +631,7 @@ nifti_image *nifti_image_read_bricks(const char * hname, int64_t nbricks,
 
    if( !hname || !NBL ){
       fprintf(stderr,"** nifti_image_read_bricks: bad params (%p,%p)\n",
-              hname, (void *)NBL);
+              (void *)hname, (void *)NBL);
       return NULL;
    }
 
@@ -4027,7 +4027,7 @@ int nifti_set_filenames( nifti_image * nim, const char * prefix, int check,
 
    if( !nim || !prefix ){
       fprintf(stderr,"** nifti_set_filenames, bad params %p, %p\n",
-              (void *)nim,prefix);
+              (void *)nim, (void *)prefix);
       return -1;
    }
 
@@ -4355,7 +4355,7 @@ int nifti_set_type_from_names( nifti_image * nim )
 
    if( !nim->fname || !nim->iname ){
       fprintf(stderr,"** NIFTI_STFN: NULL filename(s) fname @ %p, iname @ %p\n",
-              nim->fname, nim->iname);
+              (void *)nim->fname, (void *)nim->iname);
       return -1;
    }
 
@@ -6647,7 +6647,8 @@ static znzFile nifti_image_load_prep( nifti_image *nim )
       if ( g_opts.debug > 0 ){
          if( !nim ) fprintf(stderr,"** ERROR: N_image_load: no nifti image\n");
          else fprintf(stderr,"** ERROR: nifti_image_load: bad params (%p,%d,"
-                      "%" PRId64 ")\n", nim->iname, nim->nbyper, nim->nvox);
+                      "%" PRId64 ")\n",
+                      (void *)nim->iname, nim->nbyper, nim->nvox);
       }
       return NULL;
    }
