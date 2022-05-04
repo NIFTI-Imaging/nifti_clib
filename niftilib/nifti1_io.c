@@ -5866,33 +5866,43 @@ znzFile nifti_write_ascii_image(nifti_image *nim, const nifti_brick_list * NBL,
       fields from the qto_xyz matrix, you can use the utility function
       nifti_mat44_to_quatern()
 
+   \return 0 on success, -1 on error
+
    \sa nifti_image_write_bricks, nifti_image_free, nifti_set_filenames,
        nifti_image_write_hdr_img
 *//*------------------------------------------------------------------------*/
-void nifti_image_write( nifti_image *nim )
+int nifti_image_write( nifti_image *nim )
 {
    znzFile fp = nifti_image_write_hdr_img(nim,1,"wb");
    if( fp ){
       if( g_opts.debug > 2 ) fprintf(stderr,"-d niw: done with znzFile\n");
       free(fp);
+   } else {
+      return -1;
    }
    if( g_opts.debug > 1 ) fprintf(stderr,"-d nifti_image_write: done\n");
+   return 0;
 }
 
 
 /*----------------------------------------------------------------------*/
 /*! similar to nifti_image_write, but data is in NBL struct, not nim->data
 
+   \return 0 on success, -1 on error
+
    \sa nifti_image_write, nifti_image_free, nifti_set_filenames, nifti_free_NBL
 *//*--------------------------------------------------------------------*/
-void nifti_image_write_bricks( nifti_image *nim, const nifti_brick_list * NBL )
+int nifti_image_write_bricks( nifti_image *nim, const nifti_brick_list * NBL )
 {
    znzFile fp = nifti_image_write_hdr_img2(nim,1,"wb",NULL,NBL);
    if( fp ){
       if( g_opts.debug > 2 ) fprintf(stderr,"-d niwb: done with znzFile\n");
       free(fp);
+   } else {
+      return -1;
    }
    if( g_opts.debug > 1 ) fprintf(stderr,"-d niwb: done writing bricks\n");
+   return 0;
 }
 
 
