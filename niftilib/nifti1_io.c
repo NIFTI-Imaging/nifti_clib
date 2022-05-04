@@ -2170,7 +2170,7 @@ void nifti_swap_4bytes( size_t n , void *ar )    /* 4 bytes at a time */
        tval = *cp1;  *cp1 = *cp2;  *cp2 = tval;
        cp0 += 4;
    }
-   }
+}
 
 /*----------------------------------------------------------------------*/
 /*! swap 8 bytes at a time from the given list of n sets of 8 bytes
@@ -2192,7 +2192,7 @@ void nifti_swap_8bytes( size_t n , void *ar )    /* 8 bytes at a time */
        }
        cp0 += 8;
    }
-   }
+}
 
 /*----------------------------------------------------------------------*/
 /*! swap 16 bytes at a time from the given list of n sets of 16 bytes
@@ -2212,7 +2212,7 @@ void nifti_swap_16bytes( size_t n , void *ar )    /* 16 bytes at a time */
        }
        cp0 += 16;
    }
-   }
+}
 
 #if 0  /* not important: save for version update     6 Jul 2010 [rickr] */
 
@@ -2254,7 +2254,7 @@ void nifti_swap_Nbytes( size_t n , int siz , void *ar )  /* subsuming case */
         fprintf(stderr,"** NIfTI: cannot swap in %d byte blocks\n", siz);
         break ;
    }
-   }
+}
 
 
 /*-------------------------------------------------------------------------*/
@@ -2410,7 +2410,7 @@ void old_swap_nifti_header( struct nifti_1_header *h , int is_nifti )
      nifti_swap_4bytes(4,h->srow_y);
      nifti_swap_4bytes(4,h->srow_z);
    }
-   }
+}
 
 
 #define USE_STAT
