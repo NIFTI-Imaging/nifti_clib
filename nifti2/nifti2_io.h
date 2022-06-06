@@ -491,7 +491,7 @@ znzFile nifti_image_open(const char * hname, char * opts, nifti_image ** nim);
 znzFile nifti_image_write_hdr_img(nifti_image *nim, int write_data,
                                   const char* opts);
 znzFile nifti_image_write_hdr_img2( nifti_image *nim , int write_opts ,
-               const char* opts, znzFile imgfile, const nifti_brick_list * NBL);
+            const char* opts, znzFile imgfile, const nifti_brick_list * NBL);
 int64_t nifti_read_buffer(znzFile fp, void* dataptr, int64_t ntot,
                          nifti_image *nim);
 int     nifti_write_all_data(znzFile fp, nifti_image * nim,
