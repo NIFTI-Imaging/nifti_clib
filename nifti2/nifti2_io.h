@@ -443,7 +443,9 @@ int64_t      nifti_read_collapsed_image( nifti_image * nim,
 int64_t      nifti_read_subregion_image(nifti_image *nim, const int64_t *start_index,
                                         const int64_t *region_size, void ** data);
 
-void         nifti_image_write   ( nifti_image * nim ) ;
+void         nifti_image_write( nifti_image * nim ) ;
+int          nifti_image_write_status( nifti_image *nim ) ;  /* 7 Jun 2022 */
+
 void         nifti_image_write_bricks(nifti_image * nim,
                                       const nifti_brick_list * NBL);
 void         nifti_image_infodump( const nifti_image * nim ) ;
