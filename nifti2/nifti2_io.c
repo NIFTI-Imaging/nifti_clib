@@ -7854,7 +7854,7 @@ static int nifti_image_write_engine(nifti_image *nim, int write_opts,
    /* if non-standard ASCII, just write output and return */
    if( nim->nifti_type == NIFTI_FTYPE_ASCII ) {
       *imgfile = nifti_write_ascii_image(nim,NBL,opts,write_data,leave_open);
-      return znz_isnull(*imgfile); /* isnull is bad, not is success */
+      return 0; /* write_ascii has no status, either */
    }
 
    /* create a header structure to write out */
@@ -8024,6 +8024,28 @@ void nifti_image_write( nifti_image *nim )
       free(fp);
    }
    if( g_opts.debug > 1 ) fprintf(stderr,"-d nifti_image_write: done\n");
+}
+
+
+/*--------------------------------------------------------------------------*/
+/*! Write a nifti_image to disk, returning 0 on success, else failure.
+
+    This simple write function takes a nifti_image as input and returns
+    the status of the operation.  It is akin to nifti_image_write, but
+    returns the status.  Changing nifti_image_write from void to int
+    would have backward compatibility ramifications.
+
+   \sa nifti_image_write_bricks, nifti_image_free, nifti_set_filenames,
+       nifti_image_write_engine, nifti_image_write
+*//*------------------------------------------------------------------------*/
+int nifti_image_write_status( nifti_image *nim )
+{
+   znzFile fp = NULL;   /* required for _engine, but promptly ignored */
+   int rv;
+
+   rv = nifti_image_write_engine(nim, 1, "wb", &fp, NULL);
+   if( g_opts.debug > 1 ) fprintf(stderr,"-d nifti_image_write_status: done\n");
+   return rv;
 }
 
 
