@@ -8018,12 +8018,16 @@ znzFile nifti_write_ascii_image(nifti_image *nim, const nifti_brick_list * NBL,
 *//*------------------------------------------------------------------------*/
 void nifti_image_write( nifti_image *nim )
 {
-   znzFile fp = nifti_image_write_hdr_img(nim,1,"wb");
+   znzFile fp=NULL;
+   int     rv;
+
+   rv = nifti_image_write_engine(nim, 1, "wb", &fp, NULL);
    if( fp ){
       if( g_opts.debug > 2 ) fprintf(stderr,"-d niw: done with znzFile\n");
       free(fp);
    }
-   if( g_opts.debug > 1 ) fprintf(stderr,"-d nifti_image_write: done\n");
+   if( g_opts.debug > 1 )
+      fprintf(stderr,"-d nifti_image_write: done, status %d\n", rv);
 }
 
 
@@ -8040,11 +8044,12 @@ void nifti_image_write( nifti_image *nim )
 *//*------------------------------------------------------------------------*/
 int nifti_image_write_status( nifti_image *nim )
 {
-   znzFile fp = NULL;   /* required for _engine, but promptly ignored */
-   int rv;
+   znzFile fp=NULL;   /* required for _engine, but promptly ignored */
+   int     rv;
 
    rv = nifti_image_write_engine(nim, 1, "wb", &fp, NULL);
-   if( g_opts.debug > 1 ) fprintf(stderr,"-d nifti_image_write_status: done\n");
+   if( g_opts.debug > 1 )
+      fprintf(stderr,"-d nifti_image_write_status: done, status %d\n", rv);
    return rv;
 }
 
