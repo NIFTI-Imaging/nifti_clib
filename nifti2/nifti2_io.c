@@ -7788,9 +7788,9 @@ znzFile nifti_image_write_hdr_img2(nifti_image *nim, int write_opts,
 }
 
 #undef  ERREX
-#define ERREX(msg)                                                \
- do{ fprintf(stderr,"** ERROR: nifti_image_write_engine: %s\n",(msg)) ;  \
-     *imgfile = fp; \
+#define ERREX(msg)                                                      \
+ do{ fprintf(stderr,"** ERROR: nifti_image_write_engine: %s\n",(msg)) ; \
+     if( imgfile ) *imgfile = fp;                                       \
      return 1 ; } while(0)
 
 
@@ -7828,13 +7828,13 @@ static int nifti_image_write_engine(nifti_image *nim, int write_opts,
    int64_t        ss ;
    int            write_data, leave_open;
    int            nver, hsize;
-   char           func[] = { "nifti_image_write_hdr_img2" };
+   char           func[] = { "nifti_image_write_engine" };
 
    write_data = write_opts & 1;  /* just separate the bits now */
    leave_open = write_opts & 2;
 
    /* check for valid input */
-   if( ! nim || !  imgfile                ) ERREX("NULL input") ;
+   if( ! nim || ! imgfile                 ) ERREX("NULL input") ;
    if( ! nifti_validfilename(nim->fname)  ) ERREX("bad fname input") ;
    if( write_data && ! nim->data && ! NBL ) ERREX("no image data") ;
 
