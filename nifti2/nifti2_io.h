@@ -448,6 +448,8 @@ int          nifti_image_write_status( nifti_image *nim ) ;  /* 7 Jun 2022 */
 
 void         nifti_image_write_bricks(nifti_image * nim,
                                       const nifti_brick_list * NBL);
+int          nifti_image_write_bricks_status(nifti_image * nim,
+                                             const nifti_brick_list * NBL);
 void         nifti_image_infodump( const nifti_image * nim ) ;
 
 void         nifti_disp_lib_hist( int ver ) ;  /* to display library history */
