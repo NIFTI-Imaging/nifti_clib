@@ -7123,14 +7123,16 @@ int act_cbl( nt_opts * opts )
 
    /* and finally, write out results */
    if( err == 0 && nifti_nim_is_valid(nim, g_debug) )
-      nifti_image_write_bricks(nim, &NBL);
+      if( nifti_image_write_bricks_status(nim, &NBL) ) {
+         err++;
+      }
 
    nifti_image_free(nim);
    nifti_free_NBL(&NBL);
    free(fname);
    free(selstr);
 
-   return 0;
+   return err;
 }
 
 

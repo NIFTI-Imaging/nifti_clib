@@ -8018,16 +8018,7 @@ znzFile nifti_write_ascii_image(nifti_image *nim, const nifti_brick_list * NBL,
 *//*------------------------------------------------------------------------*/
 void nifti_image_write( nifti_image *nim )
 {
-   znzFile fp=NULL;
-   int     rv;
-
-   rv = nifti_image_write_engine(nim, 1, "wb", &fp, NULL);
-   if( fp ){
-      if( g_opts.debug > 2 ) fprintf(stderr,"-d niw: done with znzFile\n");
-      free(fp);
-   }
-   if( g_opts.debug > 1 )
-      fprintf(stderr,"-d nifti_image_write: done, status %d\n", rv);
+   (void)nifti_image_write_status(nim);
 }
 
 
@@ -8048,8 +8039,39 @@ int nifti_image_write_status( nifti_image *nim )
    int     rv;
 
    rv = nifti_image_write_engine(nim, 1, "wb", &fp, NULL);
+
+   if( fp ){ /* this should not happen, as we requested file closure */
+      if( g_opts.debug > 2 ) fprintf(stderr,"-d niw: done with znzFile\n");
+      free(fp);
+   }
    if( g_opts.debug > 1 )
       fprintf(stderr,"-d nifti_image_write_status: done, status %d\n", rv);
+
+   return rv;
+}
+
+
+/*----------------------------------------------------------------------*/
+/*! similar to nifti_image_write_status, but data is in NBL struct,
+    not nim->data
+
+   \return 0 on success, 1 on error
+
+   \sa nifti_image_write, nifti_image_free, nifti_set_filenames, nifti_free_NBL
+*//*--------------------------------------------------------------------*/
+int nifti_image_write_bricks_status( nifti_image *nim,
+                                     const nifti_brick_list * NBL )
+{
+   znzFile fp=NULL;
+   int     rv;
+
+   rv = nifti_image_write_engine(nim, 1, "wb", &fp, NBL);
+   if( fp ){
+      if( g_opts.debug > 2 ) fprintf(stderr,"-d niwb: done with znzFile\n");
+      free(fp);
+   }
+   if( g_opts.debug > 1 )
+      fprintf(stderr,"-d niwb: done writing bricks, status %d\n", rv);
    return rv;
 }
 
@@ -8061,12 +8083,7 @@ int nifti_image_write_status( nifti_image *nim )
 *//*--------------------------------------------------------------------*/
 void nifti_image_write_bricks( nifti_image *nim, const nifti_brick_list * NBL )
 {
-   znzFile fp = nifti_image_write_hdr_img2(nim,1,"wb",NULL,NBL);
-   if( fp ){
-      if( g_opts.debug > 2 ) fprintf(stderr,"-d niwb: done with znzFile\n");
-      free(fp);
-   }
-   if( g_opts.debug > 1 ) fprintf(stderr,"-d niwb: done writing bricks\n");
+   (void)nifti_image_write_bricks_status(nim, NBL);
 }
 
 
