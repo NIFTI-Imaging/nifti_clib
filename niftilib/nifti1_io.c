@@ -343,9 +343,11 @@ static char const * const gni_history[] =
   "   - nifti_read_ascii_image no longer closes fp or free's fname\n",
   "2.1.0  18 Jun 2020 [leej3,hmjohnson,rickr]:\n"
   "     - big version jump - changed to more formal library versioning\n",
+  "2.1.0.1 - non-release update - 16 Jun 2022 [rickr]:\n"
+  "        - add nifti_image_write_status\n",
   "----------------------------------------------------------------------\n"
 };
-static const char gni_version[] = NIFTI1_IO_SOURCE_VERSION " (18 Jun, 2020)";
+static const char gni_version[] = NIFTI1_IO_SOURCE_VERSION " (16 Jun, 2022)";
 
 /*! global nifti options structure - init with defaults */
 static nifti_global_options g_opts = {

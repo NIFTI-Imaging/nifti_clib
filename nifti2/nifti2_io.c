@@ -400,12 +400,14 @@ static char const * const gni2_history[] =
   "2.11  3 Oct, 2019 [rickr]: added nifti_[d]mat33_mul\n",
   "2.1.0  18 Jun, 2020 [leej3,hmjohnson,rickr]:\n"
   "     - changed to more formal library versioning\n",
-  "2.1.0.1 - non-release update\n"
-  "        2 Mar, 2022 [rickr]: cast a few more pedantic void*'s\n"
+  "2.1.0.1 - non-release update -  2 Mar, 2022 [rickr]\n"
+  "        - cast a few more pedantic void*'s\n"
+  "2.1.0.2 - non-release update - 16 Jun, 2022 [rickr]\n"
+  "        - add nifti_image_write_status\n",
   "----------------------------------------------------------------------\n"
 };
 
-static const char gni_version[] = NIFTI2_IO_SOURCE_VERSION " (2 Mar, 2022)";
+static const char gni_version[] = NIFTI2_IO_SOURCE_VERSION " (16 Jun, 2022)";
 
 /*! global nifti options structure - init with defaults */
 /*  see 'option accessor functions'                     */
