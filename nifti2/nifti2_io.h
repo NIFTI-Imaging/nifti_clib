@@ -20,7 +20,7 @@
 #include "nifti1.h"                  /*** NIFTI-1 header specification ***/
 #include "nifti2.h"                  /*** NIFTI-2 header specification ***/
 
-#include <znzlib.h>
+#include "znzlib.h"
 
 /*=================*/
 #ifdef  __cplusplus
