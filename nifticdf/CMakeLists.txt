@@ -1,23 +1,23 @@
 set(NIFTI_CDFLIB_NAME ${NIFTI_PACKAGE_PREFIX}nifticdf)
 
 add_nifti_library(${NIFTI_CDFLIB_NAME} nifticdf.c )
+configure_file(nifticdf.pc.in nifticdf.pc @ONLY)
 set_target_properties(
   ${NIFTI_CDFLIB_NAME}
   PROPERTIES
     PUBLIC_HEADER
     "${CMAKE_CURRENT_LIST_DIR}/nifticdf.h"
+    PKG_CONFIG ${CMAKE_CURRENT_BINARY_DIR}/nifticdf.pc
   )
 target_compile_options(${NIFTI_CDFLIB_NAME} PRIVATE "-D__COMPILE_UNUSED_FUNCTIONS__")
 target_link_libraries(${NIFTI_CDFLIB_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}niftiio)
 get_lib_version_vars("nifticdf_version.h" NIFTICDF_VERSION NIFTICDF_MAJOR_VERSION)
 if(BUILD_SHARED_LIBS)
-    configure_file(nifticdf.pc.in nifticdf.pc @ONLY)
     set_target_properties(${NIFTI_CDFLIB_NAME}
       PROPERTIES
         ${NIFTI_LIBRARY_PROPERTIES}
         VERSION ${NIFTICDF_VERSION}
         SOVERSION ${NIFTICDF_MAJOR_VERSION}
-        PKG_CONFIG nifticdf.pc
         )
 endif()
 install_nifti_target(${NIFTI_CDFLIB_NAME})

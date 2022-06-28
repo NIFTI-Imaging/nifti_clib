@@ -2,22 +2,22 @@ set(NIFTI_NIFTILIB2_NAME ${NIFTI_PACKAGE_PREFIX}nifti2)
 
 add_nifti_library(${NIFTI_NIFTILIB2_NAME} nifti2_io.c )
 target_link_libraries( ${NIFTI_NIFTILIB2_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}znz ${NIFTI_SYSTEM_MATH_LIB})
+configure_file(nifti2.pc.in nifti2.pc @ONLY)
 set_target_properties(
   ${NIFTI_NIFTILIB2_NAME}
   PROPERTIES
     PUBLIC_HEADER
     "${CMAKE_CURRENT_LIST_DIR}/nifti1.h;${CMAKE_CURRENT_LIST_DIR}/nifti2.h;${CMAKE_CURRENT_LIST_DIR}/nifti2_io.h"
+    PKG_CONFIG ${CMAKE_CURRENT_BINARY_DIR}/nifti2.pc
   )
 # Set library version when building shared libs.
 if(BUILD_SHARED_LIBS)
     get_lib_version_vars("nifti2_io_version.h" NIFTI2_VERSION NIFTI2_MAJOR_VERSION)
-    configure_file(nifti2.pc.in nifti2.pc @ONLY)
     set_target_properties(${NIFTI_NIFTILIB2_NAME}
       PROPERTIES
         ${NIFTI_LIBRARY_PROPERTIES}
         VERSION ${NIFTI2_VERSION}
         SOVERSION ${NIFTI2_MAJOR_VERSION}
-        PKG_CONFIG nifti2.pc
         )
 endif()
 install_nifti_target(${NIFTI_NIFTILIB2_NAME})

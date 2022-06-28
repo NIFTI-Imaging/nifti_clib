@@ -135,10 +135,11 @@ function(install_nifti_target target_name)
             COMPONENT Development
           INCLUDES
             DESTINATION ${NIFTI_INSTALL_INCLUDE_DIR}
-          PKG_CONFIG
-            DESTINATION ${NIFTI_INSTALL_PKGCONFIG_DIR}
-            COMPONENT Development
           )
+
+  install(FILES $<TARGET_PROPERTY:${target_name},PKG_CONFIG>
+          COMPONENT Development
+          DESTINATION ${NIFTI_INSTALL_PKGCONFIG_DIR})
 endfunction()
 
 function(get_lib_version_var ver_header_text ver_type version_out)
