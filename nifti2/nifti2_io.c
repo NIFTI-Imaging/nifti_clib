@@ -637,7 +637,7 @@ nifti_image *nifti_image_read_bricks(const char * hname, int64_t nbricks,
 
    if( !hname || !NBL ){
       fprintf(stderr,"** nifti_image_read_bricks: bad params (%p,%p)\n",
-              (void *)hname, (void *)NBL);
+              (const void *)hname, (void *)NBL);
       return NULL;
    }
 
@@ -4031,7 +4031,7 @@ int nifti_set_filenames( nifti_image * nim, const char * prefix, int check,
 
    if( !nim || !prefix ){
       fprintf(stderr,"** nifti_set_filenames, bad params %p, %p\n",
-              (void *)nim, (void *)prefix);
+              (void *)nim, (const void *)prefix);
       return -1;
    }
 
@@ -6333,7 +6333,7 @@ static int nifti_fill_extension( nifti1_extension *ext, const char * data,
 
    if( !ext || !data || len < 0 ){
       fprintf(stderr,"** NIFTI fill_ext: bad params (%p,%p,%d)\n",
-              (void *)ext, (void *)data, len);
+              (void *)ext, (const void *)data, len);
       return -1;
    } else if( ! nifti_is_valid_ecode(ecode) ){
       fprintf(stderr,"** NIFTI fill_ext: invalid ecode %d\n", ecode);
@@ -6509,8 +6509,8 @@ int valid_nifti_extensions(const nifti_image * nim)
        \return -1 on error, else NIFTI version
  *//*--------------------------------------------------------------------*/
 int nifti_header_version(const char * buf, size_t nbytes){
-   nifti_1_header *n1p = (nifti_1_header *)buf;
-   nifti_2_header *n2p = (nifti_2_header *)buf;
+   const nifti_1_header *n1p = (const nifti_1_header *)buf;
+   const nifti_2_header *n2p = (const nifti_2_header *)buf;
    char            fname[] = { "nifti_header_version" };
    int             sizeof_hdr, sver, nver;
 

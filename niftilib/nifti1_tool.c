@@ -4100,7 +4100,7 @@ nifti_image * nt_image_read( nt_opts * opts, const char * fname, int doread )
 {
     if( !opts || !fname  ) {
         fprintf(stderr,"** nt_image_read: bad params (%p,%p)\n",
-                (void *)opts, (void *)fname);
+                (void *)opts, (const void *)fname);
         return NULL;
     }
 
@@ -4139,7 +4139,7 @@ nifti_1_header * nt_read_header(nt_opts * opts, const char * fname, int * swappe
     /* swapped is not necessary */
     if( !opts || !fname ) {
         fprintf(stderr,"** nt_read_header: bad params (%p,%p)\n",
-                (void *)opts,(void *)fname);
+                (void *)opts,(const void *)fname);
         return NULL;
     }
 
@@ -4182,7 +4182,7 @@ nifti_image * nt_read_bricks(nt_opts * opts, const char * fname, int len, int * 
     /* swapped is not necessary */
     if( !opts || !fname || !NBL ) {
         fprintf(stderr,"** nt_read_bricks: bad params (%p,%p,%p)\n",
-                (void *)opts, (void *)fname, (void *)NBL);
+                (void *)opts, (const void *)fname, (void *)NBL);
         return NULL;
     }
 
