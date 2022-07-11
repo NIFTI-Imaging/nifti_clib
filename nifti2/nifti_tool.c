@@ -208,6 +208,9 @@ static char g_version[] = "2.13";
 static char g_version_date[] = "February 27, 2022";
 static int  g_debug = 1;
 
+#include <string.h>
+#include <stdint.h>
+
 #define _NIFTI_TOOL_C_
 #include "nifti2_io.h"
 #include "nifti_tool.h"
@@ -6732,30 +6735,55 @@ int disp_raw_data( void * data, int type, int nvals, char space, int newline )
                printf("%d", *(char *)dp);
                break;
          case DT_INT16:
-               printf("%d", *(short *)dp);
+         {
+               short temp;
+               memcpy(&temp, dp, sizeof(temp));
+               printf("%d", temp);
                break;
+         }
          case DT_INT32:
-               printf("%d", *(int *)dp);
+         {
+               int temp;
+               memcpy(&temp, dp, sizeof(temp));
+               printf("%d", temp);
                break;
+         }
          case DT_INT64:
-               printf("%"PRId64, *(int64_t *)dp);
+         {
+               int64_t temp;
+               memcpy(&temp, dp, sizeof(temp));
+               printf("%"PRId64, temp);
                break;
+         }
          case DT_UINT8:
-               printf("%u", *(unsigned char *)dp);
+         {
+               unsigned char temp;
+               memcpy(&temp, dp, sizeof(temp));
+               printf("%u", temp);
                break;
+         }
          case DT_UINT16:
-               printf("%u", *(unsigned short *)dp);
+         {
+               unsigned short temp;
+               memcpy(&temp, dp, sizeof(temp));
+               printf("%u", temp);
                break;
+         }
          case DT_UINT32:
-               printf("%u", *(unsigned int *)dp);
+         {
+               unsigned int temp;
+               memcpy(&temp, dp, sizeof(temp));
+               printf("%u", temp);
                break;
+         }
          case DT_FLOAT32:
          {
-               nchar = snprintf(fbuf, NT_LOC_MAX_FLOAT_BUF, "%f",
-                                *(float *)dp);
+               float temp;
+               memcpy(&temp, dp, sizeof(temp));
+               nchar = snprintf(fbuf, NT_LOC_MAX_FLOAT_BUF, "%f", temp);
                /* if it is a large number for some reason, print as is */
                if( nchar >= NT_LOC_MAX_FLOAT_BUF ) {
-                  printf("%f", *(float *)dp);
+                  printf("%f", temp);
                } else {
                   clear_float_zeros(fbuf);
                   printf("%s", fbuf);
@@ -6764,11 +6792,12 @@ int disp_raw_data( void * data, int type, int nvals, char space, int newline )
          }
          case DT_FLOAT64:
          {
-               nchar = snprintf(fbuf, NT_LOC_MAX_FLOAT_BUF, "%lf",
-                                *(double *)dp);
+               double temp;
+               memcpy(&temp, dp, sizeof(temp));
+               nchar = snprintf(fbuf, NT_LOC_MAX_FLOAT_BUF, "%lf", temp);
                /* if it is a large number for some reason, print as is */
                if( nchar >= NT_LOC_MAX_FLOAT_BUF ) {
-                  printf("%lf", *(double *)dp);
+                  printf("%lf", temp);
                } else {
                   clear_float_zeros(fbuf);
                   printf("%s", fbuf);

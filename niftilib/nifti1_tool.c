@@ -162,6 +162,9 @@ static const char * g_history[] =
 static char g_version[] = "version 1.24 (September 26, 2012)";
 static int  g_debug = 1;
 
+#include <string.h>
+#include <stdint.h>
+
 #define _NIFTI_TOOL_C_
 #include "nifti1_io.h"
 #include "nifti1_tool.h"
@@ -3846,30 +3849,54 @@ int disp_raw_data( void * data, int type, int nvals, char space, int newline )
                printf("%d", *(char *)dp);
                break;
          case DT_INT16:
-               printf("%d", *(short *)dp);
+         {
+               short temp;
+               memcpy(&temp, dp, sizeof(temp));
+               printf("%d", temp);
                break;
+         }
          case DT_INT32:
-               printf("%d", *(int *)dp);
+         {
+               int temp;
+               memcpy(&temp, dp, sizeof(temp));
+               printf("%d", temp);
                break;
+         }
          case DT_UINT8:
-               printf("%u", *(unsigned char *)dp);
+         {
+               unsigned char temp;
+               memcpy(&temp, dp, sizeof(temp));
+               printf("%u", temp);
                break;
+         }
          case DT_UINT16:
-               printf("%u", *(unsigned short *)dp);
+         {
+               unsigned short temp;
+               memcpy(&temp, dp, sizeof(temp));
+               printf("%u", temp);
                break;
+         }
          case DT_UINT32:
-               printf("%u", *(unsigned int *)dp);
+         {
+               unsigned int temp;
+               memcpy(&temp, dp, sizeof(temp));
+               printf("%u", temp);
                break;
+         }
          case DT_FLOAT32:
          {
-               snprintf(fbuf,sizeof(fbuf),"%f", *(float *)dp);
+               float temp;
+               memcpy(&temp, dp, sizeof(temp));
+               snprintf(fbuf,sizeof(fbuf),"%f", temp);
                clear_float_zeros(fbuf);
                printf("%s", fbuf);
                break;
          }
          case DT_FLOAT64:
          {
-               snprintf(fbuf,sizeof(fbuf),"%f", *(double *)dp);
+               double temp;
+               memcpy(&temp, dp, sizeof(temp));
+               snprintf(fbuf,sizeof(fbuf),"%f", temp);
                clear_float_zeros(fbuf);
                printf("%s", fbuf);
                break;
