@@ -7292,7 +7292,7 @@ nifti_image * nt_image_read( nt_opts * opts, const char * fname, int read_data,
 
     if( !opts || !fname  ) {
         fprintf(stderr,"** nt_image_read: bad params (%p,%p)\n",
-                (void *)opts, (void *)fname);
+                (void *)opts, (const void *)fname);
         return NULL;
     }
 
