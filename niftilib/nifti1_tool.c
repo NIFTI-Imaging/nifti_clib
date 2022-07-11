@@ -686,13 +686,17 @@ int verify_opts( nt_opts * opts, char * prog )
 int fill_cmd_string( nt_opts * opts, int argc, char * argv[])
 {
    char * cp;
-   int    len, remain = NT_CMD_LEN;  /* NT_CMD_LEN is max command len */
+   int    len, remain = sizeof(opts->command);  /* max command len */
    int    c, ac;
    int    has_space;  /* arguments containing space must be quoted */
    int    skip = 0;   /* counter to skip some of the arguments     */
 
    /* get the first argument separately */
-   len = sprintf( opts->command, "\n  command: %s", argv[0] );
+   len = snprintf( opts->command, sizeof(opts->command), "\n  command: %s", argv[0] );
+   if( len < 0 || len >= (int)sizeof(opts->command) ) {
+      fprintf(stderr,"FCS: no space remaining for command, continuing...\n");
+      return 1;
+   }
    cp = opts->command + len;
    remain -= len;
 
@@ -712,8 +716,8 @@ int fill_cmd_string( nt_opts * opts, int argc, char * argv[])
       has_space = 0;
       for( c = 0; c < len-1; c++ )
          if( isspace(argv[ac][c]) ){ has_space = 1; break; }
-      if( has_space ) len = sprintf(cp, " '%s'", argv[ac]);
-      else            len = sprintf(cp, " %s",   argv[ac]);
+      if( has_space ) len = snprintf(cp, remain, " '%s'", argv[ac]);
+      else            len = snprintf(cp, remain, " %s",   argv[ac]);
 
       remain -= len;
 
@@ -2373,7 +2377,7 @@ int act_disp_exts( nt_opts * opts )
                  nim->fname, nim->num_ext);
       for( ec = 0; ec < nim->num_ext; ec++ )
       {
-         sprintf(mesg, "    ext #%d : ", ec);
+         snprintf(mesg, sizeof(mesg), "    ext #%d : ", ec);
          disp_nifti1_extension(mesg, nim->ext_list + ec, -1);
       }
 
@@ -3858,14 +3862,14 @@ int disp_raw_data( void * data, int type, int nvals, char space, int newline )
                break;
          case DT_FLOAT32:
          {
-               sprintf(fbuf,"%f", *(float *)dp);
+               snprintf(fbuf,sizeof(fbuf),"%f", *(float *)dp);
                clear_float_zeros(fbuf);
                printf("%s", fbuf);
                break;
          }
          case DT_FLOAT64:
          {
-               sprintf(fbuf,"%f", *(double *)dp);
+               snprintf(fbuf,sizeof(fbuf),"%f", *(double *)dp);
                clear_float_zeros(fbuf);
                printf("%s", fbuf);
                break;
