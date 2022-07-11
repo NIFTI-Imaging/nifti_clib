@@ -843,13 +843,17 @@ int verify_opts( nt_opts * opts, char * prog )
 int fill_cmd_string( nt_opts * opts, int argc, char * argv[])
 {
    char * cp;
-   int    len, remain = NT_CMD_LEN;  /* NT_CMD_LEN is max command len */
+   int    len, remain = sizeof(opts->command);  /* max command len */
    int    c, ac;
    int    has_space;  /* arguments containing space must be quoted */
    int    skip = 0;   /* counter to skip some of the arguments     */
 
    /* get the first argument separately */
-   len = sprintf( opts->command, "\n  command: %s", argv[0] );
+   len = snprintf( opts->command, sizeof(opts->command), "\n  command: %s", argv[0] );
+   if( len < 0 || len >= (int)sizeof(opts->command) ) {
+      fprintf(stderr,"FCS: no space remaining for command, continuing...\n");
+      return 1;
+   }
    cp = opts->command + len;
    remain -= len;
 
@@ -869,8 +873,8 @@ int fill_cmd_string( nt_opts * opts, int argc, char * argv[])
       has_space = 0;
       for( c = 0; c < len-1; c++ )
          if( isspace(argv[ac][c]) ){ has_space = 1; break; }
-      if( has_space ) len = sprintf(cp, " '%s'", argv[ac]);
-      else            len = sprintf(cp, " %s",   argv[ac]);
+      if( has_space ) len = snprintf(cp, remain, " '%s'", argv[ac]);
+      else            len = snprintf(cp, remain, " %s",   argv[ac]);
 
       remain -= len;
 
@@ -2932,7 +2936,7 @@ int act_disp_exts( nt_opts * opts )
                  nim->fname, nim->num_ext);
       for( ec = 0; ec < nim->num_ext; ec++ )
       {
-         sprintf(mesg, "    ext #%d : ", ec);
+         snprintf(mesg, sizeof(mesg), "    ext #%d : ", ec);
          if( g_debug > 0 ) mptr = mesg;
          else              mptr = NULL;
 
@@ -6877,9 +6881,9 @@ int nt_run_misc_nim_tests(nifti_image * nim)
    if( g_debug )
       printf("------------------------------------------------------------\n"
              "testing : %s\n\n", nim->fname);
-   sprintf(mesg, "= qform_code = %d\n", nim->qform_code);
+   snprintf(mesg, sizeof(mesg), "= qform_code = %d\n", nim->qform_code);
    nifti_disp_matrix_orient(mesg, nim->qto_xyz);
-   sprintf(mesg, "= sform_code = %d\n", nim->sform_code);
+   snprintf(mesg, sizeof(mesg), "= sform_code = %d\n", nim->sform_code);
    nifti_disp_matrix_orient(mesg, nim->sto_xyz);
 
    /* actually display the sform */
