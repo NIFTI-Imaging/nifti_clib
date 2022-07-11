@@ -1415,8 +1415,6 @@ char const *nifti_orientation_string( int ii )
     \param nbyper   pointer to return value: number of bytes per voxel
     \param swapsize pointer to return value: size of swap blocks
 
-    \return appropriate values at nbyper and swapsize
-
     The swapsize is set to 0 if this datatype doesn't ever need swapping.
 
     \sa NIFTI1_DATATYPES in nifti1.h
@@ -2142,7 +2140,7 @@ void nifti_mat44_to_orientation( mat44 R , int *icod, int *jcod, int *kcod )
  *
  *  Due to alignment of structures at some architectures (e.g. on ARM),
  *  stick to char variables.
- *  Fixes http://bugs.debian.org/446893   Yaroslav <debian@onerussian.com>
+ *  Fixes <http://bugs.debian.org/446893> Yaroslav <debian @ onerussian.com>
  *
 *//*--------------------------------------------------------------------*/
 void nifti_swap_2bytes( size_t n , void *ar )    /* 2 bytes at a time */
@@ -2581,7 +2579,7 @@ int nifti_validfilename(const char* fname)
 
     \return a pointer to the extension substring within the original
             function input parameter name, or NULL if not found.
-    \caution Note that if the input parameter is is immutabale
+    \warning Note that if the input parameter is is immutabale
              (i.e. a const char *) then this function performs an
              implicit casting away of the mutability constraint and
              the return parameter will appear as a mutable
@@ -2831,8 +2829,8 @@ char * nifti_findhdrname(const char* fname)
 /*! check current directory for existing image file
 
     \param fname filename to check for
-    \nifti_type  nifti_type for dataset - this determines whether to
-                 first check for ".nii" or ".img" (since both may exist)
+    \param nifti_type  nifti_type for dataset - this determines whether to
+                       first check for ".nii" or ".img" (since both may exist)
 
     \return filename of data/img file on success and NULL if no appropriate
             file could be found
@@ -4489,7 +4487,7 @@ static int nifti_read_extensions( nifti_image *nim, znzFile fp, int remain )
 
    \param nim    - nifti_image to add extension to
    \param data   - raw extension data
-   \param length - length of raw extension data
+   \param len    - length of raw extension data
    \param ecode  - extension code
 
    \sa extension codes NIFTI_ECODE_* in nifti1_io.h
@@ -5903,8 +5901,6 @@ znzFile nifti_write_ascii_image(nifti_image *nim, const nifti_brick_list * NBL,
       fields from the qto_xyz matrix, you can use the utility function
       nifti_mat44_to_quatern()
 
-   \return 0 on success, -1 on error
-
    \sa nifti_image_write_bricks, nifti_image_free, nifti_set_filenames,
        nifti_image_write_hdr_img
 *//*------------------------------------------------------------------------*/
@@ -6960,7 +6956,7 @@ compute_strides(int *strides,const int *size,int nbyper)
           speed and possibly repeated calls to this function.
     \return
         -  the total number of bytes read, or < 0 on failure
-        -  the read and byte-swapped data, in 'data'            </pre>
+        -  the read and byte-swapped data, in 'data'
 
     \sa nifti_image_read, nifti_image_free, nifti_image_read_bricks
         nifti_image_load, nifti_read_collapsed_image
