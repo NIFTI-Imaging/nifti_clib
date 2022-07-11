@@ -1023,7 +1023,7 @@ int usage(char * prog, int level)
 /*----------------------------------------------------------------------
  * full usage
  *----------------------------------------------------------------------*/
-int use_full()
+int use_full(void)
 {
    printf(
    "nifti_tool - display, modify or compare nifti headers\n"
