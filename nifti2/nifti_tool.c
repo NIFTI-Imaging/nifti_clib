@@ -226,11 +226,11 @@ static char * read_file_text(const char * filename, int * length);
         do{ int tval=(val); free_opts_mem(&opts); return tval; } while(0)
 
 /* these are effectively constant, and are built only for verification */
-field_s g_hdr1_fields[NT_HDR1_NUM_FIELDS];    /* nifti_1_header fields */
-field_s g_hdr2_fields[NT_HDR2_NUM_FIELDS];    /* nifti_2_header fields */
-field_s g_ana_fields [NT_ANA_NUM_FIELDS];     /* nifti_analyze75       */
-field_s g_nim1_fields[NT_NIM_NUM_FIELDS];     /* nifti_image fields    */
-field_s g_nim2_fields[NT_NIM_NUM_FIELDS];     /* nifti2_image fields   */
+static field_s g_hdr1_fields[NT_HDR1_NUM_FIELDS];    /* nifti_1_header fields */
+static field_s g_hdr2_fields[NT_HDR2_NUM_FIELDS];    /* nifti_2_header fields */
+static field_s g_ana_fields [NT_ANA_NUM_FIELDS];     /* nifti_analyze75       */
+static field_s g_nim1_fields[NT_NIM_NUM_FIELDS];     /* nifti_image fields    */
+static field_s g_nim2_fields[NT_NIM_NUM_FIELDS];     /* nifti2_image fields   */
 
 /* slice timing hdr and nim fields */
 static const char * g_hdr_timing_fnames[NT_HDR_TIME_NFIELDS] = {

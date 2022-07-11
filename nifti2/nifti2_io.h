@@ -75,6 +75,11 @@ extern "C" {
         c. some routines have been changed to apply to multiple NIFTI types
 */
 
+/********************** file identification magic ****************************/
+
+extern char nifti1_magic[4];
+extern char nifti2_magic[8];
+
 /********************** Some sample data structures **************************/
 
 typedef struct {                   /** 4x4 matrix struct **/
