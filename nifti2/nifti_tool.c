@@ -211,7 +211,6 @@ static int  g_debug = 1;
 #include <string.h>
 #include <stdint.h>
 
-#define _NIFTI_TOOL_C_
 #include "nifti2_io.h"
 #include "nifti_tool.h"
 
