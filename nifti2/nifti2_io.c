@@ -1,4 +1,4 @@
-#define _NIFTI2_IO_C_
+#define NIFTI2_IO_C
 
 #include "nifti2_io.h"   /* typedefs, prototypes, macros, etc. */
 #include "nifti2_io_version.h"
