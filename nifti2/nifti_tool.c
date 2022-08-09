@@ -6160,8 +6160,6 @@ const char * field_type_str( int type )
    return "DT_UNKNOWN";  /* for DT_UNKNOWN, or as an else */
 }
 
-#define NT_MAX_DT_STR_LEN 14
-
 /*----------------------------------------------------------------------
  * display the contents of all of the field structures
  *----------------------------------------------------------------------*/
