@@ -10199,7 +10199,7 @@ static pqpair student_s2pq( double xx , double dof )
 
 /*------------------------------*/
 
-double student_pq2s( pqpair pq , double dof )
+static double student_pq2s( pqpair pq , double dof )
 {
    int which , status ;
    double p,q, s,xlam,bound ;
