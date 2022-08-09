@@ -1,5 +1,6 @@
 #define NIFTI2_IO_C
 
+#include <assert.h>
 #include "nifti2_io.h"   /* typedefs, prototypes, macros, etc. */
 #include "nifti2_io_version.h"
 
@@ -2777,7 +2778,7 @@ void nifti_dmat44_to_orientation( nifti_dmat44 R ,
      case -2: i = NIFTI_A2P ; break ;
      case  3: i = NIFTI_I2S ; break ;
      case -3: i = NIFTI_S2I ; break ;
-     default: break;
+     default: assert(0) ; break ;
    }
 
    switch( jbest*qbest ){
@@ -2787,7 +2788,7 @@ void nifti_dmat44_to_orientation( nifti_dmat44 R ,
      case -2: j = NIFTI_A2P ; break ;
      case  3: j = NIFTI_I2S ; break ;
      case -3: j = NIFTI_S2I ; break ;
-     default: break;
+     default: assert(0) ; break ;
    }
 
    switch( kbest*rbest ){
@@ -2797,7 +2798,7 @@ void nifti_dmat44_to_orientation( nifti_dmat44 R ,
      case -2: k = NIFTI_A2P ; break ;
      case  3: k = NIFTI_I2S ; break ;
      case -3: k = NIFTI_S2I ; break ;
-     default: break;
+     default: assert(0) ; break ;
    }
 
    *icod = i ; *jcod = j ; *kcod = k ; }
