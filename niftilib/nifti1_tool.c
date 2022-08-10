@@ -1733,9 +1733,8 @@ int use_full(const char * prog )
    "  ------------------------------\n"
    "\n"
    "  R. Reynolds\n"
-   "  compiled: %s\n"
    "  %s\n\n",
-   __DATE__, g_version );
+   g_version );
 
    return 1;
 }

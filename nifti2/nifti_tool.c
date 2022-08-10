@@ -2135,9 +2135,8 @@ int use_full(void)
    "  ------------------------------\n"
    "\n"
    "  R. Reynolds\n"
-   "  compiled: %s\n"
    "  version %s (%s)\n\n",
-   __DATE__, g_version, g_version_date );
+   g_version, g_version_date );
 
    return 1;
 }
