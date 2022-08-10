@@ -564,7 +564,7 @@ void nifti_disp_lib_hist( int ver )
 *//*--------------------------------------------------------------------*/
 void nifti_disp_lib_version( void )
 {
-   printf("%s, compiled %s\n", gni_version, __DATE__);
+   printf("%s\n", gni_version);
 }
 
 
