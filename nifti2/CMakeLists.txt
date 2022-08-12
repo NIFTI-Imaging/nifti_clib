@@ -20,6 +20,12 @@ if(BUILD_SHARED_LIBS)
 endif()
 install_nifti_target(${NIFTI_NIFTILIB2_NAME})
 
+if(FSLSTYLE)
+  ADD_DEFINITIONS(-DFSLSTYLE)
+  ADD_DEFINITIONS(-DREJECT_COMPLEX)
+  ADD_DEFINITIONS(-DPIGZ)
+endif()
+
 if(NIFTI_BUILD_APPLICATIONS)
   set(NIFTI_TOOL ${NIFTI_PACKAGE_PREFIX}nifti_tool)
   add_nifti_executable(${NIFTI_TOOL} nifti_tool.c)

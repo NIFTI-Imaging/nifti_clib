@@ -1,5 +1,12 @@
 #define NIFTI2_IO_C
 
+//FSLSTYLE: generate error if both img.nii and img.nii.gz exists
+// #define FSLSTYLE 
+//PIGZ: Use PIGZ parallel compression if environment includes "AFNI_COMPRESSOR=PIGZ"
+// #define PIGZ
+//REJECT_COMPLEX: generate error if file is complex datatype
+// #define REJECT_COMPLEX
+
 #include "nifti2_io.h"   /* typedefs, prototypes, macros, etc. */
 #include "nifti2_io_version.h"
 
@@ -3695,10 +3702,8 @@ char * nifti_findhdrname(const char* fname)
    char  extzip[4]   = ".gz";
    int   efirst = 1;    /* init to .nii extension */
    int   eisupper = 0;  /* init to lowercase extensions */
-
    /**- check input file(s) for sanity */
    if( !nifti_validfilename(fname) ) return NULL;
-
    basename = nifti_makebasename(fname);
    if( !basename ) return NULL;   /* only on string alloc failure */
 
@@ -3745,7 +3750,23 @@ char * nifti_findhdrname(const char* fname)
 
    strcpy(hdrname,basename);
    strcat(hdrname,elist[efirst]);
+   #ifdef FSLSTYLE
+   if (nifti_fileexists(hdrname)) {
+      free(basename);
+      char *gzname = (char *)calloc(sizeof(char),strlen(hdrname)+8);
+      strcpy(gzname, hdrname);
+      strcat(gzname,extzip);
+      if (nifti_fileexists(gzname)) {
+         fprintf(stderr,"Image Exception : Multiple possible filenames detected for basename (*.nii, *.nii.gz): %s\n", basename);
+         free(gzname);
+         exit(134);
+      }
+      free(gzname);
+      return hdrname; 
+   }
+   #else
    if (nifti_fileexists(hdrname)) { free(basename); return hdrname; }
+   #endif
 #ifdef HAVE_ZLIB
    strcat(hdrname,extzip);
    if (nifti_fileexists(hdrname)) { free(basename); return hdrname; }
@@ -5281,14 +5302,14 @@ nifti_1_header * nifti_read_n1_hdr(const char * hname, int *swapped, int check)
    hfile = nifti_findhdrname(hname);
    if( hfile == NULL ){
       if( g_opts.debug > 0 )
-         LNI_FERR(fname,"failed to find header file for", hname);
+         LNI_FERR(fname,"failed to find N1 header file for", hname);
       return NULL;
    } else if( g_opts.debug > 1 )
       fprintf(stderr,"-d %s: found header filename '%s'\n",fname,hfile);
 
    fp = znzopen( hfile, "rb", nifti_is_gzfile(hfile) );
    if( znz_isnull(fp) ){
-      if( g_opts.debug > 0 ) LNI_FERR(fname,"failed to open header file",hfile);
+      if( g_opts.debug > 0 ) LNI_FERR(fname,"failed to open N1 header file",hfile);
       free(hfile);
       return NULL;
    }
@@ -5382,7 +5403,7 @@ nifti_2_header * nifti_read_n2_hdr(const char * hname, int * swapped,
    hfile = nifti_findhdrname(hname);
    if( hfile == NULL ){
       if( g_opts.debug > 0 )
-         LNI_FERR(fname,"failed to find header file for", hname);
+         LNI_FERR(fname,"failed to find N2 header file for", hname);
       return NULL;
    } else if( g_opts.debug > 1 )
       fprintf(stderr,"-d %s: found N2 header filename '%s'\n",fname,hfile);
@@ -5724,7 +5745,7 @@ void * nifti_read_header( const char *hname, int *nver, int check )
    hfile = nifti_findhdrname(hname);
    if( hfile == NULL ){
       if(g_opts.debug > 0)
-         LNI_FERR(fname,"failed to find header file for", hname);
+         LNI_FERR(fname,"failed to find any header file for", hname);
       return NULL;  /* check return */
    } else if( g_opts.debug > 2 )
       fprintf(stderr,"-d %s: found header filename '%s'\n",fname,hfile);
@@ -5735,7 +5756,7 @@ void * nifti_read_header( const char *hname, int *nver, int check )
    /**- open file, separate reading of header, extensions and data */
    fp = znzopen(hfile, "rb", nifti_is_gzfile(hfile));
    if( znz_isnull(fp) ){
-      if( g_opts.debug > 0 ) LNI_FERR(fname,"failed to open header file",hfile);
+      if( g_opts.debug > 0 ) LNI_FERR(fname,"failed to open any header file",hfile);
       free(hfile);
       return NULL;
    }
@@ -5878,7 +5899,7 @@ nifti_image *nifti_image_read( const char *hname , int read_data )
    /**- open file, separate reading of header, extensions and data */
    fp = znzopen(hfile, "rb", nifti_is_gzfile(hfile));
    if( znz_isnull(fp) ){
-      if( g_opts.debug > 0 ) LNI_FERR(fname,"failed to open header file",hfile);
+      if( g_opts.debug > 0 ) LNI_FERR(fname,"failed to open a header file",hfile);
       free(hfile);
       return NULL;
    }
@@ -5941,6 +5962,13 @@ nifti_image *nifti_image_read( const char *hname , int read_data )
          fprintf(stderr,"** %s: bad nifti im header version %d\n",fname,ni_ver);
       znzclose(fp);  free(hfile);  return NULL;
    }
+
+   #ifdef REJECT_COMPLEX
+   if ((nim->datatype == DT_COMPLEX64) || (nim->datatype == DT_COMPLEX128) || (nim->datatype == DT_COMPLEX256)) {
+      fprintf(stderr,"Image Exception Unsupported datatype (COMPLEX64): use fslcomplex to manipulate: %s\n", hname);
+      exit(13);
+    }
+    #endif
 
    if( nim == NULL ){
       znzclose( fp ) ;                                   /* close the file */
@@ -7459,6 +7487,10 @@ int nifti_convert_nim2n1hdr(const nifti_image * nim, nifti_1_header * hdr)
        nhdr.qoffset_z  = nim->qoffset_z ;
        nhdr.pixdim[0]  = (nim->qfac >= 0.0) ? 1.0f : -1.0f ;
      }
+     #ifdef FSLSTYLE
+     else //this helps for regression testing between this library and fsl, there is no other purpose. Without this you get false alarms
+       nhdr.pixdim[0]  = 1.0; //default if unknown and not needed
+     #endif
 
      if( nim->sform_code > 0 ){
        nhdr.sform_code = nim->sform_code ;
@@ -7570,6 +7602,10 @@ int nifti_convert_nim2n2hdr(const nifti_image * nim, nifti_2_header * hdr)
      nhdr.qoffset_z  = nim->qoffset_z ;
      nhdr.pixdim[0]  = (nim->qfac >= 0.0) ? 1.0f : -1.0f ;
    }
+   #ifdef FSLSTYLE
+   else //this helps for regression testing between this library and fsl, there is no other purpose. Without this you get false alarms
+     nhdr.pixdim[0]  = 1.0; //default if unknown and not needed
+   #endif
 
    if( nim->sform_code > 0 ){
      nhdr.sform_code = nim->sform_code ;
@@ -7793,6 +7829,73 @@ znzFile nifti_image_write_hdr_img2(nifti_image *nim, int write_opts,
      if( imgfile ) *imgfile = fp;                                       \
      return 1 ; } while(0)
 
+#ifdef PIGZ
+#ifdef HAVE_ZLIB
+int doPigz2(nifti_image *nim, struct nifti_2_header nhdr, const nifti_brick_list * NBL) {
+	FILE *pigzPipe;
+	char command[768];
+    strcpy(command, "pigz" );
+    strcat(command, " -n -f > \"");
+    strcat(command, nim->fname);
+    strcat(command, "\"");
+	#ifdef _MSC_VER
+	if (( pigzPipe = _popen(command, "w")) == NULL)
+		return -1;
+	#else
+	if (( pigzPipe = popen(command, "w")) == NULL)
+		return -1;
+	#endif
+	znzFile fp;
+	fp = (znzFile) calloc(1,sizeof(struct znzptr));
+	fp->zfptr = NULL;
+	fp->withz = 0;
+    fp->nzfptr = pigzPipe;
+	fwrite(&nhdr, sizeof(nhdr), 1, pigzPipe);
+	if( nim->nifti_type != NIFTI_FTYPE_ANALYZE )
+    nifti_write_extensions(fp,nim);
+	nifti_write_all_data(fp,nim,NBL);
+	#ifdef _MSC_VER
+	_pclose(pigzPipe);
+	#else
+	pclose(pigzPipe);
+	#endif
+	free(fp);
+	return 0;
+}
+
+int doPigz(nifti_image *nim, struct nifti_1_header nhdr, const nifti_brick_list * NBL) {
+	FILE *pigzPipe;
+	char command[768];
+    strcpy(command, "pigz" );
+    strcat(command, " -n -f > \"");
+    strcat(command, nim->fname);
+    strcat(command, "\"");
+	#ifdef _MSC_VER
+	if (( pigzPipe = _popen(command, "w")) == NULL)
+		return -1;
+	#else
+	if (( pigzPipe = popen(command, "w")) == NULL)
+		return -1;
+	#endif
+	znzFile fp;
+	fp = (znzFile) calloc(1,sizeof(struct znzptr));
+	fp->zfptr = NULL;
+	fp->withz = 0;
+    fp->nzfptr = pigzPipe;
+	fwrite(&nhdr, sizeof(nhdr), 1, pigzPipe);
+	if( nim->nifti_type != NIFTI_FTYPE_ANALYZE )
+    nifti_write_extensions(fp,nim);
+	nifti_write_all_data(fp,nim,NBL);
+	#ifdef _MSC_VER
+	_pclose(pigzPipe);
+	#else
+	pclose(pigzPipe);
+	#endif
+	free(fp);
+	return 0;
+}
+#endif //HAVE_ZLIB
+#endif //PIGZ
 
 /* ----------------------------------------------------------------------*/
 /*! This writes the header (and optionally the image data) to file
@@ -7901,6 +8004,28 @@ static int nifti_image_write_engine(nifti_image *nim, int write_opts,
       /* we will write the header to a new file */
       if( g_opts.debug > 2 )
          fprintf(stderr,"+d opening output file %s [%s]\n",nim->fname,opts);
+
+      #ifdef PIGZ
+      #ifdef HAVE_ZLIB
+      if ((( nim->nifti_type == NIFTI_FTYPE_NIFTI1_1 ) || (nim->nifti_type == NIFTI_FTYPE_NIFTI2_1 )) && (nifti_is_gzfile(nim->fname))  && (!leave_open) && (write_data) ) {
+        const char *key = "AFNI_COMPRESSOR";
+        char *value;
+        value = getenv(key);
+        //export AFNI_COMPRESSOR=PIGZ
+        char pigzKey[5] = "PIGZ";
+        if ((value != NULL) && (strstr(value,pigzKey))) {
+          if( nver == 2 ) {
+            if (doPigz2(nim, n2hdr, NBL) == 0)
+              return NULL;
+            } else {
+              if (doPigz(nim, n1hdr, NBL) == 0) //success writing with pigz
+                return NULL;
+            }
+        }
+      }
+      #endif //HAVE_ZLIB
+      #endif //PIGZ
+
       fp = znzopen( nim->fname , opts , nifti_is_gzfile(nim->fname) ) ;
       if( znz_isnull(fp) ){
          LNI_FERR(func,"cannot open output file",nim->fname);
