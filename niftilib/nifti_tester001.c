@@ -7,7 +7,7 @@ enum NIFTITEST_BOOL {
   NIFTITEST_FALSE=0
 };
 
-static void _PrintTest(const int line,const char * message,const int FailureOccured, const enum NIFTITEST_BOOL isFatal,int *ErrorAccum)
+static void PrintTest_eng(const int line,const char * message,const int FailureOccured, const enum NIFTITEST_BOOL isFatal,int *ErrorAccum)
 {
   if(FailureOccured==NIFTITEST_TRUE)  /* This line can be commented out for a more verbose output */
     {
@@ -24,7 +24,7 @@ static void _PrintTest(const int line,const char * message,const int FailureOccu
     }
   }
 #define PrintTest(message,failure,isfailure,errorcount) \
-  _PrintTest(__LINE__,message,failure,isfailure,errorcount)
+  PrintTest_eng(__LINE__,message,failure,isfailure,errorcount)
 
 static nifti_image * generate_reference_image( const char * write_image_filename , int * const Errors)
 {
