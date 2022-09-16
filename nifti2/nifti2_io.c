@@ -496,12 +496,12 @@ static int  nifti_NBL_matches_nim(const nifti_image *nim,
                                   const nifti_brick_list *NBL);
 
 /* for nifti_read_collapsed_image: */
-static int  rci_read_data(nifti_image *nim, int *pivots, int64_t *prods,
+static int  rci_read_data(nifti_image *nim, int64_t *pivots, int64_t *prods,
                           int nprods, const int64_t dims[], char *data,
                           znzFile fp, int64_t base_offset);
 static int rci_alloc_mem(void **data, const int64_t prods[8], int nprods, int nbyper);
 static int  make_pivot_list(nifti_image * nim, const int64_t dims[],
-                            int pivots[], int64_t prods[], int * nprods );
+                            int64_t pivots[], int64_t prods[], int * nprods );
 
 /* misc */
 static int   compare_strlist   (const char * str, char ** strlist, int len);
@@ -3581,8 +3581,7 @@ int nifti_is_gzfile(const char* fname)
   if (fname == NULL) { return 0; }
 #ifdef HAVE_ZLIB
   { /* just so len doesn't generate compile warning */
-     int len;
-     len = (int)strlen(fname);
+     size_t len = strlen(fname);
      if (len < 3) return 0;  /* so we don't search before the name */
      if (fileext_compare(fname + strlen(fname) - 3,".gz")==0) { return 1; }
   }
@@ -4959,7 +4958,8 @@ nifti_image* nifti_convert_n1hdr2nim(nifti_1_header nhdr, const char * fname)
 *//*--------------------------------------------------------------------*/
 nifti_image* nifti_convert_n2hdr2nim(nifti_2_header nhdr, const char * fname)
 {
-   int          ii, doswap, ni_ver, is_onefile;
+   int64_t      ii;
+   int          doswap, ni_ver, is_onefile;
    nifti_image *nim;
 
    nim = (nifti_image *)calloc( 1 , sizeof(nifti_image) ) ;
@@ -5021,9 +5021,9 @@ nifti_image* nifti_convert_n2hdr2nim(nifti_2_header nhdr, const char * fname)
 
    nim->nifti_type = (is_onefile) ? NIFTI_FTYPE_NIFTI2_1 : NIFTI_FTYPE_NIFTI2_2;
 
-   ii = nifti_short_order() ;
-   if( doswap )   nim->byteorder = REVERSE_ORDER(ii) ;
-   else           nim->byteorder = ii ;
+   int byteOrder = nifti_short_order() ;
+   if( doswap )   nim->byteorder = REVERSE_ORDER(byteOrder) ;
+   else           nim->byteorder = byteOrder ;
 
 
   /**- set dimensions of data array */
@@ -6084,7 +6084,7 @@ nifti_image * nifti_read_ascii_image(znzFile fp, const char *fname, int flen,
                                      int read_data)
 {
    nifti_image * nim;
-   int           slen, txt_size, remain, rv = 0;
+   int           txt_size, remain, rv = 0;
    char        * sbuf, lfunc[25] = { "nifti_read_ascii_image" };
 
    if( nifti_is_gzfile(fname) ){
@@ -6092,11 +6092,11 @@ nifti_image * nifti_read_ascii_image(znzFile fp, const char *fname, int flen,
               fname);
      return NULL;
    }
-   slen = flen;  /* slen will be our buffer length */
+   int64_t slen = flen;  /* slen will be our buffer length */
    if( slen <= 0 ) slen = nifti_get_filesize(fname);
 
    if( g_opts.debug > 1 )
-      fprintf(stderr,"-d %s: have ASCII NIFTI file of size %d\n",fname,slen);
+      fprintf(stderr,"-d %s: have ASCII NIFTI file of size %lld\n",fname,slen);
 
    if( slen > 65530 ) slen = 65530 ;
    sbuf = (char *)calloc(sizeof(char),slen+1) ;
@@ -8987,7 +8987,8 @@ int64_t nifti_read_collapsed_image( nifti_image * nim, const int64_t dims [8],
 {
    znzFile fp;
    int64_t prods[8];          /* sizes are bounded by dims[], so 8 */
-   int     pivots[8], nprods; /* sizes are bounded by dims[], so 8 */
+   int64_t pivots[8];         /* sizes are bounded by dims[], so 8 */
+   int     nprods;
    int64_t c, bytes;
 
    /** - check pointers for sanity */
@@ -9238,7 +9239,7 @@ int64_t nifti_read_subregion_image( nifti_image * nim,
 
    return 0 on success, < 0 on failure
 */
-static int rci_read_data(nifti_image * nim, int * pivots, int64_t * prods,
+static int rci_read_data(nifti_image * nim, int64_t * pivots, int64_t * prods,
                          int nprods, const int64_t dims[], char * data,
                          znzFile fp, int64_t base_offset)
 {
@@ -9257,7 +9258,7 @@ static int rci_read_data(nifti_image * nim, int * pivots, int64_t * prods,
 
       /* make sure things look good here */
       if( *pivots != 0 ){
-         fprintf(stderr,"** NIFTI rciRD: final pivot == %d!\n", *pivots);
+         fprintf(stderr,"** NIFTI rciRD: final pivot == %lld!\n", *pivots);
          return -1;
       }
 
@@ -9360,13 +9361,11 @@ static int rci_alloc_mem(void **data, const int64_t prods[8], int nprods, int nb
    wants to collapse a dimension.  The last pivot should always be zero
    (note that we have space for that in the lists).
 */
-static int make_pivot_list(nifti_image *nim, const int64_t dims[], int pivots[],
+static int make_pivot_list(nifti_image *nim, const int64_t dims[], int64_t pivots[],
                                              int64_t prods[], int * nprods )
 {
-   int len, dind;
-
-   len = 0;
-   dind = nim->dim[0];
+   int len = 0;
+   int64_t dind = nim->dim[0];
    while( dind > 0 ){
       prods[len] = 1;
       while( dind > 0 && (nim->dim[dind] == 1 || dims[dind] == -1) ){
@@ -9390,7 +9389,7 @@ static int make_pivot_list(nifti_image *nim, const int64_t dims[], int pivots[],
    if( g_opts.debug > 2 ){
       fprintf(stderr,"+d pivot list created, pivots :");
       for(dind = 0; dind < len; dind++)
-         fprintf(stderr," %d", pivots[dind]);
+         fprintf(stderr," %lld", pivots[dind]);
       fprintf(stderr,", prods :");
       for(dind = 0; dind < len; dind++)
          fprintf(stderr," %" PRId64 "", prods[dind]);

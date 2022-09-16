@@ -117,7 +117,7 @@ int disp_float(nifti_image * nim, int vol, int slice, int line, int offset)
 {
    float     * dp, * d2;
    long long   lloff;
-   int         nx, nxy, nxyz;
+   int64_t     nx, nxy, nxyz;
 
    if( ! nim ) return 1;
 
