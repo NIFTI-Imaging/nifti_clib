@@ -161,7 +161,7 @@ static int K1 = 9;
 static int K3 = 4;
 static int K5 = 5;
 static double alngam,offset,prod,xx;
-static int i,n;
+static long i,n;
 static double T2,T4,T6;
 /*
      ..
@@ -5024,7 +5024,8 @@ static double eps = 1.0e-5;
 static int ntired = 1000;
 static double adj,centaj,centwt,chid2,dfd2,lcntaj,lcntwt,lfact,pcent,pterm,sum,
     sumadj,term,wt,xnonc;
-static int i,icent,iterb,iterf;
+static int iterb,iterf;
+static long i,icent;
 static double T1,T2,T3;
 /*
      ..
@@ -8141,7 +8142,8 @@ static double q[7] = {
 static int K2 = 3;
 static int K3 = 0;
 static double Xgamm,bot,g,lnx,s,t,top,w,x,z;
-static int i,j,m,n,T1;
+static int i;
+static long j,n,m,T1;
 /*
      ..
      .. Executable Statements ..
@@ -8454,7 +8456,8 @@ static int K1 = 1;
 static int K2 = 0;
 static double a2n,a2nm1,acc,am0,amn,an,an0,apn,b2n,b2nm1,c,c0,c1,c2,c3,c4,c5,c6,
     cma,e,e0,g,h,j,l,r,rta,rtx,s,sum,t,t1,tol,twoa,u,w,x0,y,z;
-static int i,iop,m,max,n;
+static int iop;
+static long i,m,max,n;
 static double wk[20],T3;
 static int T4,T5;
 static double T6,T7;
@@ -8852,7 +8855,8 @@ static double q2[4] = {
 static int K1 = 3;
 static int K2 = 1;
 static double psi,aug,den,sgn,upper,w,x,xmax1,xmx0,xsmall,z;
-static int i,m,n,nq;
+static int i;
+static long m,n,nq;
 /*
      ..
      .. Executable Statements ..

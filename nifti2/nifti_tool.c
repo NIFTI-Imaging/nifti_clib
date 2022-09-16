@@ -208,6 +208,8 @@ static char g_version[] = "2.13";
 static char g_version_date[] = "February 27, 2022";
 static int  g_debug = 1;
 
+#include <errno.h>
+#include <limits.h>
 #include <string.h>
 #include <stdint.h>
 
@@ -217,7 +219,7 @@ static int  g_debug = 1;
 /* local prototypes */
 static int free_opts_mem(nt_opts * nopt);
 static int num_volumes(nifti_image * nim);
-static char * read_file_text(const char * filename, int * length);
+static char * read_file_text(const char * filename, int64_t * length);
 
 
 #define NTL_FERR(func,msg,file)                                      \
@@ -400,11 +402,15 @@ int process_opts( int argc, char * argv[], nt_opts * opts )
       /* begin normal execution options... */
       else if( ! strcmp(argv[ac], "-add_ext") )
       {
-         int new_ecode;
          ac++;
          CHECK_NEXT_OPT(ac, argc, "-add_ext");
-         new_ecode = atoll(argv[ac]);
-         if( add_int(&opts->etypes, new_ecode) ) return -1;
+         errno = 0;
+         long long new_ecode = strtoll(argv[ac], NULL, 10);
+         if ((new_ecode == 0 && errno != 0) || new_ecode <= INT_MIN || new_ecode >= INT_MAX) {
+           fprintf(stderr,"** invalid -add_ext parameter\n");
+           return -1;
+         }
+         if( add_int(&opts->etypes, (int)new_ecode) ) return -1;
          ac++;
          CHECK_NEXT_OPT(ac, argc, "-add_ext");
          if( add_string(&opts->elist, argv[ac]) ) return -1; /* add extension */
@@ -845,13 +851,13 @@ int verify_opts( nt_opts * opts, char * prog )
 int fill_cmd_string( nt_opts * opts, int argc, char * argv[])
 {
    char * cp;
-   int    len, remain = sizeof(opts->command);  /* max command len */
+   size_t remain = sizeof(opts->command);  /* max command len */
    int    c, ac;
    int    has_space;  /* arguments containing space must be quoted */
    int    skip = 0;   /* counter to skip some of the arguments     */
 
    /* get the first argument separately */
-   len = snprintf( opts->command, sizeof(opts->command), "\n  command: %s", argv[0] );
+   int len = snprintf( opts->command, sizeof(opts->command), "\n  command: %s", argv[0] );
    if( len < 0 || len >= (int)sizeof(opts->command) ) {
       fprintf(stderr,"FCS: no space remaining for command, continuing...\n");
       return 1;
@@ -864,7 +870,7 @@ int fill_cmd_string( nt_opts * opts, int argc, char * argv[])
    {
       if( skip ){ skip--;  continue; }  /* then skip these arguments */
 
-      len = strlen(argv[ac]);
+      size_t len = strlen(argv[ac]);
       if( len + 3 >= remain ) {  /* extra 3 for space and possible '' */
          fprintf(stderr,"FCS: no space remaining for command, continuing...\n");
          return 1;
@@ -2233,7 +2239,8 @@ int act_add_exts( nt_opts * opts )
    nifti_image      * nim;
    const char       * ext;
    char             * edata = NULL;
-   int                fc, ec, elen;
+   int                fc, ec;
+   int64_t            elen;
 
    if( g_debug > 2 ){
       fprintf(stderr,"+d adding %d extensions to %d files...\n"
@@ -2260,7 +2267,7 @@ int act_add_exts( nt_opts * opts )
          elen = strlen(ext);
          if( !strncmp(ext,"file:",5) ){
             edata = read_file_text(ext+5, &elen);
-            if( !edata || elen <= 0 ) {
+            if( !edata || elen <= 0 || elen > INT_MAX) {
                fprintf(stderr,"** failed to read extension data from '%s'\n",
                        ext+5);
                continue;
@@ -2272,7 +2279,7 @@ int act_add_exts( nt_opts * opts )
             fprintf(stderr,"** warning: applying unknown ECODE %d\n",
                     opts->etypes.list[ec]);
 
-         if( nifti_add_extension(nim, ext, elen, opts->etypes.list[ec]) ){
+         if( nifti_add_extension(nim, ext, (int)elen, opts->etypes.list[ec]) ){
             nifti_image_free(nim);
             return 1;
          }
@@ -2282,7 +2289,7 @@ int act_add_exts( nt_opts * opts )
       }
 
       if( opts->keep_hist && nifti_add_extension(nim, opts->command,
-                             strlen(opts->command), NIFTI_ECODE_COMMENT) )
+                             (int)strlen(opts->command), NIFTI_ECODE_COMMENT) )
          fprintf(stderr,"** failed to add command to image as extension\n");
 
       if( opts->prefix &&
@@ -2316,18 +2323,17 @@ int act_add_exts( nt_opts * opts )
 /*----------------------------------------------------------------------
  * Return the allocated file contents.
  *----------------------------------------------------------------------*/
-static char * read_file_text(const char * filename, int * length)
+static char * read_file_text(const char * filename, int64_t * length)
 {
    FILE * fp;
    char * text;
-   int    len, bytes;
 
    if( !filename || !length ) {
       fprintf(stderr,"** bad params to read_file_text\n");
       return NULL;
    }
 
-   len = nifti_get_filesize(filename);
+   int64_t len = nifti_get_filesize(filename);
    if( len <= 0 ) {
       fprintf(stderr,"** RFT: file '%s' appears empty\n", filename);
       return NULL;
@@ -2343,16 +2349,16 @@ static char * read_file_text(const char * filename, int * length)
 
    text = (char *)malloc(len * sizeof(char));
    if( !text ) {
-      fprintf(stderr,"** RFT: failed to allocate %d bytes\n", len);
+      fprintf(stderr,"** RFT: failed to allocate %lld bytes\n", len);
       fclose(fp);
       return NULL;
    }
 
-   bytes = fread(text, sizeof(char), len, fp);
+   size_t bytes = fread(text, sizeof(char), len, fp);
    fclose(fp); /* in any case */
 
    if( bytes != len ) {
-      fprintf(stderr,"** RFT: read only %d of %d bytes from %s\n",
+      fprintf(stderr,"** RFT: read only %zu of %lld bytes from %s\n",
                      bytes, len, filename);
       free(text);
       return NULL;
@@ -2361,7 +2367,7 @@ static char * read_file_text(const char * filename, int * length)
    /* success */
 
    if( g_debug > 1 ) {
-      fprintf(stderr,"++ found extension of length %d in file %s\n",
+      fprintf(stderr,"++ found extension of length %lld in file %s\n",
               len, filename);
       if( g_debug > 2 )
          fprintf(stderr,"++ text is:\n%s\n", text);
@@ -2479,7 +2485,7 @@ int act_rm_ext( nt_opts * opts )
          return 1;
 
       if( opts->keep_hist && nifti_add_extension(nim, opts->command,
-                             strlen(opts->command), NIFTI_ECODE_COMMENT) )
+                             (int)strlen(opts->command), NIFTI_ECODE_COMMENT) )
          fprintf(stderr,"** failed to add command to image as extension\n");
 
       if( opts->prefix &&
@@ -3347,7 +3353,7 @@ int act_mod_hdrs( nt_opts * opts )
          }
 
          if( opts->keep_hist && nifti_add_extension(nim, opts->command,
-                                strlen(opts->command), NIFTI_ECODE_COMMENT) )
+                                (int)strlen(opts->command), NIFTI_ECODE_COMMENT) )
             fprintf(stderr,"** failed to add command to image as extension\n");
          if( nifti_set_filenames(nim, opts->prefix, 1, 1) )
          {
@@ -3464,7 +3470,7 @@ int act_mod_hdr2s( nt_opts * opts )
             return 1;
          }
          if( opts->keep_hist && nifti_add_extension(nim, opts->command,
-                                strlen(opts->command), NIFTI_ECODE_COMMENT) )
+                                (int)strlen(opts->command), NIFTI_ECODE_COMMENT) )
                fprintf(stderr,"** failed to add command to image as extension\n");
          if( nifti_set_filenames(nim, opts->prefix, 1, 1) )
          {
@@ -3610,7 +3616,7 @@ int act_swap_hdrs( nt_opts * opts )
             return 1;
          }
          if( opts->keep_hist && nifti_add_extension(nim, opts->command,
-                                strlen(opts->command), NIFTI_ECODE_COMMENT) )
+                                (int)strlen(opts->command), NIFTI_ECODE_COMMENT) )
                fprintf(stderr,"** failed to add command to image as extension\n");
          if( nifti_set_filenames(nim, opts->prefix, 1, 1) )
          {
@@ -3676,7 +3682,7 @@ int act_mod_nims( nt_opts * opts )
 
       /* add command as COMMENT extension */
       if( opts->keep_hist && nifti_add_extension(nim, opts->command,
-                             strlen(opts->command), NIFTI_ECODE_COMMENT) )
+                             (int)strlen(opts->command), NIFTI_ECODE_COMMENT) )
          fprintf(stderr,"** failed to add command to image as extension\n");
 
       /* possibly duplicate the current dataset before writing new header */
@@ -3823,7 +3829,8 @@ int modify_field(void * basep, field_s * field, const char * data)
    if( g_debug > 1 )
       fprintf(stderr,"+d modifying field '%s' with '%s'\n", field->name, data);
 
-   if( !data || strlen(data) == 0 )
+   size_t dataLength = strlen(data);
+   if( !data || dataLength == 0 )
    {
       fprintf(stderr,"** no data for '%s' field modification\n",field->name);
       return 1;
@@ -3979,10 +3986,9 @@ int modify_field(void * basep, field_s * field, const char * data)
          case NT_DT_STRING:
          {
             char * dest = (char *)basep + field->offset;
-            nchars = strlen(data);
             strncpy(dest, data, field->len);
-            if( nchars < field->len )  /* clear the rest */
-               memset(dest+nchars, '\0', field->len-nchars);
+            if( dataLength < field->len )  /* clear the rest */
+               memset(dest+dataLength, '\0', field->len - dataLength);
          }
          break;
    }
@@ -6635,7 +6641,7 @@ int act_disp_ci( nt_opts * opts )
    nifti_image *  nim;
    void        *  data = NULL;
    char           space = ' ';  /* use space or newline */
-   int            filenum, len, err;
+   int            filenum, err;
 
    if( opts->dci_lines ) space = '\n';  /* then use newlines as separators */
 
@@ -6683,7 +6689,7 @@ int act_disp_ci( nt_opts * opts )
 
       if( err ) { nifti_image_free(nim);  continue; }
 
-      len = nifti_read_collapsed_image(nim, opts->ci_dims, &data);
+      int64_t len = nifti_read_collapsed_image(nim, opts->ci_dims, &data);
       if( len < 0 || !data )
       {
          fprintf(stderr,"** FAILURE for dataset '%s'\n", nim->fname);
@@ -6820,11 +6826,10 @@ int disp_raw_data( void * data, int type, int nvals, char space, int newline )
 int clear_float_zeros( char * str )
 {
    char * dp  = strchr(str, '.'), * valp;
-   int    len;
 
    if( !dp ) return 0;      /* nothing to clear */
 
-   len = strlen(dp);
+   size_t len = strlen(dp);
 
    /* never clear what is just to the right of '.' */
    for( valp = dp+len-1; (valp > dp+1) && (*valp==' ' || *valp=='0'); valp-- )
@@ -7138,7 +7143,7 @@ int act_cbl( nt_opts * opts )
 
    /* add command as COMMENT extension */
    if( opts->keep_hist && nifti_add_extension(nim, opts->command,
-                          strlen(opts->command), NIFTI_ECODE_COMMENT) )
+                          (int)strlen(opts->command), NIFTI_ECODE_COMMENT) )
       fprintf(stderr,"** failed to add command to image as extension\n");
 
    /* replace filenames using prefix */
@@ -7251,7 +7256,7 @@ int act_cci( nt_opts * opts )
 
    /* add command as COMMENT extension */
    if( opts->keep_hist && nifti_add_extension(nim, opts->command,
-                          strlen(opts->command), NIFTI_ECODE_COMMENT) )
+                          (int)strlen(opts->command), NIFTI_ECODE_COMMENT) )
       fprintf(stderr,"** failed to add command to image as extension\n");
 
    /* replace filenames using prefix */
