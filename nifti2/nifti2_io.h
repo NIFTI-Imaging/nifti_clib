@@ -433,7 +433,7 @@ void  nifti_swap_as_nifti2( nifti_2_header *h );
 
 nifti_image *nifti_image_read_bricks(const char *hname , int64_t nbricks,
                                const int64_t *blist, nifti_brick_list * NBL);
-int          nifti_image_load_bricks(nifti_image *nim , int64_t nbricks,
+int64_t          nifti_image_load_bricks(nifti_image *nim , int64_t nbricks,
                                const int64_t *blist, nifti_brick_list * NBL);
 void         nifti_free_NBL( nifti_brick_list * NBL );
 
@@ -506,7 +506,7 @@ int64_t nifti_read_buffer(znzFile fp, void* dataptr, int64_t ntot,
 int     nifti_write_all_data(znzFile fp, nifti_image * nim,
                              const nifti_brick_list * NBL);
 int64_t  nifti_write_buffer(znzFile fp, const void * buffer, int64_t numbytes);
-nifti_image *nifti_read_ascii_image(znzFile fp, const char *fname, int flen,
+nifti_image *nifti_read_ascii_image(znzFile fp, const char *fname, int64_t flen,
                          int read_data);
 znzFile nifti_write_ascii_image(nifti_image *nim, const nifti_brick_list * NBL,
                          const char * opts, int write_data, int leave_open);
