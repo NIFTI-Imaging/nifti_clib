@@ -6969,7 +6969,7 @@ int nifti_read_subregion_image( nifti_image * nim,
   znzFile fp;                   /* file to read */
   int i,j,k,l,m,n;              /* indices for dims */
   long int bytes = 0;           /* total # bytes read */
-  int total_alloc_size;         /* size of buffer allocation */
+  size_t total_alloc_size;      /* size of buffer allocation */
   char *readptr;                /* where in *data to read next */
   int strides[7];               /* strides between dimensions */
   int collapsed_dims[8];        /* for read_collapsed_image */
@@ -7065,8 +7065,8 @@ int nifti_read_subregion_image( nifti_image * nim,
     if(g_opts.debug > 1)
       {
       fprintf(stderr,"allocation of %d bytes failed\n",total_alloc_size);
-      return -1;
       }
+    return -1;
     }
 
   /* point to start of data buffer as char * */
