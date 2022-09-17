@@ -318,7 +318,7 @@ NIO_API void         nifti_image_free    ( nifti_image *nim ) ;
 NIO_API int          nifti_read_collapsed_image( nifti_image * nim, const int dims [8],
                                                  void ** data );
 
-NIO_API int          nifti_read_subregion_image( nifti_image * nim,
+NIO_API int64_t      nifti_read_subregion_image( nifti_image * nim,
                                                  const int *start_index, const int *region_size,
                                                  void ** data );
 

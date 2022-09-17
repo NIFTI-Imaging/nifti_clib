@@ -6988,7 +6988,7 @@ compute_strides(int64_t *strides,const int *size,int nbyper)
     \sa nifti_image_read, nifti_image_free, nifti_image_read_bricks
         nifti_image_load, nifti_read_collapsed_image
 *//*-------------------------------------------------------------------------*/
-int nifti_read_subregion_image( nifti_image * nim,
+int64_t nifti_read_subregion_image( nifti_image * nim,
                                 const int *start_index,
                                 const int *region_size,
                                 void ** data )

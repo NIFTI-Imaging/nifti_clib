@@ -6755,7 +6755,7 @@ int act_disp_ci( nt_opts * opts )
 
 
 #define NT_LOC_MAX_FLOAT_BUF 32
-int disp_raw_data( void * data, int type, int nvals, char space, int newline )
+int disp_raw_data( void * data, int type, int64_t nvals, char space, int newline )
 {
    char * dp, fbuf[NT_LOC_MAX_FLOAT_BUF];
    int    c, size, nchar;
@@ -7547,7 +7547,7 @@ void * nt_read_header(const char * fname, int * nver, int * swapped, int check,
  *
  * the returned object is a (max 4-D) nifti_image
  *----------------------------------------------------------------------*/
-nifti_image * nt_read_bricks(nt_opts * opts, char * fname, int len,
+nifti_image * nt_read_bricks(nt_opts * opts, char * fname, int64_t len,
                              int64_t * list, nifti_brick_list * NBL)
 {
     nifti_image * nim;
@@ -7593,7 +7593,7 @@ nifti_image * nt_read_bricks(nt_opts * opts, char * fname, int len,
             disp_raw_data(opts->new_dim, DT_INT64, 8, ' ', 1);
             printf("   new_datatype = %d\n", opts->new_datatype);
             if( list && len > 0 ) {
-                printf("   brick_list[%d] = ", len);
+                printf("   brick_list[%lld] = ", len);
                 disp_raw_data(list, DT_INT64, len, ' ', 1);
             }
             fflush(stdout);  /* disp_raw_data uses stdout */
