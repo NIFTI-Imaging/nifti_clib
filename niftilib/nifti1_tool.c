@@ -3551,8 +3551,7 @@ int diff_field(field_s *fieldp, void * str0, void * str1, int nfields)
 
             if( ! ext0 && ! ext1 ) break;     /* continue on */
 
-            if( ext0 && ! ext1 )   return 1;  /* pointer diff is diff */
-            if( ! ext0 && ext1 )   return 1;
+            if( !(ext0 && ext1) )   return 1;  /* pointer diff is diff */
 
             /* just check size and type for a single extension */
             if( ext0->esize != ext1->esize ) return 1;
@@ -3663,8 +3662,11 @@ int diff_hdrs( nifti_1_header * s0, nifti_1_header * s1, int display )
    for( c = 0; c < NT_HDR_NUM_FIELDS; c++, fp++ )
       if( diff_field(fp, s0, s1, 1) )
       {
-         if( display ) disp_field(NULL, fp, s0, 1, ndiff == 0);
-         if( display ) disp_field(NULL, fp, s1, 1, 0);
+         if( display )
+         {
+            disp_field(NULL, fp, s0, 1, ndiff == 0);
+            disp_field(NULL, fp, s1, 1, 0);
+         }
          ndiff++;
       }
 
@@ -3683,8 +3685,11 @@ int diff_nims( nifti_image * s0, nifti_image * s1, int display )
    for( c = 0; c < NT_NIM_NUM_FIELDS; c++, fp++ )
       if( diff_field(fp, s0, s1, 1) )
       {
-         if( display ) disp_field(NULL, fp, s0, 1, ndiff == 0);
-         if( display ) disp_field(NULL, fp, s1, 1, 0);
+         if( display )
+         {
+            disp_field(NULL, fp, s0, 1, ndiff == 0);
+            disp_field(NULL, fp, s1, 1, 0);
+         }
          ndiff++;
       }
 
@@ -3708,8 +3713,11 @@ int diff_hdrs_list( nifti_1_header * s0, nifti_1_header * s1, str_list * slist,
       fp = get_hdr_field(*sptr, 1);    /* "not found" displayed in func */
       if( fp && diff_field(fp, s0, s1, 1) )
       {
-         if( display ) disp_field(NULL, fp, s0, 1, ndiff == 0);
-         if( display ) disp_field(NULL, fp, s1, 1, 0);
+         if( display )
+         {
+            disp_field(NULL, fp, s0, 1, ndiff == 0);
+            disp_field(NULL, fp, s1, 1, 0);
+         }
          ndiff++;
       }
       sptr++;
@@ -3735,8 +3743,11 @@ int diff_nims_list( nifti_image * s0, nifti_image * s1, str_list * slist,
       fp = get_nim_field(*sptr, 1);    /* "not found" displayed in func */
       if( fp && diff_field(fp, s0, s1, 1) )
       {
-         if( display ) disp_field(NULL, fp, s0, 1, ndiff == 0);
-         if( display ) disp_field(NULL, fp, s1, 1, 0);
+         if( display )
+         {
+            disp_field(NULL, fp, s0, 1, ndiff == 0);
+            disp_field(NULL, fp, s1, 1, 0);
+         }
          ndiff++;
       }
       sptr++;

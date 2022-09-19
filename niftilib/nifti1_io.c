@@ -658,38 +658,38 @@ int nifti_update_dims_from_array( nifti_image * nim )
    nim->dx = nim->pixdim[1];
 
    /* if undefined, or less than 1, set to 1 */
-   if(nim->dim[0] < 2 || (nim->dim[0] >= 2 && nim->dim[2] < 1))
+   if(nim->dim[0] < 2 || nim->dim[2] < 1)
       nim->ny = nim->dim[2] = 1;
    else
       nim->ny = nim->dim[2];
    /* copy delta values, in any case */
    nim->dy = nim->pixdim[2];
 
-   if(nim->dim[0] < 3 || (nim->dim[0] >= 3 && nim->dim[3] < 1))
+   if(nim->dim[0] < 3 || nim->dim[3] < 1)
       nim->nz = nim->dim[3] = 1;
    else /* just copy vals from arrays */
       nim->nz = nim->dim[3];
    nim->dz = nim->pixdim[3];
 
-   if(nim->dim[0] < 4 || (nim->dim[0] >= 4 && nim->dim[4] < 1))
+   if(nim->dim[0] < 4 || nim->dim[4] < 1)
       nim->nt = nim->dim[4] = 1;
    else /* just copy vals from arrays */
       nim->nt = nim->dim[4];
    nim->dt = nim->pixdim[4];
 
-   if(nim->dim[0] < 5 || (nim->dim[0] >= 5 && nim->dim[5] < 1))
+   if(nim->dim[0] < 5 || nim->dim[5] < 1)
       nim->nu = nim->dim[5] = 1;
    else /* just copy vals from arrays */
       nim->nu = nim->dim[5];
    nim->du = nim->pixdim[5];
 
-   if(nim->dim[0] < 6 || (nim->dim[0] >= 6 && nim->dim[6] < 1))
+   if(nim->dim[0] < 6 || nim->dim[6] < 1)
       nim->nv = nim->dim[6] = 1;
    else /* just copy vals from arrays */
       nim->nv = nim->dim[6];
    nim->dv = nim->pixdim[6];
 
-   if(nim->dim[0] < 7 || (nim->dim[0] >= 7 && nim->dim[7] < 1))
+   if(nim->dim[0] < 7 || nim->dim[7] < 1)
       nim->nw = nim->dim[7] = 1;
    else /* just copy vals from arrays */
       nim->nw = nim->dim[7];
@@ -2527,7 +2527,7 @@ int nifti_is_complete_filename(const char* fname)
        return 0;
    }
 
-   if ( ext && ext == fname ) {   /* then no filename prefix */
+   if ( ext == fname ) {   /* then no filename prefix */
       if ( g_opts.debug > 0 )
          fprintf(stderr,"-- no prefix for filename '%s'\n", fname);
       return 0;
@@ -4273,7 +4273,7 @@ nifti_image *nifti_image_read( const char *hname , int read_data )
 
    if( g_opts.debug > 3 ){
       fprintf(stderr,"+d nifti_image_read(), have nifti image:\n");
-      if( g_opts.debug > 2 ) nifti_image_infodump(nim);
+      nifti_image_infodump(nim);
    }
 
    /**- check for extensions (any errors here means no extensions) */
@@ -4868,7 +4868,7 @@ static znzFile nifti_image_load_prep( nifti_image *nim )
         return NULL;
      }
      ii = nifti_get_filesize( nim->iname ) ;
-     if( ii <= 0 ){
+     if( ii == 0 ){
         if( g_opts.debug > 0 ) LNI_FERR(fname,"empty data file",nim->iname);
         znzclose(fp);
         return NULL;
@@ -5223,7 +5223,7 @@ static int nifti_write_extensions(znzFile fp, nifti_image *nim)
 {
    nifti1_extension * list;
    char               extdr[4] = { 0, 0, 0, 0 };
-   int                c, size, ok = 1;
+   int                c, size, ok;
 
    if( znz_isnull(fp) || !nim || nim->num_ext < 0 ){
       if( g_opts.debug > 0 )
@@ -6734,7 +6734,6 @@ int nifti_nim_has_valid_dims(nifti_image * nim, int complain)
 
    /**- start with dim[0]: failure here is considered terminal */
    if( nim->dim[0] <= 0 || nim->dim[0] > 7 ){
-      errs++;
       if( complain )
          fprintf(stderr,"** NVd: dim[0] (%d) out of range [1,7]\n",nim->dim[0]);
       return 0;
@@ -6776,7 +6775,7 @@ int nifti_nim_has_valid_dims(nifti_image * nim, int complain)
    for( c = 1; c <= nim->dim[0]; c++ ){
       if( nim->dim[c] > 0)
          prod *= nim->dim[c];
-      else if( nim->dim[c] <= 0 ){
+      else {
          if( !complain ) return 0;
          fprintf(stderr,"** NVd: dim[%d] (=%d) <= 0\n",c, nim->dim[c]);
          errs++;
