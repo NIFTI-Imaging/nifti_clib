@@ -3014,7 +3014,7 @@ int act_disp_hdr( nt_opts * opts )
    void        * nhdr;
    field_s     * fnhdr;
    const char ** sptr;
-   int           nfields, filenum, fc, nver=0;
+   int           nfields, filenum, fc, nver;
 
    if( g_debug > 2 )
       fprintf(stderr,"-d displaying %d fields for %d nifti datasets...\n",
@@ -6335,8 +6335,7 @@ int diff_field(field_s *fieldp, void * str0, void * str1, int nfields)
 
             if( ! ext0 && ! ext1 ) break;     /* continue on */
 
-            if( ext0 && ! ext1 )   return 1;  /* pointer diff is diff */
-            if( ! ext0 && ext1 )   return 1;
+            if( !(ext0 && ext1) )   return 1;  /* pointer diff is diff */
 
             /* just check size and type for a single extension */
             if( ext0->esize != ext1->esize ) return 1;
@@ -6509,8 +6508,11 @@ int diff_hdr1s( nifti_1_header * s0, nifti_1_header * s1, int display )
    for( c = 0; c < NT_HDR1_NUM_FIELDS; c++, fp++ )
       if( diff_field(fp, s0, s1, 1) )
       {
-         if( display ) disp_field(NULL, fp, s0, 1, ndiff == 0);
-         if( display ) disp_field(NULL, fp, s1, 1, 0);
+         if( display )
+         {
+            disp_field(NULL, fp, s0, 1, ndiff == 0);
+            disp_field(NULL, fp, s1, 1, 0);
+         }
          ndiff++;
       }
 
@@ -6529,8 +6531,11 @@ int diff_hdr2s( nifti_2_header * s0, nifti_2_header * s1, int display )
    for( c = 0; c < NT_HDR2_NUM_FIELDS; c++, fp++ )
       if( diff_field(fp, s0, s1, 1) )
       {
-         if( display ) disp_field(NULL, fp, s0, 1, ndiff == 0);
-         if( display ) disp_field(NULL, fp, s1, 1, 0);
+         if( display )
+         {
+            disp_field(NULL, fp, s0, 1, ndiff == 0);
+            disp_field(NULL, fp, s1, 1, 0);
+         }
          ndiff++;
       }
 
@@ -6549,8 +6554,11 @@ int diff_nims( nifti_image * s0, nifti_image * s1, int display )
    for( c = 0; c < NT_NIM_NUM_FIELDS; c++, fp++ )
       if( diff_field(fp, s0, s1, 1) )
       {
-         if( display ) disp_field(NULL, fp, s0, 1, ndiff == 0);
-         if( display ) disp_field(NULL, fp, s1, 1, 0);
+         if( display )
+         {
+            disp_field(NULL, fp, s0, 1, ndiff == 0);
+            disp_field(NULL, fp, s1, 1, 0);
+         }
          ndiff++;
       }
 
@@ -6574,8 +6582,11 @@ int diff_hdr1s_list( nifti_1_header * s0, nifti_1_header * s1, str_list * slist,
       fp = get_hdr1_field(*sptr, 1);    /* "not found" displayed in func */
       if( fp && diff_field(fp, s0, s1, 1) )
       {
-         if( display ) disp_field(NULL, fp, s0, 1, ndiff == 0);
-         if( display ) disp_field(NULL, fp, s1, 1, 0);
+         if( display )
+         {
+            disp_field(NULL, fp, s0, 1, ndiff == 0);
+            disp_field(NULL, fp, s1, 1, 0);
+         }
          ndiff++;
       }
       sptr++;
@@ -6601,8 +6612,11 @@ int diff_hdr2s_list( nifti_2_header * s0, nifti_2_header * s1, str_list * slist,
       fp = get_hdr2_field(*sptr, 1);    /* "not found" displayed in func */
       if( fp && diff_field(fp, s0, s1, 1) )
       {
-         if( display ) disp_field(NULL, fp, s0, 1, ndiff == 0);
-         if( display ) disp_field(NULL, fp, s1, 1, 0);
+         if( display )
+         {
+            disp_field(NULL, fp, s0, 1, ndiff == 0);
+            disp_field(NULL, fp, s1, 1, 0);
+         }
          ndiff++;
       }
       sptr++;
@@ -6628,8 +6642,11 @@ int diff_nims_list( nifti_image * s0, nifti_image * s1, str_list * slist,
       fp = get_nim_field(*sptr, 1);    /* "not found" displayed in func */
       if( fp && diff_field(fp, s0, s1, 1) )
       {
-         if( display ) disp_field(NULL, fp, s0, 1, ndiff == 0);
-         if( display ) disp_field(NULL, fp, s1, 1, 0);
+         if( display )
+         {
+            disp_field(NULL, fp, s0, 1, ndiff == 0);
+            disp_field(NULL, fp, s1, 1, 0);
+         }
          ndiff++;
       }
       sptr++;
@@ -6968,8 +6985,8 @@ int nt_run_misc_nim_tests(nifti_image * nim)
 
    /* test nifti_read_subregion_image() - just get one voxel */
    {
-      int64_t start_ind[] = {0,0,0,0,0,0,0};
-      int64_t size[]      = {2,1,1,1,1,1,1};
+      const int64_t start_ind[] = {0,0,0,0,0,0,0};
+      const int64_t size[]      = {2,1,1,1,1,1,1};
       int64_t rval;
       float * dptr=NULL;
       rval = nifti_read_subregion_image(nim, start_ind, size, (void**)&dptr);
