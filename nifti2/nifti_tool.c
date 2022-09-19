@@ -7484,6 +7484,7 @@ void * nt_read_header(const char * fname, int * nver, int * swapped, int check,
 
            nim = nifti_convert_n1hdr2nim(*(nifti_1_header*)nptr, NULL);
            if( !nim ) {
+              free(hdr);
               fprintf(stderr,"** %s: failed n1hdr2nim on %s\n", func, fname);
               return NULL;
            }

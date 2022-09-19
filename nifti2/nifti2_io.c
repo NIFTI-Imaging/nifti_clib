@@ -4179,12 +4179,17 @@ static int fileext_compare(const char * test_ext, const char * known_ext)
 {
    char   caps[8] = "";
    size_t c,len;
+
+   /* Pointer-equal is equal, including both NULL. */
+   if( test_ext == known_ext ) return 0;
+
+   /* If one is NULL consider it as less than the other. */
+   if( !test_ext ) return -1;
+   if( !known_ext ) return 1;
+
    /* if equal, don't need to check case (store to avoid multiple calls) */
    const int cmp = strcmp(test_ext, known_ext);
    if( cmp == 0 ) return cmp;
-
-   /* if anything odd, use default */
-   if( !test_ext || !known_ext ) return cmp;
 
    len = strlen(known_ext);
    if( len > 7 ) return cmp;
@@ -4204,12 +4209,17 @@ static int fileext_n_compare(const char * test_ext,
 {
    char   caps[8] = "";
    size_t c,len;
+
+   /* Pointer-equal is equal, including both NULL. */
+   if( test_ext == known_ext ) return 0;
+
+   /* If one is NULL consider it as less than the other. */
+   if( !test_ext ) return -1;
+   if( !known_ext ) return 1;
+
    /* if equal, don't need to check case (store to avoid multiple calls) */
    const int  cmp = strncmp(test_ext, known_ext, maxlen);
    if( cmp == 0 ) return cmp;
-
-   /* if anything odd, use default */
-   if( !test_ext || !known_ext ) return cmp;
 
    len = strlen(known_ext);
    if( len > maxlen ) len = maxlen;     /* ignore anything past maxlen */
@@ -6296,8 +6306,8 @@ static int nifti_add_exten_to_list( nifti1_extension *  new_ext,
 
    /* check for failure first */
    if( ! *list ){
-      fprintf(stderr,"** NIFTI: failed to alloc %d ext structs (%d bytes)\n",
-              new_length, new_length*(int)sizeof(nifti1_extension));
+      fprintf(stderr,"** NIFTI: failed to alloc %d ext structs (%zu bytes)\n",
+              new_length, new_length*sizeof(nifti1_extension));
       if( !tmplist ) return -1;  /* no old list to lose */
 
       *list = tmplist;  /* reset list to old one */
@@ -8300,7 +8310,7 @@ static char *escapize_string( const char * str )
 *//*-------------------------------------------------------------------------*/
 char *nifti_image_to_ascii( const nifti_image *nim )
 {
-   char *buf , *ebuf ; int nbuf ;
+   char *buf , *ebuf , *newbuf; int nbuf ;
 
    if( nim == NULL ) return NULL ;   /* stupid caller */
 
@@ -8539,10 +8549,12 @@ char *nifti_image_to_ascii( const nifti_image *nim )
    snprintf( buf+strlen(buf) , bufLen-strlen(buf) , "/>\n" ) ;   /* XML-ish closer */
 
    nbuf = (int)strlen(buf) ;
-   buf  = (char *)realloc((void *)buf, nbuf+1); /* cut back to proper length */
-   if( !buf ) fprintf(stderr,"** NIFTI NITA: failed to realloc %d bytes\n",
-                      nbuf+1);
-   return buf ;
+   newbuf = (char *)realloc((void *)buf, nbuf+1); /* cut back to proper length */
+   if( !newbuf ){
+      free(buf);
+      fprintf(stderr,"** NIFTI NITA: failed to realloc %d bytes\n",nbuf+1);
+   }
+   return newbuf ;
 }
 
 /*---------------------------------------------------------------------------*/
