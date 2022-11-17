@@ -7117,11 +7117,11 @@ int nifti_read_subregion_image( nifti_image * nim,
               nread = (int)nifti_read_buffer(fp, readptr, read_amount, nim);
               if(nread != read_amount)
                 {
-                if(g_opts.debug > 1)
+                if(g_opts.debug > 0)
                   {
                   fprintf(stderr,"read of %d bytes failed\n",read_amount);
-                  return -1;
                   }
+                return -1;
                 }
               bytes += nread;
               readptr += read_amount;

@@ -9204,11 +9204,10 @@ int64_t nifti_read_subregion_image( nifti_image * nim,
               read_amount = rs[0] * nim->nbyper; /* read a row of subregion */
               nread = nifti_read_buffer(fp, readptr, read_amount, nim);
               if(nread != read_amount) {
-                if(g_opts.debug > 1) {
+                if(g_opts.debug > 0)
                   fprintf(stderr,"read of %" PRId64 " bytes failed\n",
                           read_amount);
-                  return -1;
-                }
+                return -1;
               }
             bytes += nread;
             readptr += read_amount;
