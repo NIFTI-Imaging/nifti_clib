@@ -9146,6 +9146,12 @@ int64_t nifti_read_subregion_image( nifti_image * nim,
 
   /* get the file open */
   fp = nifti_image_load_prep( nim );
+  if(znz_isnull(fp)) {
+    if(g_opts.debug > 0)
+      fprintf(stderr,"** nifti_read_subregion_image, failed load_prep\n");
+    return -1;
+  }
+
   /* the current offset is just past the nifti header, save
    * location so that SEEK_SET can be used below
    */
@@ -9165,6 +9171,7 @@ int64_t nifti_read_subregion_image( nifti_image * nim,
     if(g_opts.debug > 1)
       fprintf(stderr,"allocation of %" PRId64 " bytes failed\n",
               total_alloc_size);
+    znzclose(fp);
     return -1;
   }
 
@@ -9207,6 +9214,7 @@ int64_t nifti_read_subregion_image( nifti_image * nim,
                 if(g_opts.debug > 0)
                   fprintf(stderr,"read of %" PRId64 " bytes failed\n",
                           read_amount);
+                znzclose(fp);
                 return -1;
               }
             bytes += nread;
