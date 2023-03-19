@@ -7077,7 +7077,7 @@ int nifti_read_subregion_image( nifti_image * nim,
     {
     if(g_opts.debug > 1)
       {
-      fprintf(stderr,"allocation of %d bytes failed\n",total_alloc_size);
+      fprintf(stderr,"allocation of %zu bytes failed\n",total_alloc_size);
       }
     znzclose(fp);
     return -1;
