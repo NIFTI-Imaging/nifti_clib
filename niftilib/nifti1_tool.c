@@ -2892,7 +2892,6 @@ int modify_all_fields( void * basep, nt_opts * opts, field_s * fields, int flen)
  *----------------------------------------------------------------------*/
 int modify_field(void * basep, field_s * field, const char * data)
 {
-   float         fval;
    const char  * posn = data;
    int           val, max, fc, nchars;
 
@@ -2918,7 +2917,7 @@ int modify_field(void * basep, field_s * field, const char * data)
 
          case DT_INT8:
          {
-            max = 127;
+            max = INT8_MAX;
             for( fc = 0; fc < field->len; fc++ )
             {
                if( sscanf(posn, " %d%n", &val, &nchars) != 1 )
@@ -2946,7 +2945,7 @@ int modify_field(void * basep, field_s * field, const char * data)
 
          case DT_INT16:
          {
-            max = 32767;
+            max = INT16_MAX;
             for( fc = 0; fc < field->len; fc++ )
             {
                if( sscanf(posn, " %d%n", &val, &nchars) != 1 )
@@ -2963,7 +2962,9 @@ int modify_field(void * basep, field_s * field, const char * data)
                   return 1;
                }
                /* otherwise, we're good */
-               ((short *)((char *)basep + field->offset))[fc] = (short)val;
+               char * offsetp = &(((char *)basep + field->offset)[fc]);
+               int16_t sval = (int16_t)val;
+               memcpy(offsetp, &sval, sizeof(sval));
                if( g_debug > 1 )
                   fprintf(stderr,"+d setting posn %d of '%s' to %d\n",
                           fc, field->name, val);
@@ -2982,7 +2983,9 @@ int modify_field(void * basep, field_s * field, const char * data)
                           fc,field->len);
                   return 1;
                }
-               ((int *)((char *)basep + field->offset))[fc] = val;
+               char * offsetp = &(((char *)basep + field->offset)[fc]);
+               int32_t ival = (int32_t)val;
+               memcpy(offsetp, &ival, sizeof(ival));
                if( g_debug > 1 )
                   fprintf(stderr,"+d setting posn %d of '%s' to %d\n",
                           fc, field->name, val);
@@ -2993,19 +2996,21 @@ int modify_field(void * basep, field_s * field, const char * data)
 
          case DT_FLOAT32:
          {
+            float f32;
             for( fc = 0; fc < field->len; fc++ )
             {
-               if( sscanf(posn, " %f%n", &fval, &nchars) != 1 )
+               if( sscanf(posn, " %f%n", &f32, &nchars) != 1 )
                {
                   fprintf(stderr,"** found %d of %d modify values\n",
                           fc,field->len);
                   return 1;
                }
                /* otherwise, we're good */
-               ((float *)((char *)basep + field->offset))[fc] = fval;
+               char * offsetp = &(((char *)basep + field->offset)[fc]);
+               memcpy(offsetp, &f32, sizeof(f32));
                if( g_debug > 1 )
                   fprintf(stderr,"+d setting posn %d of '%s' to %f\n",
-                          fc, field->name, fval);
+                          fc, field->name, f32);
                posn += nchars;
             }
          }
