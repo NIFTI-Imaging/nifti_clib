@@ -172,7 +172,7 @@ static int  g_debug = 1;
 /* local prototypes */
 static int free_opts_mem(nt_opts * nopt);
 static int num_volumes(nifti_image * nim);
-static char * read_file_text(const char * filename, int64_t * length);
+static char * read_file_text(const char * filename, int * length);
 
 #define NTL_FERR(func,msg,file)                                      \
             fprintf(stderr,"** ERROR (%s): %s '%s'\n",func,msg,file)
@@ -689,13 +689,14 @@ int verify_opts( nt_opts * opts, char * prog )
 int fill_cmd_string( nt_opts * opts, int argc, char * argv[])
 {
    char * cp;
-   size_t remain = sizeof(opts->command);  /* max command len */
+   int    len, remain = (int)sizeof(opts->command);  /* max command len */
    int    c, ac;
    int    has_space;  /* arguments containing space must be quoted */
    int    skip = 0;   /* counter to skip some of the arguments     */
 
    /* get the first argument separately */
-   int len = snprintf( opts->command, sizeof(opts->command), "\n  command: %s", argv[0] );
+   len = snprintf( opts->command, sizeof(opts->command),
+                   "\n  command: %s", argv[0] );
    if( len < 0 || len >= (int)sizeof(opts->command) ) {
       fprintf(stderr,"FCS: no space remaining for command, continuing...\n");
       return 1;
@@ -708,7 +709,7 @@ int fill_cmd_string( nt_opts * opts, int argc, char * argv[])
    {
       if( skip ){ skip--;  continue; }  /* then skip these arguments */
 
-      size_t len = strlen(argv[ac]);
+      len = (int)strlen(argv[ac]);
       if( len + 3 >= remain ) {  /* extra 3 for space and possible '' */
          fprintf(stderr,"FCS: no space remaining for command, continuing...\n");
          return 1;
@@ -1824,8 +1825,7 @@ int act_add_exts( nt_opts * opts )
    nifti_image      * nim;
    const char       * ext;
    char             * edata = NULL;
-   int                fc, ec;
-   int64_t            elen;
+   int                fc, ec, elen;
 
    if( g_debug > 2 ){
       fprintf(stderr,"+d adding %d extensions to %d files...\n"
@@ -1849,10 +1849,10 @@ int act_add_exts( nt_opts * opts )
 
       for( ec = 0; ec < opts->elist.len; ec++ ){
          ext = opts->elist.list[ec];
-         elen = strlen(ext);
+         elen = (int)strlen(ext);
          if( !strncmp(ext,"file:",5) ){
             edata = read_file_text(ext+5, &elen);
-            if( !edata || elen <= 0 || elen > INT_MAX) {
+            if( !edata || elen <= 0 ) {
                fprintf(stderr,"** failed to read extension data from '%s'\n",
                        ext+5);
                continue;
@@ -1860,7 +1860,7 @@ int act_add_exts( nt_opts * opts )
             ext = edata;
          }
 
-         if( nifti_add_extension(nim, ext, (int)elen, opts->etypes.list[ec]) ){
+         if( nifti_add_extension(nim, ext, elen, opts->etypes.list[ec]) ){
             nifti_image_free(nim);
             return 1;
          }
@@ -1904,20 +1904,24 @@ int act_add_exts( nt_opts * opts )
 /*----------------------------------------------------------------------
  * Return the allocated file contents.
  *----------------------------------------------------------------------*/
-static char * read_file_text(const char * filename, int64_t * length)
+static char * read_file_text(const char * filename, int * length)
 {
+   FILE * fp;
+   char * text;
+   int    len, bytes;
+
    if( !filename || !length ) {
       fprintf(stderr,"** bad params to read_file_text\n");
       return NULL;
    }
 
-   int64_t len = nifti_get_filesize(filename);
+   len = nifti_get_filesize(filename);
    if( len <= 0 ) {
       fprintf(stderr,"** RFT: file '%s' appears empty\n", filename);
       return NULL;
    }
 
-   FILE * fp = fopen(filename, "r");
+   fp = fopen(filename, "r");
    if( !fp ) {
       fprintf(stderr,"** RFT: failed to open '%s' for reading\n", filename);
       return NULL;
@@ -1925,18 +1929,18 @@ static char * read_file_text(const char * filename, int64_t * length)
 
    /* allocate the bytes, and fill them with the file contents */
 
-   char * text = (char *)malloc(len * sizeof(char));
+   text = (char *)malloc(len * sizeof(char));
    if( !text ) {
-      fprintf(stderr,"** RFT: failed to allocate %lld bytes\n", len);
+      fprintf(stderr,"** RFT: failed to allocate %d bytes\n", len);
       fclose(fp);
       return NULL;
    }
 
-   size_t bytes = fread(text, sizeof(char), len, fp);
+   bytes = (int)fread(text, sizeof(char), len, fp);
    fclose(fp); /* in any case */
 
    if( bytes != len ) {
-      fprintf(stderr,"** RFT: read only %zu of %lld bytes from %s\n",
+      fprintf(stderr,"** RFT: read only %d of %d bytes from %s\n",
                      bytes, len, filename);
       free(text);
       return NULL;
@@ -1945,7 +1949,7 @@ static char * read_file_text(const char * filename, int64_t * length)
    /* success */
 
    if( g_debug > 1 ) {
-      fprintf(stderr,"++ found extension of length %lld in file %s\n",
+      fprintf(stderr,"++ found extension of length %d in file %s\n",
               len, filename);
       if( g_debug > 2 )
          fprintf(stderr,"++ text is:\n%s\n", text);
@@ -2895,8 +2899,7 @@ int modify_field(void * basep, field_s * field, const char * data)
    if( g_debug > 1 )
       fprintf(stderr,"+d modifying field '%s' with '%s'\n", field->name, data);
 
-   size_t dataLength = strlen(data);
-   if( !data || dataLength == 0 )
+   if( !data || strlen(data) == 0 )
    {
       fprintf(stderr,"** no data for '%s' field modification\n",field->name);
       return 1;
@@ -3011,9 +3014,15 @@ int modify_field(void * basep, field_s * field, const char * data)
          case NT_DT_STRING:
          {
             char * dest = (char *)basep + field->offset;
+            nchars = (int)strlen(data);
+            if( nchars > field->len ) {
+               fprintf(stderr,"** string modify length %d > field length %d\n",
+                       nchars, field->len);
+               return 1;
+            }
             strncpy(dest, data, field->len);
-            if( dataLength < field->len )  /* clear the rest */
-               memset(dest+dataLength, '\0', field->len - dataLength);
+            if( nchars < field->len )  /* clear the rest */
+               memset(dest+nchars, '\0', field->len - nchars);
          }
          break;
    }
@@ -3915,10 +3924,11 @@ int disp_raw_data( void * data, int type, int nvals, char space, int newline )
 int clear_float_zeros( char * str )
 {
    char * dp  = strchr(str, '.'), * valp;
+   int    len;
 
    if( !dp ) return 0;      /* nothing to clear */
 
-   size_t len = strlen(dp);
+   len = (int)strlen(dp);
 
    /* never clear what is just to the right of '.' */
    for( valp = dp+len-1; (valp > dp+1) && (*valp==' ' || *valp=='0'); valp-- )

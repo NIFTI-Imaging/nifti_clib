@@ -4396,7 +4396,7 @@ static int nifti_read_extensions( nifti_image *nim, znzFile fp, int remain )
    nifti1_extender    extdr;      /* defines extension existence  */
    nifti1_extension   extn;       /* single extension to process  */
    nifti1_extension * Elist;      /* list of processed extensions */
-   int                count;
+   int                posn, count;
 
    if( !nim || znz_isnull(fp) ) {
       if( g_opts.debug > 0 )
@@ -4405,15 +4405,15 @@ static int nifti_read_extensions( nifti_image *nim, znzFile fp, int remain )
       return -1;
    }
 
-   znz_off_t posn = znztell(fp);
+   posn = (int)znztell(fp);
 
    if( (posn != sizeof(nifti_1_header)) &&
        (nim->nifti_type != NIFTI_FTYPE_ASCII) )
-      fprintf(stderr,"** WARNING: posn not header size (%lld, %lu)\n",
+      fprintf(stderr,"** WARNING: posn not header size (%d, %lu)\n",
               posn, sizeof(nifti_1_header));
 
    if( g_opts.debug > 2 )
-       fprintf(stderr,"-d nre: posn = %lld, offset = %d, type = %d, remain = %d\n",
+      fprintf(stderr,"-d nre: posn = %d, offset = %d, type = %d, remain = %d\n",
               posn, nim->iname_offset, nim->nifti_type, remain);
 
    if( remain < 16 ){
@@ -7077,7 +7077,7 @@ int nifti_read_subregion_image( nifti_image * nim,
     {
     if(g_opts.debug > 1)
       {
-      fprintf(stderr,"allocation of %d bytes failed\n",total_alloc_size);
+      fprintf(stderr,"allocation of %lu bytes failed\n",total_alloc_size);
       }
     znzclose(fp);
     return -1;
@@ -7343,10 +7343,11 @@ static int make_pivot_list(nifti_image * nim, const int dims[], int pivots[],
 *//*-------------------------------------------------------------------*/
 int * nifti_get_intlist( int nvals , const char * str )
 {
-   int *subv = NULL ;
-   int *subv_realloc = NULL;
-   int ii , ipos , nout , slen ;
-   int ibot,itop,istep ;
+   int  *subv = NULL ;
+   int  *subv_realloc = NULL;
+   int   ii , ipos , nout , slen ;
+   int   ibot,itop,istep ;
+   long  nused, temp ;
    char *cpt ;
 
    /* Meaningless input? */
@@ -7383,7 +7384,7 @@ int * nifti_get_intlist( int nvals , const char * str )
          ibot = nvals-1 ; ipos++ ;
       } else {                 /* decode an integer */
          errno = 0;
-         long temp = strtol( str+ipos , &cpt , 10 ) ;
+         temp = strtol( str+ipos , &cpt , 10 ) ;
          if( (temp == 0 && errno != 0) || temp <= INT_MIN || temp >= INT_MAX){
             fprintf(stderr,"** ERROR: list index does not fit in int\n") ;
             free(subv) ; return NULL ;
@@ -7399,7 +7400,7 @@ int * nifti_get_intlist( int nvals , const char * str )
                    ibot,nvals-1) ;
            free(subv) ; return NULL ;
          }
-         long nused = (cpt-(str+ipos)) ;
+         nused = (cpt-(str+ipos)) ;
          if( ibot == 0 && nused == 0 ){
            fprintf(stderr,"** ERROR: list syntax error '%s'\n",str+ipos) ;
            free(subv) ; return NULL ;
@@ -7446,7 +7447,7 @@ int * nifti_get_intlist( int nvals , const char * str )
          itop = nvals-1 ; ipos++ ;
       } else {                 /* decode an integer */
          errno = 0;
-         long temp = strtol( str+ipos , &cpt , 10 ) ;
+         temp = strtol( str+ipos , &cpt , 10 ) ;
          if( (temp == 0 && errno != 0) || temp <= INT_MIN || temp >= INT_MAX){
             fprintf(stderr,"** ERROR: list index does not fit in int\n") ;
             free(subv) ; return NULL ;
@@ -7462,7 +7463,7 @@ int * nifti_get_intlist( int nvals , const char * str )
                    itop,nvals-1) ;
            free(subv) ; return NULL ;
          }
-         long nused = (cpt-(str+ipos)) ;
+         nused = (cpt-(str+ipos)) ;
          if( itop == 0 && nused == 0 ){
            fprintf(stderr,"** ERROR: index list syntax error '%s'\n",str+ipos) ;
            free(subv) ; return NULL ;
@@ -7481,7 +7482,7 @@ int * nifti_get_intlist( int nvals , const char * str )
       if( str[ipos] == '(' ){  /* decode an integer */
          ipos++ ;
          errno = 0;
-         long temp = strtol( str+ipos , &cpt , 10 ) ;
+         temp = strtol( str+ipos , &cpt , 10 ) ;
          if( (temp == 0 && errno != 0) || temp <= INT_MIN || temp >= INT_MAX){
             fprintf(stderr,"** ERROR: list index does not fit in int\n") ;
             free(subv) ; return NULL ;
@@ -7491,7 +7492,7 @@ int * nifti_get_intlist( int nvals , const char * str )
            fprintf(stderr,"** ERROR: index loop step is 0!\n") ;
            free(subv) ; return NULL ;
          }
-         long nused = (cpt-(str+ipos)) ;
+         nused = (cpt-(str+ipos)) ;
          ipos += nused ;
          if( str[ipos] == ')' ) ipos++ ;
          if( (ibot-itop)*istep > 0 ){
