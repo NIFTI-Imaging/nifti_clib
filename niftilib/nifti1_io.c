@@ -6930,7 +6930,7 @@ int nifti_read_collapsed_image( nifti_image * nim, const int dims [8],
 ** stride array.
 */
 static void
-compute_strides(int *strides,const int *size,int nbyper)
+compute_strides(int64_t *strides,const int *size,int nbyper)
 {
   int i;
   strides[0] = nbyper;
@@ -6979,7 +6979,7 @@ int nifti_read_subregion_image( nifti_image * nim,
   long int bytes = 0;           /* total # bytes read */
   size_t total_alloc_size;      /* size of buffer allocation */
   char *readptr;                /* where in *data to read next */
-  int strides[7];               /* strides between dimensions */
+  int64_t strides[7];           /* strides between dimensions */
   int collapsed_dims[8];        /* for read_collapsed_image */
   int *image_size;              /* pointer to dimensions in header */
   long int initial_offset;
