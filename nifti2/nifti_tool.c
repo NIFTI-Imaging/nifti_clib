@@ -208,7 +208,6 @@ static char g_version[] = "2.13";
 static char g_version_date[] = "February 27, 2022";
 static int  g_debug = 1;
 
-#include <errno.h>
 #include <limits.h>
 #include <string.h>
 #include <stdint.h>
@@ -219,7 +218,7 @@ static int  g_debug = 1;
 /* local prototypes */
 static int free_opts_mem(nt_opts * nopt);
 static int num_volumes(nifti_image * nim);
-static char * read_file_text(const char * filename, int64_t * length);
+static char * read_file_text(const char * filename, int * length);
 
 
 #define NTL_FERR(func,msg,file)                                      \
@@ -402,12 +401,12 @@ int process_opts( int argc, char * argv[], nt_opts * opts )
       /* begin normal execution options... */
       else if( ! strcmp(argv[ac], "-add_ext") )
       {
+         int64_t new_ecode;
          ac++;
          CHECK_NEXT_OPT(ac, argc, "-add_ext");
-         errno = 0;
-         long long new_ecode = strtoll(argv[ac], NULL, 10);
-         if ((new_ecode == 0 && errno != 0) || new_ecode <= INT_MIN || new_ecode >= INT_MAX) {
-           fprintf(stderr,"** invalid -add_ext parameter\n");
+         new_ecode = strtol(argv[ac], NULL, 10);
+         if (new_ecode <= 0 || new_ecode > INT_MAX) {
+           fprintf(stderr,"** invalid -add_ext code, %s\n", argv[ac]);
            return -1;
          }
          if( add_int(&opts->etypes, (int)new_ecode) ) return -1;
@@ -847,17 +846,19 @@ int verify_opts( nt_opts * opts, char * prog )
 
 /*----------------------------------------------------------------------
  * re-assemble the command string into opts->command
+ * (commands are currently limited to 2048 bytes)
  *----------------------------------------------------------------------*/
 int fill_cmd_string( nt_opts * opts, int argc, char * argv[])
 {
    char * cp;
-   size_t remain = sizeof(opts->command);  /* max command len */
+   int    len, remain = (int)sizeof(opts->command);  /* max command len */
    int    c, ac;
    int    has_space;  /* arguments containing space must be quoted */
    int    skip = 0;   /* counter to skip some of the arguments     */
 
    /* get the first argument separately */
-   int len = snprintf( opts->command, sizeof(opts->command), "\n  command: %s", argv[0] );
+   len = snprintf( opts->command, sizeof(opts->command),
+                   "\n  command: %s", argv[0] );
    if( len < 0 || len >= (int)sizeof(opts->command) ) {
       fprintf(stderr,"FCS: no space remaining for command, continuing...\n");
       return 1;
@@ -870,7 +871,7 @@ int fill_cmd_string( nt_opts * opts, int argc, char * argv[])
    {
       if( skip ){ skip--;  continue; }  /* then skip these arguments */
 
-      size_t len = strlen(argv[ac]);
+      len = (int)strlen(argv[ac]);
       if( len + 3 >= remain ) {  /* extra 3 for space and possible '' */
          fprintf(stderr,"FCS: no space remaining for command, continuing...\n");
          return 1;
@@ -2239,8 +2240,7 @@ int act_add_exts( nt_opts * opts )
    nifti_image      * nim;
    const char       * ext;
    char             * edata = NULL;
-   int                fc, ec;
-   int64_t            elen;
+   int                fc, ec, elen;
 
    if( g_debug > 2 ){
       fprintf(stderr,"+d adding %d extensions to %d files...\n"
@@ -2264,10 +2264,10 @@ int act_add_exts( nt_opts * opts )
 
       for( ec = 0; ec < opts->elist.len; ec++ ){
          ext = opts->elist.list[ec];
-         elen = strlen(ext);
+         elen = (int)strlen(ext);
          if( !strncmp(ext,"file:",5) ){
             edata = read_file_text(ext+5, &elen);
-            if( !edata || elen <= 0 || elen > INT_MAX) {
+            if( !edata || elen <= 0 ) {
                fprintf(stderr,"** failed to read extension data from '%s'\n",
                        ext+5);
                continue;
@@ -2279,7 +2279,7 @@ int act_add_exts( nt_opts * opts )
             fprintf(stderr,"** warning: applying unknown ECODE %d\n",
                     opts->etypes.list[ec]);
 
-         if( nifti_add_extension(nim, ext, (int)elen, opts->etypes.list[ec]) ){
+         if( nifti_add_extension(nim, ext, elen, opts->etypes.list[ec]) ){
             nifti_image_free(nim);
             return 1;
          }
@@ -2323,19 +2323,24 @@ int act_add_exts( nt_opts * opts )
 /*----------------------------------------------------------------------
  * Return the allocated file contents.
  *----------------------------------------------------------------------*/
-static char * read_file_text(const char * filename, int64_t * length)
+static char * read_file_text(const char * filename, int * length)
 {
-   FILE * fp;
-   char * text;
+   FILE    * fp;
+   char    * text;
+   int64_t   len64;
+   size_t    bytes;
 
    if( !filename || !length ) {
       fprintf(stderr,"** bad params to read_file_text\n");
       return NULL;
    }
 
-   int64_t len = nifti_get_filesize(filename);
-   if( len <= 0 ) {
+   len64 = nifti_get_filesize(filename);
+   if( len64 <= 0 ) {
       fprintf(stderr,"** RFT: file '%s' appears empty\n", filename);
+      return NULL;
+   } else if( len64 > INT_MAX ) {
+      fprintf(stderr,"** RFT: file '%s' size exceeds 32-bit limit\n", filename);
       return NULL;
    }
 
@@ -2347,19 +2352,19 @@ static char * read_file_text(const char * filename, int64_t * length)
 
    /* allocate the bytes, and fill them with the file contents */
 
-   text = (char *)malloc(len * sizeof(char));
+   text = (char *)malloc(len64 * sizeof(char));
    if( !text ) {
-      fprintf(stderr,"** RFT: failed to allocate %lld bytes\n", len);
+      fprintf(stderr,"** RFT: failed to allocate %" PRId64 " bytes\n", len64);
       fclose(fp);
       return NULL;
    }
 
-   size_t bytes = fread(text, sizeof(char), len, fp);
+   bytes = fread(text, sizeof(char), len64, fp);
    fclose(fp); /* in any case */
 
-   if( bytes != len ) {
-      fprintf(stderr,"** RFT: read only %zu of %lld bytes from %s\n",
-                     bytes, len, filename);
+   if( bytes != len64 ) {
+      fprintf(stderr,"** RFT: read only %zu of %" PRId64 " bytes from %s\n",
+                     bytes, len64, filename);
       free(text);
       return NULL;
    }
@@ -2367,13 +2372,13 @@ static char * read_file_text(const char * filename, int64_t * length)
    /* success */
 
    if( g_debug > 1 ) {
-      fprintf(stderr,"++ found extension of length %lld in file %s\n",
-              len, filename);
+      fprintf(stderr,"++ found extension of length %" PRId64 " in file %s\n",
+              len64, filename);
       if( g_debug > 2 )
          fprintf(stderr,"++ text is:\n%s\n", text);
    }
 
-   *length = len;
+   *length = (int)len64;
 
    return text;
 }
@@ -3829,8 +3834,7 @@ int modify_field(void * basep, field_s * field, const char * data)
    if( g_debug > 1 )
       fprintf(stderr,"+d modifying field '%s' with '%s'\n", field->name, data);
 
-   size_t dataLength = strlen(data);
-   if( !data || dataLength == 0 )
+   if( !data || strlen(data) == 0 )
    {
       fprintf(stderr,"** no data for '%s' field modification\n",field->name);
       return 1;
@@ -3986,9 +3990,10 @@ int modify_field(void * basep, field_s * field, const char * data)
          case NT_DT_STRING:
          {
             char * dest = (char *)basep + field->offset;
+            nchars = strlen(data);
             strncpy(dest, data, field->len);
-            if( dataLength < field->len )  /* clear the rest */
-               memset(dest+dataLength, '\0', field->len - dataLength);
+            if( nchars < field->len )  /* clear the rest */
+               memset(dest+nchars, '\0', field->len-nchars);
          }
          break;
    }
@@ -6642,6 +6647,7 @@ int act_disp_ci( nt_opts * opts )
    void        *  data = NULL;
    char           space = ' ';  /* use space or newline */
    int            filenum, err;
+   int64_t        len64;
 
    if( opts->dci_lines ) space = '\n';  /* then use newlines as separators */
 
@@ -6689,10 +6695,15 @@ int act_disp_ci( nt_opts * opts )
 
       if( err ) { nifti_image_free(nim);  continue; }
 
-      int64_t len = nifti_read_collapsed_image(nim, opts->ci_dims, &data);
-      if( len < 0 || !data )
+      len64 = nifti_read_collapsed_image(nim, opts->ci_dims, &data);
+      if( len64 < 0 || !data )
       {
          fprintf(stderr,"** FAILURE for dataset '%s'\n", nim->fname);
+         if( data ) { free(data); data = NULL; }
+         err++;
+      } else if ( len64/nim->nbyper > INT_MAX ) {
+         fprintf(stderr,"** %" PRId64 " is too many values to display\n",
+                 len64/nim->nbyper);
          if( data ) { free(data); data = NULL; }
          err++;
       }
@@ -6710,7 +6721,8 @@ int act_disp_ci( nt_opts * opts )
          fprintf(stdout,")\n");
       }
 
-      disp_raw_data(data, nim->datatype, len / nim->nbyper, space, 1);
+      /* should we change disp_raw_data to allow for 64-bit nvalues? */
+      disp_raw_data(data, nim->datatype, len64 / nim->nbyper, space, 1);
 
       nifti_image_free(nim);
    }
@@ -6820,16 +6832,18 @@ int disp_raw_data( void * data, int type, int nvals, char space, int newline )
 
 /*----------------------------------------------------------------------
  * remove trailing zeros from string of printed float
+ * (of a max NT_LOC_MAX_FLOAT_BUF (32) string)
  * return  1 if something was cleared
  *         0 if not
  *----------------------------------------------------------------------*/
 int clear_float_zeros( char * str )
 {
-   char * dp  = strchr(str, '.'), * valp;
+   char   * dp  = strchr(str, '.'), * valp;
+   size_t   len;
 
    if( !dp ) return 0;      /* nothing to clear */
 
-   size_t len = strlen(dp);
+   len = strlen(dp);
 
    /* never clear what is just to the right of '.' */
    for( valp = dp+len-1; (valp > dp+1) && (*valp==' ' || *valp=='0'); valp-- )
