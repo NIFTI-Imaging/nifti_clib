@@ -2285,7 +2285,8 @@ int act_add_exts( nt_opts * opts )
          }
 
          /* if extension came from file, free the data */
-         if( edata ){ free(edata); edata = NULL; }
+         free(edata);
+         edata = NULL;
       }
 
       if( opts->keep_hist && nifti_add_extension(nim, opts->command,
@@ -2589,7 +2590,7 @@ int remove_ext_list( nifti_image * nim, const char ** elist, int len )
          disp_nifti1_extension("+d removing ext: ",nim->ext_list+ec,-1);
 
       /* delete this data, and shift the list down (yeah, inefficient) */
-      if( nim->ext_list[ec].edata ) free( nim->ext_list[ec].edata );
+      free( nim->ext_list[ec].edata );
 
       /* move anything above down one */
       for( c = ec+1; c < nim->num_ext; c++ )
@@ -3386,7 +3387,7 @@ int act_mod_hdrs( nt_opts * opts )
       /* if all is well, overwrite header in fname dataset */
       (void)write_hdr_to_file(nhdr, fname); /* errors printed in function */
 
-      if( dupname ) free(dupname);
+      free(dupname);
       free(nhdr);
    }
 
@@ -3503,7 +3504,7 @@ int act_mod_hdr2s( nt_opts * opts )
       /* if all is well, overwrite header in fname dataset */
       (void)write_hdr2_to_file(nhdr, fname); /* errors printed in function */
 
-      if( dupname ) free(dupname);
+      free(dupname);
       free(nhdr);
    }
 
@@ -3647,7 +3648,7 @@ int act_swap_hdrs( nt_opts * opts )
       /* if all is well, overwrite header in fname dataset */
       (void)write_hdr_to_file(nhdr, fname); /* errors printed in function */
 
-      if( dupname ) free(dupname);
+      free(dupname);
       free(nhdr);
    }
 
@@ -6699,7 +6700,8 @@ int act_disp_ci( nt_opts * opts )
       if( len64 < 0 || !data )
       {
          fprintf(stderr,"** FAILURE for dataset '%s'\n", nim->fname);
-         if( data ) { free(data); data = NULL; }
+         free(data);
+         data = NULL;
          err++;
       } else if ( len64/nim->nbyper > INT_MAX ) {
          fprintf(stderr,"** %" PRId64 " is too many values to display\n",
@@ -6727,7 +6729,7 @@ int act_disp_ci( nt_opts * opts )
       nifti_image_free(nim);
    }
 
-   if( data ) free(data);
+   free(data);
 
    return 0;
 }
@@ -6974,7 +6976,7 @@ int nt_run_misc_nim_tests(nifti_image * nim)
       printf("== subregion: rv=%" PRId64 ", dptr=%p, data=",
              rval, (void *)dptr);
       if( dptr ) disp_raw_data((char *)dptr, nim->datatype, 1, ' ', 1);
-      if( dptr ) free(dptr);
+      free(dptr);
    }
 
    /* test expansion of ints, as 32-bits, not usually used */
@@ -6983,7 +6985,7 @@ int nt_run_misc_nim_tests(nifti_image * nim)
       const char * istr = "7,4,2..5,11..$";
       ilist = nifti_get_intlist(15, istr);
       printf("= ilist = %p, %d\n", (void *)ilist, ilist?ilist[0]:-1);
-      if( ilist ) free(ilist);
+      free(ilist);
    }
 
    return 0;
@@ -7311,11 +7313,11 @@ static int free_opts_mem( nt_opts * nopt )
 {
     if( !nopt ) return 1;
 
-    if( nopt->elist.list   ) free(nopt->elist.list);
-    if( nopt->etypes.list  ) free(nopt->etypes.list);
-    if( nopt->flist.list   ) free(nopt->flist.list);
-    if( nopt->vlist.list   ) free(nopt->vlist.list);
-    if( nopt->infiles.list ) free(nopt->infiles.list);
+    free(nopt->elist.list);
+    free(nopt->etypes.list);
+    free(nopt->flist.list);
+    free(nopt->vlist.list);
+    free(nopt->infiles.list);
 
     return 0;
 }

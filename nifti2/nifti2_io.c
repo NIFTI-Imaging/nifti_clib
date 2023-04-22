@@ -897,7 +897,7 @@ void nifti_free_NBL( nifti_brick_list * NBL )
 
    if( NBL->bricks ){
       for( c = 0; c < NBL->nbricks; c++ )
-         if( NBL->bricks[c] ) free(NBL->bricks[c]);
+         free(NBL->bricks[c]);
       free(NBL->bricks);
       NBL->bricks = NULL;
    }
@@ -1072,8 +1072,8 @@ static int nifti_copynsort(int64_t nbricks, const int64_t *blist,
    if( !*slist || !*sindex ){
       fprintf(stderr,"** NIFTI NCS: failed to alloc %" PRId64
               " ints for sorting\n", nbricks);
-      if(*slist)  free(*slist);   /* maybe one succeeded */
-      if(*sindex) free(*sindex);
+      free(*slist);   /* maybe one succeeded */
+      free(*sindex);
       return -1;
    }
 
@@ -4039,8 +4039,8 @@ int nifti_set_filenames( nifti_image * nim, const char * prefix, int check,
       fprintf(stderr,"+d modifying output filenames using prefix %s\n", prefix);
 
    /* set and test output filenames */
-   if( nim->fname ) free(nim->fname);
-   if( nim->iname ) free(nim->iname);
+   free(nim->fname);
+   free(nim->iname);
    nim->iname = NULL;
    nim->fname = nifti_makehdrname(prefix, nim->nifti_type, check, comp);
    if( nim->fname )
@@ -6895,9 +6895,9 @@ void nifti_image_unload( nifti_image *nim )
 void nifti_image_free( nifti_image *nim )
 {
    if( nim == NULL ) return ;
-   if( nim->fname != NULL ) free(nim->fname) ;
-   if( nim->iname != NULL ) free(nim->iname) ;
-   if( nim->data  != NULL ) free(nim->data ) ;
+   free(nim->fname) ;
+   free(nim->iname) ;
+   free(nim->data ) ;
    (void)nifti_free_extensions( nim ) ;
    free(nim) ; }
 
@@ -6919,7 +6919,7 @@ int nifti_free_extensions( nifti_image *nim )
    if( nim == NULL ) return -1;
    if( nim->num_ext > 0 && nim->ext_list ){
       for( c = 0; c < nim->num_ext; c++ )
-         if ( nim->ext_list[c].edata ) free(nim->ext_list[c].edata);
+         free(nim->ext_list[c].edata);
       free(nim->ext_list);
    }
    /* or if it is inconsistent, warn the user (if we are not in quiet mode) */
@@ -8960,7 +8960,7 @@ int nifti_nim_has_valid_dims(nifti_image * nim, int complain)
              ret_val = nifti_read_collapsed_image(nim, dims, &data);
              if( ret_val > 0 ){
                 process_time_series(data);
-                if( data != NULL ) free(data);
+                free(data);
              }
            }
 
@@ -8975,7 +8975,7 @@ int nifti_nim_has_valid_dims(nifti_image * nim, int complain)
                 ret_val = nifti_read_collapsed_image(nim, dims, &data);
                 if( ret_val > 0 ) process_slice(zslice, data);
              }
-             if( data != NULL ) free(data);
+             free(data);
            }
 
     \return

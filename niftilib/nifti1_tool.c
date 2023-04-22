@@ -1866,7 +1866,8 @@ int act_add_exts( nt_opts * opts )
          }
 
          /* if extension came from file, free the data */
-         if( edata ){ free(edata); edata = NULL; }
+         free(edata);
+         edata = NULL;
       }
 
       if( opts->keep_hist && nifti_add_extension(nim, opts->command,
@@ -2167,7 +2168,7 @@ int remove_ext_list( nifti_image * nim, const char ** elist, int len )
          disp_nifti1_extension("+d removing ext: ",nim->ext_list+ec,-1);
 
       /* delete this data, and shift the list down (yeah, inefficient) */
-      if( nim->ext_list[ec].edata ) free( nim->ext_list[ec].edata );
+      free( nim->ext_list[ec].edata );
 
       /* move anything above down one */
       for( c = ec+1; c < nim->num_ext; c++ )
@@ -2631,7 +2632,7 @@ int act_mod_hdrs( nt_opts * opts )
       /* if all is well, overwrite header in fname dataset */
       (void)write_hdr_to_file(nhdr, fname); /* errors printed in function */
 
-      if( dupname ) free(dupname);
+      free(dupname);
       free(nhdr);
    }
 
@@ -2750,7 +2751,7 @@ int act_swap_hdrs( nt_opts * opts )
       /* if all is well, overwrite header in fname dataset */
       (void)write_hdr_to_file(nhdr, fname); /* errors printed in function */
 
-      if( dupname ) free(dupname);
+      free(dupname);
       free(nhdr);
    }
 
@@ -3804,7 +3805,8 @@ int act_disp_ci( nt_opts * opts )
       if( len < 0 || !data )
       {
          fprintf(stderr,"** FAILURE for dataset '%s'\n", nim->fname);
-         if( data ) { free(data); data = NULL; }
+         free(data);
+         data = NULL;
          err++;
       }
 
@@ -3826,7 +3828,7 @@ int act_disp_ci( nt_opts * opts )
       nifti_image_free(nim);
    }
 
-   if( data ) free(data);
+   free(data);
 
    return 0;
 }
@@ -4106,11 +4108,11 @@ static int free_opts_mem( nt_opts * nopt )
 {
     if( !nopt ) return 1;
 
-    if( nopt->elist.list   ) free(nopt->elist.list);
-    if( nopt->etypes.list  ) free(nopt->etypes.list);
-    if( nopt->flist.list   ) free(nopt->flist.list);
-    if( nopt->vlist.list   ) free(nopt->vlist.list);
-    if( nopt->infiles.list ) free(nopt->infiles.list);
+    free(nopt->elist.list);
+    free(nopt->etypes.list);
+    free(nopt->flist.list);
+    free(nopt->vlist.list);
+    free(nopt->infiles.list);
 
     return 0;
 }

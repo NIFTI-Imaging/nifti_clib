@@ -76,8 +76,8 @@ int main( int argc , char *argv[] )
    if( iarg >= argc ){ nifti_image_infodump(nim); exit(0); }
 
    nim->nifti_type = outmode ;
-   if( nim->fname != NULL ) free(nim->fname) ;
-   if( nim->iname != NULL ) free(nim->iname) ;
+   free(nim->fname) ;
+   free(nim->iname) ;
 
    ll = strlen(argv[iarg]) ;
    tmpstr = nifti_makebasename(argv[iarg]);
