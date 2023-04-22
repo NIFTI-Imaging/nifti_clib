@@ -689,15 +689,15 @@ int verify_opts( nt_opts * opts, char * prog )
 int fill_cmd_string( nt_opts * opts, int argc, char * argv[])
 {
    char * cp;
-   int    len, remain = (int)sizeof(opts->command);  /* max command len */
-   int    c, ac;
+   size_t len, c, remain = sizeof(opts->command);  /* max command len */
+   int    ac;
    int    has_space;  /* arguments containing space must be quoted */
    int    skip = 0;   /* counter to skip some of the arguments     */
 
    /* get the first argument separately */
    len = snprintf( opts->command, sizeof(opts->command),
                    "\n  command: %s", argv[0] );
-   if( len < 0 || len >= (int)sizeof(opts->command) ) {
+   if( len >= sizeof(opts->command) ) {
       fprintf(stderr,"FCS: no space remaining for command, continuing...\n");
       return 1;
    }
@@ -709,7 +709,7 @@ int fill_cmd_string( nt_opts * opts, int argc, char * argv[])
    {
       if( skip ){ skip--;  continue; }  /* then skip these arguments */
 
-      len = (int)strlen(argv[ac]);
+      len = strlen(argv[ac]);
       if( len + 3 >= remain ) {  /* extra 3 for space and possible '' */
          fprintf(stderr,"FCS: no space remaining for command, continuing...\n");
          return 1;
@@ -1909,7 +1909,8 @@ static char * read_file_text(const char * filename, int * length)
 {
    FILE * fp;
    char * text;
-   int    len, bytes;
+   int    len;
+   size_t bytes;
 
    if( !filename || !length ) {
       fprintf(stderr,"** bad params to read_file_text\n");
@@ -1937,11 +1938,11 @@ static char * read_file_text(const char * filename, int * length)
       return NULL;
    }
 
-   bytes = (int)fread(text, sizeof(char), len, fp);
+   bytes = fread(text, sizeof(char), len, fp);
    fclose(fp); /* in any case */
 
-   if( bytes != len ) {
-      fprintf(stderr,"** RFT: read only %d of %d bytes from %s\n",
+   if( bytes != (size_t)len ) {
+      fprintf(stderr,"** RFT: read only %zu of %d bytes from %s\n",
                      bytes, len, filename);
       free(text);
       return NULL;
