@@ -3828,14 +3828,16 @@ int modify_all_fields( void * basep, nt_opts * opts, field_s * fields, int flen)
  *----------------------------------------------------------------------*/
 int modify_field(void * basep, field_s * field, const char * data)
 {
-   float   fval;
+   float         fval;
    const char  * posn = data;
-   int     val, max, fc, nchars;
+   int           val, max, fc, nchars;
+   size_t        dataLength;
 
    if( g_debug > 1 )
       fprintf(stderr,"+d modifying field '%s' with '%s'\n", field->name, data);
 
-   if( !data || strlen(data) == 0 )
+   dataLength = data ? strlen(data) : 0;
+   if( dataLength == 0 )
    {
       fprintf(stderr,"** no data for '%s' field modification\n",field->name);
       return 1;
@@ -3991,7 +3993,7 @@ int modify_field(void * basep, field_s * field, const char * data)
          case NT_DT_STRING:
          {
             char * dest = (char *)basep + field->offset;
-            nchars = strlen(data);
+            nchars = dataLength;
             strncpy(dest, data, field->len);
             if( nchars < field->len )  /* clear the rest */
                memset(dest+nchars, '\0', field->len-nchars);
