@@ -5631,7 +5631,7 @@ int nifti_hdr2_looks_good(const nifti_2_header * hdr)
    }
 
    /* NIFTI_VERSION must return 2, or else sizes will not match */
-   if( ni_ver != 2 || memcmp((hdr->magic+4), nifti2_magic+4, 4) ) {
+   if( ni_ver != 2 || memcmp((hdr->magic+4), nifti2_magic+4, 4) != 0 ) {
       if( g_opts.debug > 0 ) {
          fprintf(stderr, "-- header magic not NIFTI-2, magic = '%.4s' + ",
                          hdr->magic);
