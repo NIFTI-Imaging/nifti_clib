@@ -1485,35 +1485,35 @@ mat44 nifti_quatern_to_mat44( float qb, float qc, float qd,
 
    /* last row is always [ 0 0 0 1 ] */
 
-   R.m[3][0]=R.m[3][1]=R.m[3][2] = 0.0f ; R.m[3][3]= 1.0f ;
+   R.m[3][0]=R.m[3][1]=R.m[3][2] = 0.0F ; R.m[3][3]= 1.0F ;
 
    /* compute a parameter from b,c,d */
 
-   a = 1.0l - (b*b + c*c + d*d) ;
-   if( a < 1.e-7l ){                   /* special case */
-     a = 1.0l / sqrt(b*b+c*c+d*d) ;
+   a = 1.0L - (b*b + c*c + d*d) ;
+   if( a < 1.e-7L ){                   /* special case */
+     a = 1.0L / sqrt(b*b+c*c+d*d) ;
      b *= a ; c *= a ; d *= a ;        /* normalize (b,c,d) vector */
-     a = 0.0l ;                        /* a = 0 ==> 180 degree rotation */
+     a = 0.0L ;                        /* a = 0 ==> 180 degree rotation */
    } else{
      a = sqrt(a) ;                     /* angle = 2*arccos(a) */
    }
 
    /* load rotation matrix, including scaling factors for voxel sizes */
 
-   xd = (dx > 0.0) ? dx : 1.0l ;       /* make sure are positive */
-   yd = (dy > 0.0) ? dy : 1.0l ;
-   zd = (dz > 0.0) ? dz : 1.0l ;
+   xd = (dx > 0.0) ? dx : 1.0L ;       /* make sure are positive */
+   yd = (dy > 0.0) ? dy : 1.0L ;
+   zd = (dz > 0.0) ? dz : 1.0L ;
 
    if( qfac < 0.0 ) zd = -zd ;         /* left handedness? */
 
    R.m[0][0] = (float)( (a*a+b*b-c*c-d*d) * xd) ;
-   R.m[0][1] = 2.0l * (b*c-a*d        ) * yd ;
-   R.m[0][2] = 2.0l * (b*d+a*c        ) * zd ;
-   R.m[1][0] = 2.0l * (b*c+a*d        ) * xd ;
+   R.m[0][1] = 2.0L * (b*c-a*d        ) * yd ;
+   R.m[0][2] = 2.0L * (b*d+a*c        ) * zd ;
+   R.m[1][0] = 2.0L * (b*c+a*d        ) * xd ;
    R.m[1][1] = (float)( (a*a+c*c-b*b-d*d) * yd) ;
-   R.m[1][2] = 2.0l * (c*d-a*b        ) * zd ;
-   R.m[2][0] = 2.0l * (b*d-a*c        ) * xd ;
-   R.m[2][1] = 2.0l * (c*d+a*b        ) * yd ;
+   R.m[1][2] = 2.0L * (c*d-a*b        ) * zd ;
+   R.m[2][0] = 2.0L * (b*d-a*c        ) * xd ;
+   R.m[2][1] = 2.0L * (c*d+a*b        ) * yd ;
    R.m[2][2] = (float)( (a*a+d*d-c*c-b*b) * zd) ;
 
    /* load offsets */
@@ -1574,9 +1574,9 @@ void nifti_mat44_to_quatern( mat44 R ,
 
    /* if a column length is zero, patch the trouble */
 
-   if( xd == 0.0l ){ r11 = 1.0l ; r21 = r31 = 0.0l ; xd = 1.0l ; }
-   if( yd == 0.0l ){ r22 = 1.0l ; r12 = r32 = 0.0l ; yd = 1.0l ; }
-   if( zd == 0.0l ){ r33 = 1.0l ; r13 = r23 = 0.0l ; zd = 1.0l ; }
+   if( xd == 0.0L ){ r11 = 1.0L ; r21 = r31 = 0.0L ; xd = 1.0L ; }
+   if( yd == 0.0L ){ r22 = 1.0L ; r12 = r32 = 0.0L ; yd = 1.0L ; }
+   if( zd == 0.0L ){ r33 = 1.0L ; r13 = r23 = 0.0L ; zd = 1.0L ; }
 
    /* assign the output lengths */
 
@@ -1620,42 +1620,42 @@ void nifti_mat44_to_quatern( mat44 R ,
        +r21*r32*r13+r31*r12*r23-r31*r22*r13 ;  /* should be -1 or 1 */
 
    if( zd > 0 ){             /* proper */
-     ASSIF(qfac,1.0f) ;
+     ASSIF(qfac,1.0F) ;
    } else {                  /* improper ==> flip 3rd column */
-     ASSIF(qfac,-1.0f) ;
+     ASSIF(qfac,-1.0F) ;
      r13 = -r13 ; r23 = -r23 ; r33 = -r33 ;
    }
 
    /* now, compute quaternion parameters */
 
-   a = r11 + r22 + r33 + 1.0l ;
+   a = r11 + r22 + r33 + 1.0L ;
 
-   if( a > 0.5l ){                /* simplest case */
-     a = 0.5l * sqrt(a) ;
-     b = 0.25l * (r32-r23) / a ;
-     c = 0.25l * (r13-r31) / a ;
-     d = 0.25l * (r21-r12) / a ;
+   if( a > 0.5L ){                /* simplest case */
+     a = 0.5L * sqrt(a) ;
+     b = 0.25L * (r32-r23) / a ;
+     c = 0.25L * (r13-r31) / a ;
+     d = 0.25L * (r21-r12) / a ;
    } else {                       /* trickier case */
      xd = 1.0 + r11 - (r22+r33) ;  /* 4*b*b */
      yd = 1.0 + r22 - (r11+r33) ;  /* 4*c*c */
      zd = 1.0 + r33 - (r11+r22) ;  /* 4*d*d */
      if( xd > 1.0 ){
-       b = 0.5l * sqrt(xd) ;
-       c = 0.25l* (r12+r21) / b ;
-       d = 0.25l* (r13+r31) / b ;
-       a = 0.25l* (r32-r23) / b ;
+       b = 0.5L * sqrt(xd) ;
+       c = 0.25L* (r12+r21) / b ;
+       d = 0.25L* (r13+r31) / b ;
+       a = 0.25L* (r32-r23) / b ;
      } else if( yd > 1.0 ){
-       c = 0.5l * sqrt(yd) ;
-       b = 0.25l* (r12+r21) / c ;
-       d = 0.25l* (r23+r32) / c ;
-       a = 0.25l* (r13-r31) / c ;
+       c = 0.5L * sqrt(yd) ;
+       b = 0.25L* (r12+r21) / c ;
+       d = 0.25L* (r23+r32) / c ;
+       a = 0.25L* (r13-r31) / c ;
      } else {
-       d = 0.5l * sqrt(zd) ;
-       b = 0.25l* (r13+r31) / d ;
-       c = 0.25l* (r23+r32) / d ;
-       a = 0.25l* (r21-r12) / d ;
+       d = 0.5L * sqrt(zd) ;
+       b = 0.25L* (r13+r31) / d ;
+       c = 0.25L* (r23+r32) / d ;
+       a = 0.25L* (r21-r12) / d ;
      }
-     if( a < 0.0l ){ b=-b ; c=-c ; d=-d;}
+     if( a < 0.0L ){ b=-b ; c=-c ; d=-d;}
    }
 
    ASSIF(qb,(float)b) ; ASSIF(qc,(float)c) ; ASSIF(qd,(float)d);
@@ -1690,7 +1690,7 @@ mat44 nifti_mat44_inverse( mat44 R )
    deti = r11*r22*r33-r11*r32*r23-r21*r12*r33
          +r21*r32*r13+r31*r12*r23-r31*r22*r13 ; /* determinant */
 
-   if( deti != 0.0l ) deti = 1.0l / deti ;
+   if( deti != 0.0L ) deti = 1.0L / deti ;
 
    Q.m[0][0] = (float)( deti*( r22*r33-r32*r23) ) ;
    Q.m[0][1] = (float)( deti*(-r12*r33+r32*r13) ) ;
@@ -1710,8 +1710,8 @@ mat44 nifti_mat44_inverse( mat44 R )
    Q.m[2][3] = (float)( deti*(-r11*r22*v3+r11*r32*v2+r21*r12*v3
                               -r21*r32*v1-r31*r12*v2+r31*r22*v1) ) ;
 
-   Q.m[3][0] = Q.m[3][1] = Q.m[3][2] = 0.0l ;
-   Q.m[3][3] = (deti == 0.0l) ? 0.0l : 1.0l ; /* failure flag if deti == 0 */
+   Q.m[3][0] = Q.m[3][1] = Q.m[3][2] = 0.0L ;
+   Q.m[3][3] = (deti == 0.0L) ? 0.0L : 1.0L ; /* failure flag if deti == 0 */
 
    return Q ;
 }
@@ -1754,7 +1754,7 @@ mat44 nifti_make_orthog_mat44( float r11, float r12, float r13 ,
    mat33 Q , P ;
    double val ;
 
-   R.m[3][0] = R.m[3][1] = R.m[3][2] = 0.0l ; R.m[3][3] = 1.0l ;
+   R.m[3][0] = R.m[3][1] = R.m[3][2] = 0.0L ; R.m[3][3] = 1.0L ;
 
    Q.m[0][0] = r11 ; Q.m[0][1] = r12 ; Q.m[0][2] = r13 ; /* load Q */
    Q.m[1][0] = r21 ; Q.m[1][1] = r22 ; Q.m[1][2] = r23 ;
@@ -1763,28 +1763,28 @@ mat44 nifti_make_orthog_mat44( float r11, float r12, float r13 ,
    /* normalize row 1 */
 
    val = Q.m[0][0]*Q.m[0][0] + Q.m[0][1]*Q.m[0][1] + Q.m[0][2]*Q.m[0][2] ;
-   if( val > 0.0l ){
-     val = 1.0l / sqrt(val) ;
+   if( val > 0.0L ){
+     val = 1.0L / sqrt(val) ;
      Q.m[0][0] *= (float)val ; Q.m[0][1] *= (float)val ; Q.m[0][2] *= (float)val ;
    } else {
-     Q.m[0][0] = 1.0l ; Q.m[0][1] = 0.0l ; Q.m[0][2] = 0.0l ;
+     Q.m[0][0] = 1.0L ; Q.m[0][1] = 0.0L ; Q.m[0][2] = 0.0L ;
    }
 
    /* normalize row 2 */
 
    val = Q.m[1][0]*Q.m[1][0] + Q.m[1][1]*Q.m[1][1] + Q.m[1][2]*Q.m[1][2] ;
-   if( val > 0.0l ){
-     val = 1.0l / sqrt(val) ;
+   if( val > 0.0L ){
+     val = 1.0L / sqrt(val) ;
      Q.m[1][0] *= (float)val ; Q.m[1][1] *= (float)val ; Q.m[1][2] *= (float)val ;
    } else {
-     Q.m[1][0] = 0.0l ; Q.m[1][1] = 1.0l ; Q.m[1][2] = 0.0l ;
+     Q.m[1][0] = 0.0L ; Q.m[1][1] = 1.0L ; Q.m[1][2] = 0.0L ;
    }
 
    /* normalize row 3 */
 
    val = Q.m[2][0]*Q.m[2][0] + Q.m[2][1]*Q.m[2][1] + Q.m[2][2]*Q.m[2][2] ;
-   if( val > 0.0l ){
-     val = 1.0l / sqrt(val) ;
+   if( val > 0.0L ){
+     val = 1.0L / sqrt(val) ;
      Q.m[2][0] *= (float)val ; Q.m[2][1] *= (float)val ; Q.m[2][2] *= (float)val ;
    } else {
      Q.m[2][0] = Q.m[0][1]*Q.m[1][2] - Q.m[0][2]*Q.m[1][1] ;  /* cross */
@@ -1798,7 +1798,7 @@ mat44 nifti_make_orthog_mat44( float r11, float r12, float r13 ,
    R.m[1][0] = P.m[1][0] ; R.m[1][1] = P.m[1][1] ; R.m[1][2] = P.m[1][2] ;
    R.m[2][0] = P.m[2][0] ; R.m[2][1] = P.m[2][1] ; R.m[2][2] = P.m[2][2] ;
 
-   R.m[0][3] = R.m[1][3] = R.m[2][3] = 0.0f ; return R ;
+   R.m[0][3] = R.m[1][3] = R.m[2][3] = 0.0F ; return R ;
 }
 
 /*----------------------------------------------------------------------*/
@@ -1816,7 +1816,7 @@ mat33 nifti_mat33_inverse( mat33 R )   /* inverse of 3x3 matrix */
    deti = r11*r22*r33-r11*r32*r23-r21*r12*r33
          +r21*r32*r13+r31*r12*r23-r31*r22*r13 ;
 
-   if( deti != 0.0l ) deti = 1.0l / deti ;
+   if( deti != 0.0L ) deti = 1.0L / deti ;
 
    Q.m[0][0] = (float)( deti*( r22*r33-r32*r23) ) ;
    Q.m[0][1] = (float)( deti*(-r12*r33+r32*r13) ) ;
@@ -1903,7 +1903,7 @@ mat33 nifti_mat33_mul( mat33 A , mat33 B )  /* multiply 2 3x3 matrices */
 mat33 nifti_mat33_polar( mat33 A )
 {
    mat33 X , Y , Z ;
-   float alp,bet,gam,gmi , dif=1.0f ;
+   float alp,bet,gam,gmi , dif=1.0F ;
    int k=0 ;
 
    X = A ;
@@ -1925,7 +1925,7 @@ mat33 nifti_mat33_polar( mat33 A )
        gam = (float)( sqrt( bet / alp ) ) ;
        gmi = (float)( 1.0 / gam ) ;
      } else {
-       gam = gmi = 1.0f ;  /* close to convergence */
+       gam = gmi = 1.0F ;  /* close to convergence */
      }
      Z.m[0][0] = (float)( 0.5 * ( gam*X.m[0][0] + gmi*Y.m[0][0] ) ) ;
      Z.m[0][1] = (float)( 0.5 * ( gam*X.m[0][1] + gmi*Y.m[1][0] ) ) ;
@@ -2060,7 +2060,7 @@ void nifti_mat44_to_orientation( mat44 R , int *icod, int *jcod, int *kcod )
    /* Despite the formidable looking 6 nested loops, there are
       only 3*3*3*2*2*2 = 216 passes, which will run very quickly. */
 
-   vbest = -666.0f ; ibest=pbest=qbest=rbest=1 ; jbest=2 ; kbest=3 ;
+   vbest = -666.0F ; ibest=pbest=qbest=rbest=1 ; jbest=2 ; kbest=3 ;
    for( i=1 ; i <= 3 ; i++ ){     /* i = column number to use for row #1 */
     for( j=1 ; j <= 3 ; j++ ){    /* j = column number to use for row #2 */
      if( i == j ) continue ;
@@ -2068,7 +2068,7 @@ void nifti_mat44_to_orientation( mat44 R , int *icod, int *jcod, int *kcod )
        if( i == k || j == k ) continue ;
        P.m[0][0] = P.m[0][1] = P.m[0][2] =
         P.m[1][0] = P.m[1][1] = P.m[1][2] =
-         P.m[2][0] = P.m[2][1] = P.m[2][2] = 0.0f ;
+         P.m[2][0] = P.m[2][1] = P.m[2][2] = 0.0F ;
        for( p=-1 ; p <= 1 ; p+=2 ){    /* p,q,r are -1 or +1      */
         for( q=-1 ; q <= 1 ; q+=2 ){   /* and go into rows #1,2,3 */
          for( r=-1 ; r <= 1 ; r+=2 ){
@@ -3712,7 +3712,7 @@ nifti_image* nifti_convert_nhdr2nim(struct nifti_1_header nhdr,
 
    for( ii=1 ; ii <= nhdr.dim[0] ; ii++ ){
      if( nhdr.pixdim[ii] == 0.0         ||
-         !IS_GOOD_FLOAT(nhdr.pixdim[ii])  ) nhdr.pixdim[ii] = 1.0f ;
+         !IS_GOOD_FLOAT(nhdr.pixdim[ii])  ) nhdr.pixdim[ii] = 1.0F ;
    }
 
   is_onefile = is_nifti && NIFTI_ONEFILE(nhdr) ;
@@ -3768,14 +3768,14 @@ nifti_image* nifti_convert_nhdr2nim(struct nifti_1_header nhdr,
 
     /* off diagonal is zero */
 
-    nim->qto_xyz.m[0][1]=nim->qto_xyz.m[0][2]=nim->qto_xyz.m[0][3] = 0.0f;
-    nim->qto_xyz.m[1][0]=nim->qto_xyz.m[1][2]=nim->qto_xyz.m[1][3] = 0.0f;
-    nim->qto_xyz.m[2][0]=nim->qto_xyz.m[2][1]=nim->qto_xyz.m[2][3] = 0.0f;
+    nim->qto_xyz.m[0][1]=nim->qto_xyz.m[0][2]=nim->qto_xyz.m[0][3] = 0.0F;
+    nim->qto_xyz.m[1][0]=nim->qto_xyz.m[1][2]=nim->qto_xyz.m[1][3] = 0.0F;
+    nim->qto_xyz.m[2][0]=nim->qto_xyz.m[2][1]=nim->qto_xyz.m[2][3] = 0.0F;
 
     /* last row is always [ 0 0 0 1 ] */
 
-    nim->qto_xyz.m[3][0]=nim->qto_xyz.m[3][1]=nim->qto_xyz.m[3][2] = 0.0f;
-    nim->qto_xyz.m[3][3]= 1.0f ;
+    nim->qto_xyz.m[3][0]=nim->qto_xyz.m[3][1]=nim->qto_xyz.m[3][2] = 0.0F;
+    nim->qto_xyz.m[3][3]= 1.0F ;
 
     nim->qform_code = NIFTI_XFORM_UNKNOWN ;
 
@@ -3791,7 +3791,7 @@ nifti_image* nifti_convert_nhdr2nim(struct nifti_1_header nhdr,
     nim->qoffset_y = FIXED_FLOAT(nhdr.qoffset_y) ;
     nim->qoffset_z = FIXED_FLOAT(nhdr.qoffset_z) ;
 
-    nim->qfac = (nhdr.pixdim[0] < 0.0) ? -1.0f : 1.0f ;  /* left-handedness? */
+    nim->qfac = (nhdr.pixdim[0] < 0.0) ? -1.0F : 1.0F ;  /* left-handedness? */
 
     nim->qto_xyz = nifti_quatern_to_mat44(
                       nim->quatern_b, nim->quatern_c, nim->quatern_d,
@@ -3838,8 +3838,8 @@ nifti_image* nifti_convert_nhdr2nim(struct nifti_1_header nhdr,
 
     /* last row is always [ 0 0 0 1 ] */
 
-    nim->sto_xyz.m[3][0]=nim->sto_xyz.m[3][1]=nim->sto_xyz.m[3][2] = 0.0f;
-    nim->sto_xyz.m[3][3]= 1.0f ;
+    nim->sto_xyz.m[3][0]=nim->sto_xyz.m[3][1]=nim->sto_xyz.m[3][2] = 0.0F;
+    nim->sto_xyz.m[3][3]= 1.0F ;
 
     nim->sto_ijk = nifti_mat44_inverse( nim->sto_xyz ) ;
 
@@ -5297,9 +5297,9 @@ nifti_image* nifti_simple_init_nim(void)
    nhdr.dim[1] = 1 ; nhdr.dim[2] = 1 ; nhdr.dim[3] = 1 ;
    nhdr.dim[4] = 0 ;
 
-   nhdr.pixdim[0] = 0.0f ;
-   nhdr.pixdim[1] = 1.0f ; nhdr.pixdim[2] = 1.0f ;
-   nhdr.pixdim[3] = 1.0f ;
+   nhdr.pixdim[0] = 0.0F ;
+   nhdr.pixdim[1] = 1.0F ; nhdr.pixdim[2] = 1.0F ;
+   nhdr.pixdim[3] = 1.0F ;
 
    nhdr.datatype = DT_FLOAT32 ;
    nifti_datatype_sizes( nhdr.datatype , &nbyper, &swapsize );
@@ -5376,10 +5376,10 @@ nifti_1_header * nifti_make_new_header(const int arg_dims[], int arg_dtype)
 
    /* init dim and pixdim */
    nhdr->dim[0] = dim[0] ;
-   nhdr->pixdim[0] = 0.0f;
+   nhdr->pixdim[0] = 0.0F;
    for( c = 1; c <= dim[0]; c++ ) {
       nhdr->dim[c] = dim[c];
-      nhdr->pixdim[c] = 1.0f;
+      nhdr->pixdim[c] = 1.0F;
    }
 
    nhdr->datatype = dtype ;
@@ -5465,7 +5465,7 @@ struct nifti_1_header nifti_convert_nim2nhdr(const nifti_image * nim)
    nhdr.dim[4] = nim->nt ; nhdr.dim[5] = nim->nu ; nhdr.dim[6] = nim->nv ;
    nhdr.dim[7] = nim->nw ;
 
-   nhdr.pixdim[0] = 0.0f ;
+   nhdr.pixdim[0] = 0.0F ;
    nhdr.pixdim[1] = nim->dx ; nhdr.pixdim[2] = nim->dy ;
    nhdr.pixdim[3] = nim->dz ; nhdr.pixdim[4] = nim->dt ;
    nhdr.pixdim[5] = nim->du ; nhdr.pixdim[6] = nim->dv ;
@@ -5524,7 +5524,7 @@ struct nifti_1_header nifti_convert_nim2nhdr(const nifti_image * nim)
        nhdr.qoffset_x  = nim->qoffset_x ;
        nhdr.qoffset_y  = nim->qoffset_y ;
        nhdr.qoffset_z  = nim->qoffset_z ;
-       nhdr.pixdim[0]  = (nim->qfac >= 0.0) ? 1.0f : -1.0f ;
+       nhdr.pixdim[0]  = (nim->qfac >= 0.0) ? 1.0F : -1.0F ;
      }
 
      if( nim->sform_code > 0 ){
@@ -6523,7 +6523,7 @@ nifti_image *nifti_image_from_ascii( const char *str, int * bytes_read )
            = nim->nu = nim->nv = nim->nw = 1 ;
    nim->dx = nim->dy = nim->dz = nim->dt
            = nim->du = nim->dv = nim->dw = 0 ;
-   nim->qfac = 1.0f ;
+   nim->qfac = 1.0F ;
 
    nim->byteorder = nifti_short_order() ;
 
@@ -6675,8 +6675,8 @@ nifti_image *nifti_image_from_ascii( const char *str, int * bytes_read )
                       nim->qfac                                      ) ;
    else
      nim->qto_xyz = nifti_quatern_to_mat44(
-                      0.0f , 0.0f , 0.0f , 0.0f , 0.0f , 0.0f ,
-                      nim->dx , nim->dy , nim->dz , 0.0f ) ;
+                      0.0F , 0.0F , 0.0F , 0.0F , 0.0F , 0.0F ,
+                      nim->dx , nim->dy , nim->dz , 0.0F ) ;
 
 
    nim->qto_ijk = nifti_mat44_inverse( nim->qto_xyz ) ;
