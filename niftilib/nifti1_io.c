@@ -4347,6 +4347,12 @@ nifti_image * nifti_read_ascii_image(znzFile fp, char *fname, int flen,
               fname);
      return NULL;
    }
+
+   if( flen < 0 ){
+     LNI_FERR(lfunc,"negative length not allowed", fname);
+     return NULL;
+   }
+
    slen = flen;  /* slen will be our buffer length */
 
    if( g_opts.debug > 1 )
