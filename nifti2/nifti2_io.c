@@ -6107,6 +6107,11 @@ nifti_image * nifti_read_ascii_image(znzFile fp, const char *fname, int flen,
    slen = flen;  /* slen will be our buffer length */
    if( slen <= 0 ) slen = nifti_get_filesize(fname);
 
+   if( slen < 0 ){
+     LNI_FERR(lfunc,"nifti_get_filesize failed giving %" PRId64, fname);
+     return NULL;
+   }
+
    if( g_opts.debug > 1 )
       fprintf(stderr,"-d %s: have ASCII NIFTI file of size %" PRId64 "\n",
               fname, slen);
