@@ -345,7 +345,7 @@ int process_opts( int argc, char * argv[], nt_opts * opts )
          {
             ac++;
             CHECK_NEXT_OPT_MSG(ac,argc,"-cci","7 dimension values are required");
-            if( ! isdigit(argv[ac][0]) && strcmp(argv[ac],"-1") ){
+            if( ! isdigit(argv[ac][0]) && strcmp(argv[ac],"-1") != 0 ){
                fprintf(stderr,"** -cci param %d (= '%s') is not a valid\n"
                        "   consider: 'nifti_tool -help'\n",index,argv[ac]);
                return -1;
@@ -389,7 +389,7 @@ int process_opts( int argc, char * argv[], nt_opts * opts )
             ac++;
             CHECK_NEXT_OPT_MSG(ac,argc,"-disp_ci",
                                "7 dimension values are required");
-            if( ! isdigit(argv[ac][0]) && strcmp(argv[ac],"-1") ){
+            if( ! isdigit(argv[ac][0]) && strcmp(argv[ac],"-1") != 0 ){
                fprintf(stderr,"** -disp_ci param %d (= '%s') is not a valid\n"
                        "   consider: 'nifti_tool -help'\n",index,argv[ac]);
                return -1;
@@ -464,7 +464,7 @@ int process_opts( int argc, char * argv[], nt_opts * opts )
          {
             ac++;
             CHECK_NEXT_OPT_MSG(ac,argc,"-new_dim","8 dim values are required");
-            if( ! isdigit(argv[ac][0]) && strcmp(argv[ac],"-1") ){
+            if( ! isdigit(argv[ac][0]) && strcmp(argv[ac],"-1") != 0 ){
                fprintf(stderr,"** -new_dim param %d (= '%s') is not a valid\n"
                        "   consider: 'nifti_tool -help'\n",index,argv[ac]);
                return -1;
@@ -2043,7 +2043,7 @@ int act_rm_ext( nt_opts * opts )
       return 1;
    }
    else if( opts->overwrite && opts->infiles.len != 1 &&
-            strcmp(opts->elist.list[0], "-1") ) {
+            strcmp(opts->elist.list[0], "-1") != 0 ) {
       fprintf(stderr,"** error: for multiple files, can only delete ALL\n");
       return 1;
    }
@@ -4144,7 +4144,7 @@ nifti_image * nt_image_read( nt_opts * opts, const char * fname, int doread )
     }
 
     /* if the user does not want an empty image, do normal image_read */
-    if( strncmp(fname,NT_MAKE_IM_NAME,strlen(NT_MAKE_IM_NAME)) ) {
+    if( strncmp(fname,NT_MAKE_IM_NAME,strlen(NT_MAKE_IM_NAME)) != 0 ) {
         if(g_debug > 1)
             fprintf(stderr,"-d calling nifti_image_read(%s,%d)\n",fname,doread);
         return nifti_image_read(fname, doread);
@@ -4183,7 +4183,7 @@ nifti_1_header * nt_read_header(nt_opts * opts, const char * fname, int * swappe
     }
 
     /* if the user does not want an empty image, do normal image_read */
-    if( strncmp(fname,NT_MAKE_IM_NAME,strlen(NT_MAKE_IM_NAME)) ) {
+    if( strncmp(fname,NT_MAKE_IM_NAME,strlen(NT_MAKE_IM_NAME)) != 0 ) {
         if(g_debug > 1)
             fprintf(stderr,"-d calling nifti_read_header(%s,...)\n", fname);
         return nifti_read_header(fname, swapped, check);
@@ -4226,7 +4226,7 @@ nifti_image * nt_read_bricks(nt_opts * opts, const char * fname, int len, int * 
     }
 
     /* if the user does not want an empty image, do normal read_bricks */
-    if( strncmp(fname,NT_MAKE_IM_NAME,strlen(NT_MAKE_IM_NAME)) ) {
+    if( strncmp(fname,NT_MAKE_IM_NAME,strlen(NT_MAKE_IM_NAME)) != 0 ) {
         if(g_debug > 1)
            fprintf(stderr,"-d calling nifti_image_read_bricks(%s,...)\n",fname);
         return nifti_image_read_bricks(fname, len, list, NBL);

@@ -4235,7 +4235,6 @@ S160:
         z = dinvnr(p,q);
         *sd = (*x-*mean)/z;
     }
-    return;
 } /* END */
 #endif /* defined(__COMPILE_UNUSED_FUNCTIONS__) */
 
@@ -5536,7 +5535,6 @@ static double T1;
 */
     T1 = *s+1.e0;
     cumbet(pr,ompr,xn,&T1,cum,ccum);
-    return;
 } /* END */
 #endif /*defined(__COMPILE_UNUSED_FUNCTIONS__)*/
 
