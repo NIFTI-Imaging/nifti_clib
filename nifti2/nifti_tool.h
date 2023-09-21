@@ -140,7 +140,7 @@ typedef struct {
 /* data conversionn operations                                       */
 
 /* -------------------------------------------- */
-/* copy from src to dest, chaning type enroute  */
+/* copy from src to dest, changing type enroute */
 /* dtype, dptr : destination type and pointer   */
 /* stype, sptr : source type and pointer        */
 /* nvals       : number of values to copy       */
@@ -155,7 +155,7 @@ typedef struct {
       } } while(0)
 
 /* --------------------------------------------- */
-/* copy from src to dest, chaning type enroute   */
+/* copy from src to dest, changing type enroute  */
 /* (like NT_DCONVERT_NO_CHECKS, but WITH checks) */
 /* fail         : (returned) conversion failures */
 #define NT_DCONVERT_W_CHECKS(dptr, dtype, sptr, stype, nvals, failure) \
