@@ -438,7 +438,7 @@ NI2_API void  nifti_swap_2bytes ( int64_t n , void *ar ) ;
 NI2_API void  nifti_swap_4bytes ( int64_t n , void *ar ) ;
 NI2_API void  nifti_swap_8bytes ( int64_t n , void *ar ) ;
 NI2_API void  nifti_swap_16bytes( int64_t n , void *ar ) ;
-NI2_API void  nifti_swap_Nbytes ( int64_t n , int siz , void *ar ) ;
+NI2_API void  nifti_swap_Nbytes ( int64_t n , int size , void *ar ) ;
 
 NI2_API int    nifti_datatype_is_valid       (int dtype, int for_nifti);
 NI2_API int    nifti_datatype_from_string    (const char * name);

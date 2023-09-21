@@ -290,7 +290,7 @@ NIO_API void  nifti_swap_2bytes ( size_t n , void *ar ) ;
 NIO_API void  nifti_swap_4bytes ( size_t n , void *ar ) ;
 NIO_API void  nifti_swap_8bytes ( size_t n , void *ar ) ;
 NIO_API void  nifti_swap_16bytes( size_t n , void *ar ) ;
-NIO_API void  nifti_swap_Nbytes ( size_t n , int siz , void *ar ) ;
+NIO_API void  nifti_swap_Nbytes ( size_t n , int size , void *ar ) ;
 
 NIO_API int    nifti_datatype_is_valid   (int dtype, int for_nifti);
 NIO_API int    nifti_datatype_from_string(const char * name);

@@ -3078,22 +3078,22 @@ void nifti_swap_16bytes( int64_t n , void *ar )    /* 16 bytes at a time */
 #if 0  /* not important: save for version update     6 Jul 2010 [rickr] */
 
 /*----------------------------------------------------------------------*/
-/*! generic: swap siz bytes at a time from the given list of n sets
+/*! generic: swap size bytes at a time from the given list of n sets
 *//*--------------------------------------------------------------------*/
-void nifti_swap_bytes( int64_t n , int siz , void *ar )
+void nifti_swap_bytes( int64_t n , int size , void *ar )
 {
    int64_t ii ;
    unsigned char * cp0 = (unsigned char *)ar, * cp1, * cp2 ;
    unsigned char tval ;
 
    for( ii=0 ; ii < n ; ii++ ){
-       cp1 = cp0;  cp2 = cp0+(siz-1);
+       cp1 = cp0;  cp2 = cp0+(size-1);
        while ( cp2 > cp1 )
        {
            tval = *cp1 ; *cp1 = *cp2 ; *cp2 = tval ;
            cp1++; cp2--;
        }
-       cp0 += siz;
+       cp0 += size;
    }
    return ;
 }
@@ -3102,17 +3102,17 @@ void nifti_swap_bytes( int64_t n , int siz , void *ar )
 /*---------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------*/
-/*! based on siz, call the appropriate nifti_swap_Nbytes() function
+/*! based on size, call the appropriate nifti_swap_Nbytes() function
 *//*--------------------------------------------------------------------*/
-void nifti_swap_Nbytes( int64_t n , int siz , void *ar )  /* subsuming case */
+void nifti_swap_Nbytes( int64_t n , int size , void *ar )  /* subsuming case */
 {
-   switch( siz ){
+   switch( size ){
      case 2:  nifti_swap_2bytes ( n , ar ) ; break ;
      case 4:  nifti_swap_4bytes ( n , ar ) ; break ;
      case 8:  nifti_swap_8bytes ( n , ar ) ; break ;
      case 16: nifti_swap_16bytes( n , ar ) ; break ;
-     default:    /* nifti_swap_bytes  ( n , siz, ar ) ; */
-        fprintf(stderr,"** NIfTI: cannot swap in %d byte blocks\n", siz);
+     default:    /* nifti_swap_bytes  ( n , size, ar ) ; */
+        fprintf(stderr,"** NIfTI: cannot swap in %d byte blocks\n", size);
         break ;
    }
    }
@@ -7818,7 +7818,7 @@ znzFile nifti_image_write_hdr_img2(nifti_image *nim, int write_opts,
  * \param nim        nifti_image to write to disk
  * \param write_opts flags whether to write data and/or close file (see below)
  * \param opts       file-open options, probably "wb" from nifti_image_write()
- * \param imgfile    pointer to optionaly open znzFile, for writing image data
+ * \param imgfile    pointer to optionally open znzFile, for writing image data
                      (must not be NULL, contents might be NULL)
  * \param NBL        optional nifti_brick_list, containing the image data
                      (may be NULL)
