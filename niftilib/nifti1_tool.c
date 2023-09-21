@@ -3603,7 +3603,7 @@ int disp_nifti1_extension( const char *mesg, nifti1_extension * ext, int maxlen)
 
 
 /*----------------------------------------------------------------------
- * return the appropritate pointer into the g_hdr_fields struct
+ * return the appropriate pointer into the g_hdr_fields struct
  *----------------------------------------------------------------------*/
 field_s * get_hdr_field( const char * fname, int show_fail )
 {
@@ -3628,7 +3628,7 @@ field_s * get_hdr_field( const char * fname, int show_fail )
 
 
 /*----------------------------------------------------------------------
- * return the appropritate pointer into the g_hdr_fields struct
+ * return the appropriate pointer into the g_hdr_fields struct
  *----------------------------------------------------------------------*/
 field_s * get_nim_field( const char * fname, int show_fail )
 {
@@ -4121,7 +4121,7 @@ static int free_opts_mem( nt_opts * nopt )
 /*----------------------------------------------------------------------
  * wrapper for nifti_image_read
  *
- * this adds the option to generage an empty image, if the
+ * this adds the option to generate an empty image, if the
  * filename starts with "MAKE_IM"
  *----------------------------------------------------------------------*/
 nifti_image * nt_image_read( nt_opts * opts, const char * fname, int doread )
@@ -4158,7 +4158,7 @@ nifti_image * nt_image_read( nt_opts * opts, const char * fname, int doread )
 /*----------------------------------------------------------------------
  * wrapper for nifti_read_header
  *
- * this adds the option to generage an empty image, if the
+ * this adds the option to generate an empty image, if the
  * filename starts with "MAKE_IM"
  *----------------------------------------------------------------------*/
 nifti_1_header * nt_read_header(nt_opts * opts, const char * fname, int * swapped,
@@ -4198,7 +4198,7 @@ nifti_1_header * nt_read_header(nt_opts * opts, const char * fname, int * swappe
 /*----------------------------------------------------------------------
  * wrapper for nifti_read_header
  *
- * this adds the option to generage an empty image, if the
+ * this adds the option to generate an empty image, if the
  * filename starts with "MAKE_IM"
  *----------------------------------------------------------------------*/
 nifti_image * nt_read_bricks(nt_opts * opts, const char * fname, int len, int * list,

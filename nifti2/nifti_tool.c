@@ -4203,7 +4203,7 @@ static int convert_NBL_data(nifti_brick_list * NBL, int old_type, int new_type,
  * perform actual data conversion (basic checks are already done)
  *
  * It is not clear how to do this without an NxN set of cases, since 
- * the types must be expicitly noted for each pair, even with macros.
+ * the types must be explicitly noted for each pair, even with macros.
  *
  * So it is all written out, even when in and out types match, so that
  * the case blocks only vary in the I/O types.  If someone wants to
@@ -6425,7 +6425,7 @@ int disp_nifti1_extension( const char *mesg, nifti1_extension * ext, int maxlen)
 
 
 /*----------------------------------------------------------------------
- * return the appropritate pointer into the g_hdr1_fields struct
+ * return the appropriate pointer into the g_hdr1_fields struct
  *----------------------------------------------------------------------*/
 field_s * get_hdr1_field( const char * fname, int show_fail )
 {
@@ -6449,7 +6449,7 @@ field_s * get_hdr1_field( const char * fname, int show_fail )
 }
 
 /*----------------------------------------------------------------------
- * return the appropritate pointer into the g_hdr1_fields struct
+ * return the appropriate pointer into the g_hdr1_fields struct
  *----------------------------------------------------------------------*/
 field_s * get_hdr2_field( const char * fname, int show_fail )
 {
@@ -6474,7 +6474,7 @@ field_s * get_hdr2_field( const char * fname, int show_fail )
 
 
 /*----------------------------------------------------------------------
- * return the appropritate pointer into the g_hdr1_fields struct
+ * return the appropriate pointer into the g_hdr1_fields struct
  *----------------------------------------------------------------------*/
 field_s * get_nim_field( const char * fname, int show_fail )
 {
@@ -7191,7 +7191,7 @@ int act_cbl( nt_opts * opts )
  * 
  * This is a straight NIFTI copy, without cbl (so upper dims are intact).
  *
- * Note: nt_image_read() allows for modificatons, e.g. to the datatype.
+ * Note: nt_image_read() allows for modifications, e.g. to the datatype.
  *----------------------------------------------------------------------*/
 int act_copy( nt_opts * opts )
 {
@@ -7326,7 +7326,7 @@ static int free_opts_mem( nt_opts * nopt )
 /*----------------------------------------------------------------------
  * wrapper for nifti_image_read
  *
- * this adds the option to generage an empty image, if the
+ * this adds the option to generate an empty image, if the
  * filename starts with "MAKE_IM"
  *   - in the case of MAKE_IM, use make_ver to specify the NIFTI version
  *     (so possibly mod nifti_type and iname_offset)
@@ -7398,7 +7398,7 @@ nifti_image * nt_image_read( nt_opts * opts, const char * fname, int read_data,
 /*----------------------------------------------------------------------
  * wrapper for nifti_read_header
  *
- * this adds the option to generage an empty image, if the
+ * this adds the option to generate an empty image, if the
  * filename starts with "MAKE_IM"
  *----------------------------------------------------------------------*/
 void * nt_read_header(const char * fname, int * nver, int * swapped, int check,
@@ -7523,7 +7523,7 @@ void * nt_read_header(const char * fname, int * nver, int * swapped, int check,
 /*----------------------------------------------------------------------
  * wrapper for nifti_image_read_bricks
  *
- * Similar to nt_read_header(), this adds the option to generage an
+ * Similar to nt_read_header(), this adds the option to generate an
  * empty image if the filename starts with "MAKE_IM".
  *
  * the returned object is a (max 4-D) nifti_image
