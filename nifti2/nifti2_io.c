@@ -5248,7 +5248,7 @@ nifti_image* nifti_convert_n2hdr2nim(nifti_2_header nhdr, const char * fname)
         <br>NULL if something fails badly.
     \sa nifti_image_load, nifti_image_free
  */
-znzFile nifti_image_open(const char * hname, char * opts, nifti_image ** nim)
+znzFile nifti_image_open(const char * hname, const char * opts, nifti_image ** nim)
 {
   znzFile fptr=NULL;
   /* open the hdr and reading it in, but do not load the data  */
