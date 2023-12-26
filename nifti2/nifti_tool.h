@@ -281,7 +281,7 @@ int disp_nifti1_extension( const char *mesg, nifti1_extension * ext, int maxlen)
 int disp_field       (const char *mesg,field_s *fieldp,void *str,int nfields,int header);
 int disp_field_s_list(const char * mesg, field_s *, int nfields);
 int disp_nt_opts     ( const char *mesg, nt_opts * opts);
-int disp_raw_data    (void * data, int type, int nvals, char space,int newline);
+int disp_raw_data    (void * data, int type, int64_t nvals, char space,int newline);
 int fill_cmd_string  (nt_opts * opts, int argc, char * argv[]);
 int fill_field       (field_s *fp, int type, int offset, int num, const char *name);
 int fill_hdr1_field_array(field_s * nh_fields);
@@ -303,7 +303,7 @@ int write_hdr2_to_file(nifti_2_header * nhdr, const char * fname);
 /* wrappers for nifti reading functions (allow MAKE_IM) */
 nifti_image    * nt_image_read (nt_opts * opts, const char * fname,
                                 int read_data, int make_ver);
-nifti_image    * nt_read_bricks(nt_opts * opts, char * fname, int len,
+nifti_image    * nt_read_bricks(nt_opts * opts, char * fname, int64_t len,
                                 int64_t * list, nifti_brick_list * NBL);
 void * nt_read_header(const char * fname, int * nver, int * swapped, int check,
                       int new_datatype, int64_t new_dim[8]);
