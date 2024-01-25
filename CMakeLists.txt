@@ -34,6 +34,7 @@ project(NIFTI
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 include(nifti_macros)
+include(GNUInstallDirs)
 
 set_property(GLOBAL PROPERTY nifti_installed_targets)
 
@@ -69,12 +70,12 @@ if(BUILD_SHARED_LIBS AND NOT NIFTI_LIBRARY_PROPERTIES)
   )
 endif()
 
-set_if_not_defined(NIFTI_INSTALL_RUNTIME_DIR bin)
-set_if_not_defined(NIFTI_INSTALL_LIBRARY_DIR lib)
-set_if_not_defined(NIFTI_INSTALL_ARCHIVE_DIR ${NIFTI_INSTALL_LIBRARY_DIR})
-set_if_not_defined(NIFTI_INSTALL_INCLUDE_DIR include/nifti)
-set_if_not_defined(NIFTI_INSTALL_MAN_DIR share/man/man1)
-set_if_not_defined(NIFTI_INSTALL_DOC_DIR share/doc/${PROJECT_NAME})
+set_if_not_defined(NIFTI_INSTALL_RUNTIME_DIR ${CMAKE_INSTALL_BINDIR})
+set_if_not_defined(NIFTI_INSTALL_LIBRARY_DIR ${CMAKE_INSTALL_LIBDIR})
+set_if_not_defined(NIFTI_INSTALL_ARCHIVE_DIR ${CMAKE_INSTALL_LIBDIR})
+set_if_not_defined(NIFTI_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR}/nifti)
+set_if_not_defined(NIFTI_INSTALL_MAN_DIR ${CMAKE_INSTALL_MANDIR}/man1)
+set_if_not_defined(NIFTI_INSTALL_DOC_DIR ${CMAKE_INSTALL_DOCDIR})
 set_if_not_defined(NIFTI_ZLIB_LIBRARIES "")
 set_if_not_defined(ZNZ_COMPILE_DEF "")
 if(NOT NIFTI_ZLIB_LIBRARIES) # If using a custom zlib library, skip the find package
