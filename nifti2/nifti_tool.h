@@ -3,6 +3,16 @@
 
 #define NT_CMD_LEN 2048
 
+#if !defined(NI2_API) && defined(_WIN32) 
+#if defined(NIFTI2_BUILD_SHARED)
+#define NI2_API __declspec( dllexport )
+#elif defined(NIFTI2_USE_SHARED)
+#define NI2_API __declspec( dllimport )
+#else
+#define NI2_API
+#endif
+#endif
+
 typedef struct{
    int     len;
    const char ** list;
@@ -230,83 +240,83 @@ typedef struct {
 /*----------------------------------------------------------------------*/
 /*-----  prototypes  ---------------------------------------------------*/
 /*----------------------------------------------------------------------*/
-int    act_add_exts   ( nt_opts * opts );
-int    act_cbl        ( nt_opts * opts );  /* copy brick list */
-int    act_cci        ( nt_opts * opts );  /* copy collapsed dimensions */
-int    act_copy       ( nt_opts * opts );  /* straight library copy */
-int    act_check_hdrs ( nt_opts * opts );  /* check for valid hdr or nim */
-int    act_diff_hdrs  ( nt_opts * opts );
-int    act_diff_hdr1s ( nt_opts * opts );
-int    act_diff_hdr2s ( nt_opts * opts );
-int    act_diff_nims  ( nt_opts * opts );
-int    act_disp_ci    ( nt_opts * opts );  /* display general collapsed data */
-int    act_disp_exts  ( nt_opts * opts );
-int    act_disp_cext  ( nt_opts * opts );
-int    act_disp_hdr   ( nt_opts * opts );
-int    act_disp_hdr1  ( nt_opts * opts );
-int    act_disp_hdr2  ( nt_opts * opts );
-int    act_disp_nims  ( nt_opts * opts );
-int    act_disp_anas  ( nt_opts * opts );
-int    act_disp_ts    ( nt_opts * opts );  /* display time series */
-int    act_mod_hdrs   ( nt_opts * opts );
-int    act_mod_hdr2s  ( nt_opts * opts );
-int    act_mod_nims   ( nt_opts * opts );
-int    act_swap_hdrs  ( nt_opts * opts );
-int    act_rm_ext     ( nt_opts * opts );
-int    act_run_misc_tests( nt_opts * opts );
-int    act_strip      ( nt_opts * opts );  /* strip extras from datasets */
+NI2_API int    act_add_exts   ( nt_opts * opts );
+NI2_API int    act_cbl        ( nt_opts * opts );  /* copy brick list */
+NI2_API int    act_cci        ( nt_opts * opts );  /* copy collapsed dimensions */
+NI2_API int    act_copy       ( nt_opts * opts );  /* straight library copy */
+NI2_API int    act_check_hdrs ( nt_opts * opts );  /* check for valid hdr or nim */
+NI2_API int    act_diff_hdrs  ( nt_opts * opts );
+NI2_API int    act_diff_hdr1s ( nt_opts * opts );
+NI2_API int    act_diff_hdr2s ( nt_opts * opts );
+NI2_API int    act_diff_nims  ( nt_opts * opts );
+NI2_API int    act_disp_ci    ( nt_opts * opts );  /* display general collapsed data */
+NI2_API int    act_disp_exts  ( nt_opts * opts );
+NI2_API int    act_disp_cext  ( nt_opts * opts );
+NI2_API int    act_disp_hdr   ( nt_opts * opts );
+NI2_API int    act_disp_hdr1  ( nt_opts * opts );
+NI2_API int    act_disp_hdr2  ( nt_opts * opts );
+NI2_API int    act_disp_nims  ( nt_opts * opts );
+NI2_API int    act_disp_anas  ( nt_opts * opts );
+NI2_API int    act_disp_ts    ( nt_opts * opts );  /* display time series */
+NI2_API int    act_mod_hdrs   ( nt_opts * opts );
+NI2_API int    act_mod_hdr2s  ( nt_opts * opts );
+NI2_API int    act_mod_nims   ( nt_opts * opts );
+NI2_API int    act_swap_hdrs  ( nt_opts * opts );
+NI2_API int    act_rm_ext     ( nt_opts * opts );
+NI2_API int    act_run_misc_tests( nt_opts * opts );
+NI2_API int    act_strip      ( nt_opts * opts );  /* strip extras from datasets */
 
 
-field_s * get_hdr1_field( const char * fname, int show_fail );
-field_s * get_hdr2_field( const char * fname, int show_fail );
-field_s * get_nim_field( const char * fname, int show_fail );
-const char    * field_type_str (int type);
+NI2_API field_s * get_hdr1_field( const char * fname, int show_fail );
+NI2_API field_s * get_hdr2_field( const char * fname, int show_fail );
+NI2_API field_s * get_nim_field( const char * fname, int show_fail );
+NI2_API const char    * field_type_str (int type);
 
-int diff_hdr1s    (nifti_1_header *s0, nifti_1_header *s1, int display);
-int diff_hdr1s_list(nifti_1_header *s0, nifti_1_header *s1, str_list *slist,
-                    int display);
-int diff_hdr2s    (nifti_2_header *s0, nifti_2_header *s1, int display);
-int diff_hdr2s_list(nifti_2_header *s0, nifti_2_header *s1, str_list *slist,
-                    int display);
-int diff_nims     (nifti_image *s0,nifti_image *s1,        int display);
-int diff_nims_list(nifti_image *s0,nifti_image *s1,str_list *slist,int display);
+NI2_API int diff_hdr1s    (nifti_1_header *s0, nifti_1_header *s1, int display);
+NI2_API int diff_hdr1s_list(nifti_1_header *s0, nifti_1_header *s1, str_list *slist,
+                            int display);
+NI2_API int diff_hdr2s    (nifti_2_header *s0, nifti_2_header *s1, int display);
+NI2_API int diff_hdr2s_list(nifti_2_header *s0, nifti_2_header *s1, str_list *slist,
+                            int display);
+NI2_API int diff_nims     (nifti_image *s0,nifti_image *s1,        int display);
+NI2_API int diff_nims_list(nifti_image *s0,nifti_image *s1,str_list *slist,int display);
 
-int add_int          (int_list * ilist, int val);
-int add_string       (str_list * slist, const char * str);
-int check_total_size ( const char *mesg, field_s *fields, int nfields, int tot_size);
-int clear_float_zeros( char * str );
-int diff_field       (field_s *fieldp, void * str0, void * str1, int nfields);
-int disp_cifti_extension ( const char *mesg, nifti1_extension * ext, int maxlen);
-int disp_nifti1_extension( const char *mesg, nifti1_extension * ext, int maxlen);
-int disp_field       (const char *mesg,field_s *fieldp,void *str,int nfields,int header);
-int disp_field_s_list(const char * mesg, field_s *, int nfields);
-int disp_nt_opts     ( const char *mesg, nt_opts * opts);
-int disp_raw_data    (void * data, int type, int nvals, char space,int newline);
-int fill_cmd_string  (nt_opts * opts, int argc, char * argv[]);
-int fill_field       (field_s *fp, int type, int offset, int num, const char *name);
-int fill_hdr1_field_array(field_s * nh_fields);
-int fill_hdr2_field_array(field_s * nh_fields);
-int fill_nim1_field_array(field_s * nim_fields);
-int fill_nim2_field_array(field_s * nim_fields);
-int fill_ana_field_array(field_s * ah_fields);
-int modify_all_fields(void *basep, nt_opts *opts, field_s *fields, int flen);
-int modify_field     (void * basep, field_s * field, const char * data);
-int process_opts     (int argc, char * argv[], nt_opts * opts);
-int remove_ext_list  (nifti_image * nim, const char ** elist, int len);
-int usage            (char * prog, int level);
-int use_full         (void);
-int verify_opts      (nt_opts * opts, char * prog);
-int write_hdr_to_file (nifti_1_header * nhdr, const char * fname);
-int write_hdr2_to_file(nifti_2_header * nhdr, const char * fname);
+NI2_API int add_int          (int_list * ilist, int val);
+NI2_API int add_string       (str_list * slist, const char * str);
+NI2_API int check_total_size ( const char *mesg, field_s *fields, int nfields, int tot_size);
+NI2_API int clear_float_zeros( char * str );
+NI2_API int diff_field       (field_s *fieldp, void * str0, void * str1, int nfields);
+NI2_API int disp_cifti_extension ( const char *mesg, nifti1_extension * ext, int maxlen);
+NI2_API int disp_nifti1_extension( const char *mesg, nifti1_extension * ext, int maxlen);
+NI2_API int disp_field       (const char *mesg,field_s *fieldp,void *str,int nfields,int header);
+NI2_API int disp_field_s_list(const char * mesg, field_s *, int nfields);
+NI2_API int disp_nt_opts     ( const char *mesg, nt_opts * opts);
+NI2_API int disp_raw_data    (void * data, int type, int nvals, char space,int newline);
+NI2_API int fill_cmd_string  (nt_opts * opts, int argc, char * argv[]);
+NI2_API int fill_field       (field_s *fp, int type, int offset, int num, const char *name);
+NI2_API int fill_hdr1_field_array(field_s * nh_fields);
+NI2_API int fill_hdr2_field_array(field_s * nh_fields);
+NI2_API int fill_nim1_field_array(field_s * nim_fields);
+NI2_API int fill_nim2_field_array(field_s * nim_fields);
+NI2_API int fill_ana_field_array(field_s * ah_fields);
+NI2_API int modify_all_fields(void *basep, nt_opts *opts, field_s *fields, int flen);
+NI2_API int modify_field     (void * basep, field_s * field, const char * data);
+NI2_API int process_opts     (int argc, char * argv[], nt_opts * opts);
+NI2_API int remove_ext_list  (nifti_image * nim, const char ** elist, int len);
+NI2_API int usage            (char * prog, int level);
+NI2_API int use_full         (void);
+NI2_API int verify_opts      (nt_opts * opts, char * prog);
+NI2_API int write_hdr_to_file (nifti_1_header * nhdr, const char * fname);
+NI2_API int write_hdr2_to_file(nifti_2_header * nhdr, const char * fname);
 
 
 /* wrappers for nifti reading functions (allow MAKE_IM) */
-nifti_image    * nt_image_read (nt_opts * opts, const char * fname,
-                                int read_data, int make_ver);
-nifti_image    * nt_read_bricks(nt_opts * opts, char * fname, int len,
-                                int64_t * list, nifti_brick_list * NBL);
-void * nt_read_header(const char * fname, int * nver, int * swapped, int check,
-                      int new_datatype, int64_t new_dim[8]);
+NI2_API nifti_image    * nt_image_read (nt_opts * opts, const char * fname,
+                                        int read_data, int make_ver);
+NI2_API nifti_image    * nt_read_bricks(nt_opts * opts, char * fname, int len,
+                                        int64_t * list, nifti_brick_list * NBL);
+NI2_API void * nt_read_header(const char * fname, int * nver, int * swapped, int check,
+                              int new_datatype, int64_t new_dim[8]);
 
 /* prototypes associated with data conversion */
 static int convert_datatype(nifti_image * nim, nifti_brick_list * NBL,
@@ -323,7 +333,7 @@ static int type_is_signed(int dtype);
 
 
 /* misc functions */
-int           nt_run_misc_nim_tests (nifti_image * nim);
+NI2_API int           nt_run_misc_nim_tests (nifti_image * nim);
 static int    nt_disp_mat44_orient(const char * mesg, mat44 mat);
 static int    nt_test_dmat44_quatern(nifti_image * nim);
 static double dmat44_max_fabs(nifti_dmat44 m);

@@ -56,120 +56,130 @@
      NIFTI_INTENT_LOG10PVAL  = -log10(p)
 *****************************************************************************/
 
-extern char const * const inam[];
+#if !defined(NCDF_API) && defined(_WIN32) 
+#if defined(NIFTICDF_BUILD_SHARED)
+#define NCDF_API __declspec( dllexport )
+#elif defined(NIFTICDF_USE_SHARED)
+#define NCDF_API __declspec( dllimport )
+#else
+#define NCDF_API
+#endif
+#endif
 
-int nifti_intent_code( char *name );
-double nifti_stat2cdf( double val, int code, double p1,double p2,double p3 );
-double nifti_stat2rcdf( double val, int code, double p1,double p2,double p3 );
-double nifti_cdf2stat( double p , int code, double p1,double p2,double p3 );
+NCDF_API extern char const * const inam[];
+
+NCDF_API int nifti_intent_code( char *name );
+NCDF_API double nifti_stat2cdf( double val, int code, double p1,double p2,double p3 );
+NCDF_API double nifti_stat2rcdf( double val, int code, double p1,double p2,double p3 );
+NCDF_API double nifti_cdf2stat( double p , int code, double p1,double p2,double p3 );
 #if defined(__COMPILE_UNUSED_FUNCTIONS__)
-double nifti_rcdf2stat( double q , int code, double p1,double p2,double p3 );
+NCDF_API double nifti_rcdf2stat( double q , int code, double p1,double p2,double p3 );
 #endif/*(__COMPILE_UNUSED_FUNCTIONS__)*/
-double nifti_stat2zscore( double val , int code, double p1,double p2,double p3);
-double nifti_stat2hzscore( double val, int code, double p1,double p2,double p3);
+NCDF_API double nifti_stat2zscore( double val , int code, double p1,double p2,double p3);
+NCDF_API double nifti_stat2hzscore( double val, int code, double p1,double p2,double p3);
 
 /** Prototypes for cdflib functions **/
 
-double algdiv(const double*,const double*);
-double alngam(const double*);
-double alnrel(const double*);
-double apser(const double*,double*,const double*,const double*);
-double basym(double*,double*,const double*,const double*);
-double bcorr(const double*,const double*);
-double betaln(const double*,const double*);
-double bfrac(double*,double*,double*,double*,const double*,const double*);
-void bgrat(double*,double*,const double*,const double*,double*,double*,int*ierr);
-double bpser(double*,double*,const double*,const double*);
-void bratio(const double*,const double*,const double*,const double*,double*,double*,int*);
-double brcmp1(int*,double*,double*,const double*,const double*);
-double brcomp(double*,double*,const double*,const double*);
-double bup(double*,double*,double*,double*,const int*,const double*);
-void cdfbet(const int*,double*,double*,double*,double*,double*,double*,
-                   int*,double*);
-void cdfbin(const int*,double*,double*,double*,double*,double*,double*,
-                   int*,double*);
-void cdfchi(const int*,double*,double*,double*,double*,int*,double*);
-void cdfchn(const int*,double*,double*,double*,double*,double*,int*,double*);
-void cdff(const int*,double*,double*,double*,double*,double*,int*,double*);
-void cdffnc(const int*,double*,double*,double*,double*,double*,double*,
-                   int*status,double*);
-void cdfgam(const int*,double*,double*,double*,double*,double*,int*,double*);
+NCDF_API double algdiv(const double*,const double*);
+NCDF_API double alngam(const double*);
+NCDF_API double alnrel(const double*);
+NCDF_API double apser(const double*,double*,const double*,const double*);
+NCDF_API double basym(double*,double*,const double*,const double*);
+NCDF_API double bcorr(const double*,const double*);
+NCDF_API double betaln(const double*,const double*);
+NCDF_API double bfrac(double*,double*,double*,double*,const double*,const double*);
+NCDF_API void bgrat(double*,double*,const double*,const double*,double*,double*,int*ierr);
+NCDF_API double bpser(double*,double*,const double*,const double*);
+NCDF_API void bratio(const double*,const double*,const double*,const double*,double*,double*,int*);
+NCDF_API double brcmp1(int*,double*,double*,const double*,const double*);
+NCDF_API double brcomp(double*,double*,const double*,const double*);
+NCDF_API double bup(double*,double*,double*,double*,const int*,const double*);
+NCDF_API void cdfbet(const int*,double*,double*,double*,double*,double*,double*,
+                            int*,double*);
+NCDF_API void cdfbin(const int*,double*,double*,double*,double*,double*,double*,
+                            int*,double*);
+NCDF_API void cdfchi(const int*,double*,double*,double*,double*,int*,double*);
+NCDF_API void cdfchn(const int*,double*,double*,double*,double*,double*,int*,double*);
+NCDF_API void cdff(const int*,double*,double*,double*,double*,double*,int*,double*);
+NCDF_API void cdffnc(const int*,double*,double*,double*,double*,double*,double*,
+                            int*status,double*);
+NCDF_API void cdfgam(const int*,double*,double*,double*,double*,double*,int*,double*);
 #if defined(__COMPILE_UNUSED_FUNCTIONS__)
-void cdfnbn(int*,double*,double*,double*,double*,double*,double*,
-                   int*,double*);
-void cdfnor(int*,double*,double*,double*,double*,double*,int*,double*);
+NCDF_API void cdfnbn(int*,double*,double*,double*,double*,double*,double*,
+NCDF_API                    int*,double*);
+NCDF_API void cdfnor(int*,double*,double*,double*,double*,double*,int*,double*);
 #endif /*defined(__COMPILE_UNUSED_FUNCTIONS__)*/
-void cdfpoi(const int*,double*,double*,double*,double*,int*,double*);
-void cdft(const int*,double*,double*,double*,double*,int*,double*);
-void cumbet(double*,double*,double*,double*,double*,double*);
-void cumbin(const double*,const double*,double*,double*,double*,double*);
-void cumchi(const double*,const double*,double*,double*);
-void cumchn(double*,double*,const double*,double*,double*);
-void cumf(const double*,const double*,const double*,double*,double*);
-void cumfnc(double*,double*,double*,const double*,double*,double*);
-void cumgam(double*,double*,double*,double*);
+NCDF_API void cdfpoi(const int*,double*,double*,double*,double*,int*,double*);
+NCDF_API void cdft(const int*,double*,double*,double*,double*,int*,double*);
+NCDF_API void cumbet(double*,double*,double*,double*,double*,double*);
+NCDF_API void cumbin(const double*,const double*,double*,double*,double*,double*);
+NCDF_API void cumchi(const double*,const double*,double*,double*);
+NCDF_API void cumchn(double*,double*,const double*,double*,double*);
+NCDF_API void cumf(const double*,const double*,const double*,double*,double*);
+NCDF_API void cumfnc(double*,double*,double*,const double*,double*,double*);
+NCDF_API void cumgam(double*,double*,double*,double*);
 #if defined(__COMPILE_UNUSED_FUNCTIONS__)
-void cumnbn(double*,double*,double*,double*,double*,double*);
+NCDF_API void cumnbn(double*,double*,double*,double*,double*,double*);
 #endif /*defined(__COMPILE_UNUSED_FUNCTIONS__)*/
-void cumnor(const double*,double*,double*);
-void cumpoi(const double*,const double*,double*,double*);
-void cumt(const double*,const double*,double*,double*);
+NCDF_API void cumnor(const double*,double*,double*);
+NCDF_API void cumpoi(const double*,const double*,double*,double*);
+NCDF_API void cumt(const double*,const double*,double*,double*);
 #if defined(__COMPILE_UNUSED_FUNCTIONS__)
-double dbetrm(double*,double*);
+NCDF_API double dbetrm(double*,double*);
 #endif /*defined(__COMPILE_UNUSED_FUNCTIONS__)*/
-double devlpl(const double [],const int*,const double*);
+NCDF_API double devlpl(const double [],const int*,const double*);
 #if defined(__COMPILE_UNUSED_FUNCTIONS__)
-double dexpm1(double*);
-double dinvnr(const double *p,const double *q);
+NCDF_API double dexpm1(double*);
+NCDF_API double dinvnr(const double *p,const double *q);
 #endif /*defined(__COMPILE_UNUSED_FUNCTIONS__)*/
-void E0000(int,int*,double*,double*,unsigned long*,
-                  unsigned long*,const double*,const double*,const double*,
-                  const double*,const double*,const double*,const double*);
-void dinvr(int*,double*,double*,unsigned long*,unsigned long*);
-void dstinv(double*,double*,double*,double*,double*,double*,
-                   double*);
+NCDF_API void E0000(int,int*,double*,double*,unsigned long*,
+                           unsigned long*,const double*,const double*,const double*,
+                           const double*,const double*,const double*,const double*);
+NCDF_API void dinvr(int*,double*,double*,unsigned long*,unsigned long*);
+NCDF_API void dstinv(double*,double*,double*,double*,double*,double*,
+                             double*);
 #if defined(__COMPILE_UNUSED_FUNCTIONS__)
-double dlanor(double*);
-double dln1mx(double*);
-double dln1px(double*);
-double dlnbet(double*,double*);
-double dlngam(double*);
-double dstrem(double*);
+NCDF_API double dlanor(double*);
+NCDF_API double dln1mx(double*);
+NCDF_API double dln1px(double*);
+NCDF_API double dlnbet(double*,double*);
+NCDF_API double dlngam(double*);
+NCDF_API double dstrem(double*);
 #endif /*defined(__COMPILE_UNUSED_FUNCTIONS__)*/
-double dt1(double*,double*,const double*);
-void E0001(int,int*,double*,const double*,double*,double*,
-                  unsigned long*,unsigned long*,const double*,const double*,
-                  const double*,const double*);
-void dzror(int*,double*,double*,double*,double *,
-                  unsigned long*,unsigned long*);
-void dstzr(double *zxlo,double *zxhi,double *zabstl,double *zreltl);
-double erf1(const double*);
-double erfc1(const int*,const double*);
-double esum(const int*,const double*);
-double exparg(const int*);
-double fpser(const double*,const double*,const double*,const double*);
-double gam1(const double*);
-void gaminv(double*,double*,const double*,const double*,const double*,int*);
-double gamln(double*);
-double gamln1(const double*);
-double Xgamm(const double*);
-void grat1(double*,const double*,const double*,double*,double*,const double*);
-void gratio(double*,const double*,double*,double*,const int*);
-double gsumln(const double*,const double*);
-double psi(const double*);
-double rcomp(double*,const double*);
-double rexp(const double*);
-double rlog(const double*);
-double rlog1(const double*);
-double spmpar(const int*);
-double stvaln(const double*);
-double fifdint(double);
-double fifdmax1(double,double);
-double fifdmin1(double,double);
-double fifdsign(double,double);
-long fifidint(double);
-long fifmod(long,long);
-void ftnstop(const char*);
-int ipmpar(const int*);
+NCDF_API double dt1(double*,double*,const double*);
+NCDF_API void E0001(int,int*,double*,const double*,double*,double*,
+                           unsigned long*,unsigned long*,const double*,const double*,
+                           const double*,const double*);
+NCDF_API void dzror(int*,double*,double*,double*,double *,
+                           unsigned long*,unsigned long*);
+NCDF_API void dstzr(double *zxlo,double *zxhi,double *zabstl,double *zreltl);
+NCDF_API double erf1(const double*);
+NCDF_API double erfc1(const int*,const double*);
+NCDF_API double esum(const int*,const double*);
+NCDF_API double exparg(const int*);
+NCDF_API double fpser(const double*,const double*,const double*,const double*);
+NCDF_API double gam1(const double*);
+NCDF_API void gaminv(double*,double*,const double*,const double*,const double*,int*);
+NCDF_API double gamln(double*);
+NCDF_API double gamln1(const double*);
+NCDF_API double Xgamm(const double*);
+NCDF_API void grat1(double*,const double*,const double*,double*,double*,const double*);
+NCDF_API void gratio(double*,const double*,double*,double*,const int*);
+NCDF_API double gsumln(const double*,const double*);
+NCDF_API double psi(const double*);
+NCDF_API double rcomp(double*,const double*);
+NCDF_API double rexp(const double*);
+NCDF_API double rlog(const double*);
+NCDF_API double rlog1(const double*);
+NCDF_API double spmpar(const int*);
+NCDF_API double stvaln(const double*);
+NCDF_API double fifdint(double);
+NCDF_API double fifdmax1(double,double);
+NCDF_API double fifdmin1(double,double);
+NCDF_API double fifdsign(double,double);
+NCDF_API long fifidint(double);
+NCDF_API long fifmod(long,long);
+NCDF_API void ftnstop(const char*);
+NCDF_API int ipmpar(const int*);
 
 /** end: prototypes for cdflib functions **/
