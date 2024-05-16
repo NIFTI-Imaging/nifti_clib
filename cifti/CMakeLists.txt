@@ -12,6 +12,8 @@ target_link_libraries( ${NIFTI_CIFTILIB_NAME} PUBLIC EXPAT::EXPAT ${NIFTI_PACKAG
 # Set lib version when buildung shared libs.
 if(BUILD_SHARED_LIBS)
     set_target_properties(${NIFTI_CIFTILIB_NAME} PROPERTIES ${NIFTI_LIBRARY_PROPERTIES})
+    target_compile_definitions(${NIFTI_CIFTILIB_NAME} PRIVATE CIFTI_BUILD_SHARED)
+    target_compile_definitions(${NIFTI_CIFTILIB_NAME} INTERFACE CIFTI_USE_SHARED)
 endif()
 install_nifti_target(${NIFTI_CIFTILIB_NAME})
 

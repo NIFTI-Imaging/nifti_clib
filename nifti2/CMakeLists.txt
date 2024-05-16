@@ -17,6 +17,8 @@ if(BUILD_SHARED_LIBS)
         VERSION ${NIFTI2_VERSION}
         SOVERSION ${NIFTI2_MAJOR_VERSION}
         )
+    target_compile_definitions(${NIFTI_NIFTILIB2_NAME} PRIVATE NIFTI2_BUILD_SHARED)
+    target_compile_definitions(${NIFTI_NIFTILIB2_NAME} INTERFACE NIFTI2_USE_SHARED)
 endif()
 install_nifti_target(${NIFTI_NIFTILIB2_NAME})
 

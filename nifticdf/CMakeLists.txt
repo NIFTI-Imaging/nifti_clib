@@ -17,6 +17,8 @@ if(BUILD_SHARED_LIBS)
         VERSION ${NIFTICDF_VERSION}
         SOVERSION ${NIFTICDF_MAJOR_VERSION}
         )
+    target_compile_definitions(${NIFTI_CDFLIB_NAME} PRIVATE NIFTICDF_BUILD_SHARED)
+    target_compile_definitions(${NIFTI_CDFLIB_NAME} INTERFACE NIFTICDF_USE_SHARED)
 endif()
 install_nifti_target(${NIFTI_CDFLIB_NAME})
 if(NIFTI_BUILD_APPLICATIONS)

@@ -29,6 +29,16 @@
 #include "znzlib.h"
 #include "dbh.h"
 
+#if !defined(FSL_API) && defined(_WIN32) 
+#if defined(NIFTI_FSL_BUILD_SHARED)
+#define FSL_API __declspec( dllexport )
+#elif defined(NIFTI_FSL_USE_SHARED)
+#define FSL_API __declspec( dllimport )
+#else
+#define FSL_API
+#endif
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -137,109 +147,109 @@ typedef struct
 
   /* basic file i/o commands */
 
-FSLIO *FslOpen(const char *filename, const char *opts);
-FSLIO *FslXOpen(const char *filename, const char *opts, int filetype);
-int FslSeekVolume(FSLIO *fslio, size_t vols);
-int FslClose(FSLIO *fslio);
+FSL_API FSLIO *FslOpen(const char *filename, const char *opts);
+FSL_API FSLIO *FslXOpen(const char *filename, const char *opts, int filetype);
+FSL_API int FslSeekVolume(FSLIO *fslio, size_t vols);
+FSL_API int FslClose(FSLIO *fslio);
 
   /* basic read and write commands */
 
-void* FslReadAllVolumes(FSLIO* fslio, char* filename);
-void  FslWriteAllVolumes(FSLIO *fslio, const void *buffer);
+FSL_API void* FslReadAllVolumes(FSLIO* fslio, char* filename);
+FSL_API void  FslWriteAllVolumes(FSLIO *fslio, const void *buffer);
 
-size_t FslReadVolumes(FSLIO *fslio, void *buffer, size_t nvols);
-size_t FslWriteVolumes(FSLIO *fslio, const void *buffer, size_t nvols);
+FSL_API size_t FslReadVolumes(FSLIO *fslio, void *buffer, size_t nvols);
+FSL_API size_t FslWriteVolumes(FSLIO *fslio, const void *buffer, size_t nvols);
 
-void   FslWriteHeader(FSLIO *fslio);
+FSL_API void   FslWriteHeader(FSLIO *fslio);
 
   /* support functions for file names and types */
 
-int   FslFileExists(const char *filename);
-char *FslMakeBaseName(const char *fname);
-int   FslCheckForMultipleFileNames(const char* filename);
-int   FslGetEnvOutputType(void);
+FSL_API int   FslFileExists(const char *filename);
+FSL_API char *FslMakeBaseName(const char *fname);
+FSL_API int   FslCheckForMultipleFileNames(const char* filename);
+FSL_API int   FslGetEnvOutputType(void);
 
-void  FslSetIgnoreMFQ(int flag);
-int   FslGetIgnoreMFQ(void);
-void  FslSetOverrideOutputType(int type);
-int   FslGetOverrideOutputType(void);
+FSL_API void  FslSetIgnoreMFQ(int flag);
+FSL_API int   FslGetIgnoreMFQ(void);
+FSL_API void  FslSetOverrideOutputType(int type);
+FSL_API int   FslGetOverrideOutputType(void);
 
 
-int  FslGetFileType(const FSLIO *fslio);
-void FslSetFileType(FSLIO *fslio, int filetype);
-int  FslIsSingleFileType(int filetype);
-int  FslIsCompressedFileType(int filetype);
-int  FslBaseFileType(int filetype);
-const char* FslFileTypeString(int filetype);
+FSL_API int  FslGetFileType(const FSLIO *fslio);
+FSL_API void FslSetFileType(FSLIO *fslio, int filetype);
+FSL_API int  FslIsSingleFileType(int filetype);
+FSL_API int  FslIsCompressedFileType(int filetype);
+FSL_API int  FslBaseFileType(int filetype);
+FSL_API const char* FslFileTypeString(int filetype);
 
-int  FslGetWriteMode(const FSLIO *fslio);
-void FslSetWriteMode(FSLIO *fslio, int mode);
+FSL_API int  FslGetWriteMode(const FSLIO *fslio);
+FSL_API void FslSetWriteMode(FSLIO *fslio, int mode);
 
-void AvwSwapHeader(struct dsr *avw);
-int  FslReadRawHeader(void *buffer, const char* filename);
+FSL_API void AvwSwapHeader(struct dsr *avw);
+FSL_API int  FslReadRawHeader(void *buffer, const char* filename);
 
 
   /* simple creation and clone/copy operations */
 
-FSLIO *FslInit(void);
-void   FslInitHeader(FSLIO *fslio, short t,
+FSL_API FSLIO *FslInit(void);
+FSL_API void   FslInitHeader(FSLIO *fslio, short t,
                    size_t x, size_t y, size_t z, size_t v,
                    float vx, float vy, float vz, float tr,
                    size_t dim);
-void   FslSetInit(FSLIO* fslio);
-void   FslCloneHeader(FSLIO *dest, const FSLIO *src);
+FSL_API void   FslSetInit(FSLIO* fslio);
+FSL_API void   FslCloneHeader(FSLIO *dest, const FSLIO *src);
 
 
   /* get and set routines for properties */
 
-size_t FslGetVolSize(FSLIO *fslio);
+FSL_API size_t FslGetVolSize(FSLIO *fslio);
 
-void FslSetDim(FSLIO *fslio, short x, short y, short z, short v);
-void FslGetDim(FSLIO *fslio, short *x, short *y, short *z, short *v);
-void FslSetDimensionality(FSLIO *fslio, size_t dim);
-void FslGetDimensionality(FSLIO *fslio, size_t *dim);
-void FslSetVoxDim(FSLIO *fslio, float x, float y, float z, float tr);
-void FslGetVoxDim(FSLIO *fslio, float *x, float *y, float *z, float *tr);
-void FslGetCalMinMax(FSLIO *fslio, float *min, float *max);
-void FslSetCalMinMax(FSLIO *fslio, float  min, float  max);
-void FslGetAuxFile(FSLIO *fslio,char *aux_file);
-void FslSetAuxFile(FSLIO *fslio,const char *aux_file);
-void FslSetTimeUnits(FSLIO *fslio, const char *units);
-void FslGetTimeUnits(FSLIO *fslio, char *units);
-void FslSetDataType(FSLIO *fslio, short t);
-size_t FslGetDataType(FSLIO *fslio, short *t);
-int    FslGetIntensityScaling(FSLIO *fslio, float *slope, float *intercept);
-void   FslSetIntent(FSLIO *fslio, short intent_code, float p1, float p2, float p3);
-short  FslGetIntent(FSLIO *fslio, short *intent_code, float *p1, float *p2,
-                    float *p3);
+FSL_API void FslSetDim(FSLIO *fslio, short x, short y, short z, short v);
+FSL_API void FslGetDim(FSLIO *fslio, short *x, short *y, short *z, short *v);
+FSL_API void FslSetDimensionality(FSLIO *fslio, size_t dim);
+FSL_API void FslGetDimensionality(FSLIO *fslio, size_t *dim);
+FSL_API void FslSetVoxDim(FSLIO *fslio, float x, float y, float z, float tr);
+FSL_API void FslGetVoxDim(FSLIO *fslio, float *x, float *y, float *z, float *tr);
+FSL_API void FslGetCalMinMax(FSLIO *fslio, float *min, float *max);
+FSL_API void FslSetCalMinMax(FSLIO *fslio, float  min, float  max);
+FSL_API void FslGetAuxFile(FSLIO *fslio,char *aux_file);
+FSL_API void FslSetAuxFile(FSLIO *fslio,const char *aux_file);
+FSL_API void FslSetTimeUnits(FSLIO *fslio, const char *units);
+FSL_API void FslGetTimeUnits(FSLIO *fslio, char *units);
+FSL_API void FslSetDataType(FSLIO *fslio, short t);
+FSL_API size_t FslGetDataType(FSLIO *fslio, short *t);
+FSL_API int    FslGetIntensityScaling(FSLIO *fslio, float *slope, float *intercept);
+FSL_API void   FslSetIntent(FSLIO *fslio, short intent_code, float p1, float p2, float p3);
+FSL_API short  FslGetIntent(FSLIO *fslio, short *intent_code, float *p1, float *p2,
+                            float *p3);
 
 
-short FslGetStdXform(FSLIO *fslio, mat44 *stdmat);
-void  FslSetStdXform(FSLIO *fslio, short sform_code, mat44 stdmat);
-void  FslGetMMCoord(mat44 stdmat, float voxx, float voxy, float voxz,
-                    float *mmx, float *mmy, float *mmz);
+FSL_API short FslGetStdXform(FSLIO *fslio, mat44 *stdmat);
+FSL_API void  FslSetStdXform(FSLIO *fslio, short sform_code, mat44 stdmat);
+FSL_API void  FslGetMMCoord(mat44 stdmat, float voxx, float voxy, float voxz,
+                            float *mmx, float *mmy, float *mmz);
 
-void  FslGetVoxCoord(mat44 stdmat, float mmx, float mmy, float mmz,
-                     float *voxx, float *voxy, float *voxz);
-short FslGetRigidXform(FSLIO *fslio, mat44 *rigidmat);
-void  FslSetRigidXform(FSLIO *fslio, short qform_code, mat44 rigidmat);
-int   FslGetLeftRightOrder(FSLIO *fslio);
+FSL_API void  FslGetVoxCoord(mat44 stdmat, float mmx, float mmy, float mmz,
+                             float *voxx, float *voxy, float *voxz);
+FSL_API short FslGetRigidXform(FSLIO *fslio, mat44 *rigidmat);
+FSL_API void  FslSetRigidXform(FSLIO *fslio, short qform_code, mat44 rigidmat);
+FSL_API int   FslGetLeftRightOrder(FSLIO *fslio);
 
   /* these two functions are deprecated with the nifti/analyze support */
   /* please do all spatial coordinate origins via the Std and Rigid Xforms */
-void  FslSetAnalyzeSform(FSLIO *fslio, const short *orig,
-                         float dx, float dy, float dz);
-void  FslGetAnalyzeOrigin(FSLIO *fslio, short orig[5]);
+FSL_API void  FslSetAnalyzeSform(FSLIO *fslio, const short *orig,
+                                 float dx, float dy, float dz);
+FSL_API void  FslGetAnalyzeOrigin(FSLIO *fslio, short orig[5]);
 
   /* other read and write commands */
 
-size_t FslReadSliceSeries(FSLIO *fslio, void *buffer,short slice, size_t nvols);
-size_t FslReadRowSeries(FSLIO *fslio, void *buffer, short row, short slice, size_t nvols);
-size_t FslReadTimeSeries(FSLIO *fslio, void *buffer, short xVox, short yVox, short zVox, size_t nvols);
+FSL_API size_t FslReadSliceSeries(FSLIO *fslio, void *buffer,short slice, size_t nvols);
+FSL_API size_t FslReadRowSeries(FSLIO *fslio, void *buffer, short row, short slice, size_t nvols);
+FSL_API size_t FslReadTimeSeries(FSLIO *fslio, void *buffer, short xVox, short yVox, short zVox, size_t nvols);
 
   /* miscellaneous helper stuff */
 
-mat33 mat44_to_mat33(mat44 x);
+FSL_API mat33 mat44_to_mat33(mat44 x);
 
 
 
@@ -255,12 +265,12 @@ typedef long            THIS_INT64;
 typedef float           THIS_FLOAT32;
 typedef double          THIS_FLOAT64;
 
-FSLIO * FslReadHeader(char *fname);
-double ****FslGetBufferAsScaledDouble(FSLIO *fslio);
-double ***FslGetVolumeAsScaledDouble(FSLIO *fslio, int vol);
-int  convertBufferToScaledDouble(double *outbuf, void *inbuf, long len, float slope, float inter, int nifti_datatype ) ;
-double ****d4matrix(int th, int zh,  int yh, int xh);
-double ***d3matrix(int zh,  int yh, int xh);
+FSL_API FSLIO * FslReadHeader(char *fname);
+FSL_API double ****FslGetBufferAsScaledDouble(FSLIO *fslio);
+FSL_API double ***FslGetVolumeAsScaledDouble(FSLIO *fslio, int vol);
+FSL_API int  convertBufferToScaledDouble(double *outbuf, void *inbuf, long len, float slope, float inter, int nifti_datatype ) ;
+FSL_API double ****d4matrix(int th, int zh,  int yh, int xh);
+FSL_API double ***d3matrix(int zh,  int yh, int xh);
 
 
 #ifdef __cplusplus

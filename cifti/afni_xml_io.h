@@ -5,6 +5,16 @@
 #include <stdio.h>
 #include "afni_xml.h"
 
+#if !defined(CIF_API) && defined(_WIN32) 
+#if defined(CIFTI_BUILD_SHARED)
+#define CIF_API __declspec( dllexport )
+#elif defined(CIFTI_USE_SHARED)
+#define CIF_API __declspec( dllimport )
+#else
+#define CIF_API
+#endif
+#endif
+
 /* ----------------------------------------------------------------------
    CIFTI XML structure:
 
@@ -56,20 +66,20 @@
 
 /* --------------------------- prototypes --------------------------------- */
 
-int axio_read_cifti_file(const char * fname, int get_ndata,
-                         nifti_image ** nim_out, afni_xml_t ** ax_out);
+CIF_API int axio_read_cifti_file(const char * fname, int get_ndata,
+                                 nifti_image ** nim_out, afni_xml_t ** ax_out);
 
-afni_xml_t * axio_cifti_from_ext(nifti_image * nim);
-afni_xml_t * axio_read_buf (const char * buf, int64_t blen);
-afni_xml_t * axio_read_file(const char * fname);
+CIF_API afni_xml_t * axio_cifti_from_ext(nifti_image * nim);
+CIF_API afni_xml_t * axio_read_buf (const char * buf, int64_t blen);
+CIF_API afni_xml_t * axio_read_file(const char * fname);
 
-afni_xml_t * axio_find_map_name(afni_xml_t * ax, const char * name, int maxd);
+CIF_API afni_xml_t * axio_find_map_name(afni_xml_t * ax, const char * name, int maxd);
 
-int axio_text_to_binary (afni_xml_t * ax);
-int axio_num_tokens     (const char * str, int64_t maxlen);
+CIF_API int axio_text_to_binary (afni_xml_t * ax);
+CIF_API int axio_num_tokens     (const char * str, int64_t maxlen);
 
-int axio_show_cifti_summary(FILE * fp, char * mesg, afni_xml_t * ax, int verb);
-int axio_show_mim_summary(FILE * fp, const char * mesg, afni_xml_t * ax, int verb);
-int axio_show_attrs(FILE * fp, afni_xml_t * ax, int indent);
+CIF_API int axio_show_cifti_summary(FILE * fp, char * mesg, afni_xml_t * ax, int verb);
+CIF_API int axio_show_mim_summary(FILE * fp, const char * mesg, afni_xml_t * ax, int verb);
+CIF_API int axio_show_attrs(FILE * fp, afni_xml_t * ax, int indent);
 
 #endif /* AFNI_XML_IO_H */
