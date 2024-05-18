@@ -82,14 +82,16 @@ extern "C" {
       #ifdef __GNUC__
         #define ZNZ_API __attribute__ ((dllexport))
       #else
-        #define ZNZ_API __declspec((dllexport))
+        #define ZNZ_API __declspec( dllexport )
       #endif
     #elif defined(ZNZ_USE_SHARED)
       #ifdef __GNUC__
         #define ZNZ_API __attribute__ ((dllimport))
       #else
-        #define ZNZ_API __declspec((dllimport))
+        #define ZNZ_API __declspec( dllimport )
       #endif
+    #else
+      #define ZNZ_API
     #endif
   #elif (defined(__GNUC__) && __GNUC__ >= 4) || defined(__clang__)
     #define ZNZ_API __attribute__ ((visibility ("default")))

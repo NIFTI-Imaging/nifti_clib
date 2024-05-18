@@ -51,25 +51,27 @@
  * ----------------------------------------------------------------------*/
 
 #ifndef CIF_API
-  #if defined(_WIN32) || defined(__CYGWIN__)
-    #if defined(CIFTI_BUILD_SHARED)
+   #if defined(_WIN32) || defined(__CYGWIN__)
+      #if defined(CIFTI_BUILD_SHARED)
       #ifdef __GNUC__
-        #define CIF_API __attribute__ ((dllexport))
+         #define CIF_API __attribute__ ((dllexport))
       #else
-        #define CIF_API __declspec((dllexport))
+         #define CIF_API __declspec( dllexport )
       #endif
-    #elif defined(CIFTI_USE_SHARED)
+      #elif defined(CIFTI_USE_SHARED)
       #ifdef __GNUC__
-        #define CIF_API __attribute__ ((dllimport))
+         #define CIF_API __attribute__ ((dllimport))
       #else
-        #define CIF_API __declspec((dllimport))
+         #define CIF_API __declspec( dllimport )
       #endif
-    #endif
-  #elif (defined(__GNUC__) && __GNUC__ >= 4) || defined(__clang__)
-    #define CIF_API __attribute__ ((visibility ("default")))
-  #else
-    #define CIF_API
-  #endif
+      #else
+      #define CIF_API
+      #endif
+   #elif (defined(__GNUC__) && __GNUC__ >= 4) || defined(__clang__)
+      #define CIF_API __attribute__ ((visibility ("default")))
+   #else
+      #define CIF_API
+   #endif
 #endif
 
 /* --------------------------- structures --------------------------------- */
