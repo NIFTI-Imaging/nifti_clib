@@ -22,14 +22,26 @@
 
 #include "znzlib.h"
 
-#if !defined(NI2_API) && defined(_WIN32) 
-#if defined(NIFTI2_BUILD_SHARED)
-#define NI2_API __declspec( dllexport )
-#elif defined(NIFTI2_USE_SHARED)
-#define NI2_API __declspec( dllimport )
-#else
-#define NI2_API
-#endif
+#ifndef NI2_API
+  #if defined(_WIN32) || defined(__CYGWIN__)
+    #if defined(NIFTI2_BUILD_SHARED)
+      #ifdef __GNUC__
+        #define NI2_API __attribute__ ((dllexport))
+      #else
+        #define NI2_API __declspec((dllexport))
+      #endif
+    #elif defined(NIFTI2_USE_SHARED)
+      #ifdef __GNUC__
+        #define NI2_API __attribute__ ((dllimport))
+      #else
+        #define NI2_API __declspec((dllimport))
+      #endif
+    #endif
+  #elif (defined(__GNUC__) && __GNUC__ >= 4) || defined(__clang__)
+    #define NI2_API __attribute__ ((visibility ("default")))
+  #else
+    #define NI2_API
+  #endif
 #endif
 
 /*=================*/

@@ -76,14 +76,26 @@ extern "C" {
 #endif
 #endif
 
-#if !defined(ZNZ_API) && defined(_WIN32) 
-#if defined(ZNZ_BUILD_SHARED)
-#define ZNZ_API __declspec( dllexport )
-#elif defined(ZNZ_USE_SHARED)
-#define ZNZ_API __declspec( dllimport )
-#else
-#define ZNZ_API
-#endif
+#ifndef ZNZ_API
+  #if defined(_WIN32) || defined(__CYGWIN__)
+    #if defined(ZNZ_BUILD_SHARED)
+      #ifdef __GNUC__
+        #define ZNZ_API __attribute__ ((dllexport))
+      #else
+        #define ZNZ_API __declspec((dllexport))
+      #endif
+    #elif defined(ZNZ_USE_SHARED)
+      #ifdef __GNUC__
+        #define ZNZ_API __attribute__ ((dllimport))
+      #else
+        #define ZNZ_API __declspec((dllimport))
+      #endif
+    #endif
+  #elif (defined(__GNUC__) && __GNUC__ >= 4) || defined(__clang__)
+    #define ZNZ_API __attribute__ ((visibility ("default")))
+  #else
+    #define ZNZ_API
+  #endif
 #endif
 
 struct znzptr {
