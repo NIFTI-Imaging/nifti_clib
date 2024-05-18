@@ -35,14 +35,16 @@
       #ifdef __GNUC__
         #define FSL_API __attribute__ ((dllexport))
       #else
-        #define FSL_API __declspec((dllexport))
+        #define FSL_API __declspec( dllexport )
       #endif
     #elif defined(NIFTI_FSL_USE_SHARED)
       #ifdef __GNUC__
         #define FSL_API __attribute__ ((dllimport))
       #else
-        #define FSL_API __declspec((dllimport))
+        #define FSL_API __declspec( dllimport )
       #endif
+    #else
+      #define FSL_API
     #endif
   #elif (defined(__GNUC__) && __GNUC__ >= 4) || defined(__clang__)
     #define FSL_API __attribute__ ((visibility ("default")))

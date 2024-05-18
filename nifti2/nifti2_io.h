@@ -28,14 +28,16 @@
       #ifdef __GNUC__
         #define NI2_API __attribute__ ((dllexport))
       #else
-        #define NI2_API __declspec((dllexport))
+        #define NI2_API __declspec( dllexport )
       #endif
     #elif defined(NIFTI2_USE_SHARED)
       #ifdef __GNUC__
         #define NI2_API __attribute__ ((dllimport))
       #else
-        #define NI2_API __declspec((dllimport))
+        #define NI2_API __declspec( dllimport )
       #endif
+    #else
+      #define NI2_API
     #endif
   #elif (defined(__GNUC__) && __GNUC__ >= 4) || defined(__clang__)
     #define NI2_API __attribute__ ((visibility ("default")))

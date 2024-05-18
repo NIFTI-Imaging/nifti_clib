@@ -62,14 +62,16 @@
       #ifdef __GNUC__
         #define NCDF_API __attribute__ ((dllexport))
       #else
-        #define NCDF_API __declspec((dllexport))
+        #define NCDF_API __declspec( dllexport )
       #endif
     #elif defined(NIFTICDF_USE_SHARED)
       #ifdef __GNUC__
         #define NCDF_API __attribute__ ((dllimport))
       #else
-        #define NCDF_API __declspec((dllimport))
+        #define NCDF_API __declspec( dllimport )
       #endif
+    #else
+      #define NCDF_API
     #endif
   #elif (defined(__GNUC__) && __GNUC__ >= 4) || defined(__clang__)
     #define NCDF_API __attribute__ ((visibility ("default")))

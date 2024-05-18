@@ -25,14 +25,16 @@
       #ifdef __GNUC__
         #define NIO_API __attribute__ ((dllexport))
       #else
-        #define NIO_API __declspec((dllexport))
+        #define NIO_API __declspec( dllexport )
       #endif
     #elif defined(NIFTIIO_USE_SHARED)
       #ifdef __GNUC__
         #define NIO_API __attribute__ ((dllimport))
       #else
-        #define NIO_API __declspec((dllimport))
+        #define NIO_API __declspec( dllimport )
       #endif
+    #else
+      #define NIO_API
     #endif
   #elif (defined(__GNUC__) && __GNUC__ >= 4) || defined(__clang__)
     #define NIO_API __attribute__ ((visibility ("default")))
