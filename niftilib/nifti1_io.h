@@ -19,14 +19,26 @@
 
 #include "znzlib.h"
 
-#if !defined(NIO_API) && defined(_WIN32) 
-#if defined(NIFTIIO_BUILD_SHARED)
-#define NIO_API __declspec( dllexport )
-#elif defined(NIFTIIO_USE_SHARED)
-#define NIO_API __declspec( dllimport )
-#else
-#define NIO_API
-#endif
+#ifndef NIO_API
+  #if defined(_WIN32) || defined(__CYGWIN__)
+    #if defined(NIFTIIO_BUILD_SHARED)
+      #ifdef __GNUC__
+        #define NIO_API __attribute__ ((dllexport))
+      #else
+        #define NIO_API __declspec((dllexport))
+      #endif
+    #elif defined(NIFTIIO_USE_SHARED)
+      #ifdef __GNUC__
+        #define NIO_API __attribute__ ((dllimport))
+      #else
+        #define NIO_API __declspec((dllimport))
+      #endif
+    #endif
+  #elif (defined(__GNUC__) && __GNUC__ >= 4) || defined(__clang__)
+    #define NIO_API __attribute__ ((visibility ("default")))
+  #else
+    #define NIO_API
+  #endif
 #endif
 
 /*=================*/

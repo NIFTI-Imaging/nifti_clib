@@ -29,14 +29,26 @@
 #include "znzlib.h"
 #include "dbh.h"
 
-#if !defined(FSL_API) && defined(_WIN32) 
-#if defined(NIFTI_FSL_BUILD_SHARED)
-#define FSL_API __declspec( dllexport )
-#elif defined(NIFTI_FSL_USE_SHARED)
-#define FSL_API __declspec( dllimport )
-#else
-#define FSL_API
-#endif
+#ifndef FSL_API
+  #if defined(_WIN32) || defined(__CYGWIN__)
+    #if defined(NIFTI_FSL_BUILD_SHARED)
+      #ifdef __GNUC__
+        #define FSL_API __attribute__ ((dllexport))
+      #else
+        #define FSL_API __declspec((dllexport))
+      #endif
+    #elif defined(NIFTI_FSL_USE_SHARED)
+      #ifdef __GNUC__
+        #define FSL_API __attribute__ ((dllimport))
+      #else
+        #define FSL_API __declspec((dllimport))
+      #endif
+    #endif
+  #elif (defined(__GNUC__) && __GNUC__ >= 4) || defined(__clang__)
+    #define FSL_API __attribute__ ((visibility ("default")))
+  #else
+    #define FSL_API
+  #endif
 #endif
 
 #ifdef __cplusplus
