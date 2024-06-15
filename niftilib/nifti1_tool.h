@@ -3,30 +3,6 @@
 
 #define NT_CMD_LEN 2048
 
-#ifndef NIO_API
-  #if defined(_WIN32) || defined(__CYGWIN__)
-    #if defined(NIFTIIO_BUILD_SHARED)
-      #ifdef __GNUC__
-        #define NIO_API __attribute__ ((dllexport))
-      #else
-        #define NIO_API __declspec( dllexport )
-      #endif
-    #elif defined(NIFTIIO_USE_SHARED)
-      #ifdef __GNUC__
-        #define NIO_API __attribute__ ((dllimport))
-      #else
-        #define NIO_API __declspec( dllimport )
-      #endif
-    #else
-      #define NIO_API
-    #endif
-  #elif (defined(__GNUC__) && __GNUC__ >= 4) || defined(__clang__)
-    #define NIO_API __attribute__ ((visibility ("default")))
-  #else
-    #define NIO_API
-  #endif
-#endif
-
 typedef struct{
    int           len;
    const char ** list;
@@ -123,65 +99,65 @@ typedef struct {
 /*----------------------------------------------------------------------*/
 /*-----  prototypes  ---------------------------------------------------*/
 /*----------------------------------------------------------------------*/
-NIO_API int    act_add_exts   ( nt_opts * opts );
-NIO_API int    act_cbl        ( nt_opts * opts );  /* copy brick list */
-NIO_API int    act_cci        ( nt_opts * opts );  /* copy collapsed dimensions */
-NIO_API int    act_check_hdrs ( nt_opts * opts );  /* check for valid hdr or nim */
-NIO_API int    act_diff_hdrs  ( nt_opts * opts );
-NIO_API int    act_diff_nims  ( nt_opts * opts );
-NIO_API int    act_disp_ci    ( nt_opts * opts );  /* display general collapsed data */
-NIO_API int    act_disp_exts  ( nt_opts * opts );
-NIO_API int    act_disp_hdrs  ( nt_opts * opts );
-NIO_API int    act_disp_nims  ( nt_opts * opts );
-NIO_API int    act_disp_anas  ( nt_opts * opts );
-NIO_API int    act_disp_ts    ( nt_opts * opts );  /* display time series */
-NIO_API int    act_mod_hdrs   ( nt_opts * opts );
-NIO_API int    act_mod_nims   ( nt_opts * opts );
-NIO_API int    act_swap_hdrs  ( nt_opts * opts );
-NIO_API int    act_rm_ext     ( nt_opts * opts );
-NIO_API int    act_strip      ( nt_opts * opts );  /* strip extras from datasets */
+int    act_add_exts   ( nt_opts * opts );
+int    act_cbl        ( nt_opts * opts );  /* copy brick list */
+int    act_cci        ( nt_opts * opts );  /* copy collapsed dimensions */
+int    act_check_hdrs ( nt_opts * opts );  /* check for valid hdr or nim */
+int    act_diff_hdrs  ( nt_opts * opts );
+int    act_diff_nims  ( nt_opts * opts );
+int    act_disp_ci    ( nt_opts * opts );  /* display general collapsed data */
+int    act_disp_exts  ( nt_opts * opts );
+int    act_disp_hdrs  ( nt_opts * opts );
+int    act_disp_nims  ( nt_opts * opts );
+int    act_disp_anas  ( nt_opts * opts );
+int    act_disp_ts    ( nt_opts * opts );  /* display time series */
+int    act_mod_hdrs   ( nt_opts * opts );
+int    act_mod_nims   ( nt_opts * opts );
+int    act_swap_hdrs  ( nt_opts * opts );
+int    act_rm_ext     ( nt_opts * opts );
+int    act_strip      ( nt_opts * opts );  /* strip extras from datasets */
 
 
-NIO_API field_s    * get_hdr_field( const char * fname, int show_fail );
-NIO_API field_s    * get_nim_field( const char * fname, int show_fail );
-NIO_API const char * field_type_str (int type);
+field_s    * get_hdr_field( const char * fname, int show_fail );
+field_s    * get_nim_field( const char * fname, int show_fail );
+const char * field_type_str (int type);
 
-NIO_API int diff_hdrs     (nifti_1_header *s0, nifti_1_header *s1, int display);
-NIO_API int diff_hdrs_list(nifti_1_header *s0, nifti_1_header *s1, str_list *slist,
-                               int display);
-NIO_API int diff_nims     (nifti_image *s0,nifti_image *s1,        int display);
-NIO_API int diff_nims_list(nifti_image *s0,nifti_image *s1,str_list *slist,int display);
+int diff_hdrs     (nifti_1_header *s0, nifti_1_header *s1, int display);
+int diff_hdrs_list(nifti_1_header *s0, nifti_1_header *s1, str_list *slist,
+                   int display);
+int diff_nims     (nifti_image *s0,nifti_image *s1,        int display);
+int diff_nims_list(nifti_image *s0,nifti_image *s1,str_list *slist,int display);
 
-NIO_API int add_int          (int_list * ilist, int val);
-NIO_API int add_string       (str_list * slist, const char * str);
-NIO_API int check_total_size ( const char *mesg, field_s *fields, int nfields, int tot_size);
-NIO_API int clear_float_zeros( char * str );
-NIO_API int diff_field       (field_s *fieldp, void * str0, void * str1, int nfields);
-NIO_API int disp_nifti1_extension( const char *mesg, nifti1_extension * ext, int maxlen);
-NIO_API int disp_field       ( const char *mesg,field_s *fieldp,void *str,int nfields,int header);
-NIO_API int disp_field_s_list( const char *mesg, field_s *, int nfields);
-NIO_API int disp_nt_opts     ( const char *mesg, nt_opts * opts);
-NIO_API int disp_raw_data    (void * data, int type, int nvals, char space,int newline);
-NIO_API int fill_cmd_string  (nt_opts * opts, int argc, char * argv[]);
-NIO_API int fill_field       (field_s *fp, int type, int offset, int num, const char *name);
-NIO_API int fill_hdr_field_array(field_s * nh_fields);
-NIO_API int fill_nim_field_array(field_s * nim_fields);
-NIO_API int fill_ana_field_array(field_s * ah_fields);
-NIO_API int modify_all_fields(void *basep, nt_opts *opts, field_s *fields, int flen);
-NIO_API int modify_field     (void * basep, field_s * field, const char * data);
-NIO_API int process_opts     (int argc, char * argv[], nt_opts * opts);
-NIO_API int remove_ext_list  (nifti_image * nim, const char ** elist, int len);
-NIO_API int usage            (const char * prog, int level);
-NIO_API int use_full         (const char * prog);
-NIO_API int verify_opts      (nt_opts * opts, char * prog);
-NIO_API int write_hdr_to_file(nifti_1_header * nhdr, const char * fname);
+int add_int          (int_list * ilist, int val);
+int add_string       (str_list * slist, const char * str);
+int check_total_size ( const char *mesg, field_s *fields, int nfields, int tot_size);
+int clear_float_zeros( char * str );
+int diff_field       (field_s *fieldp, void * str0, void * str1, int nfields);
+int disp_nifti1_extension( const char *mesg, nifti1_extension * ext, int maxlen);
+int disp_field       ( const char *mesg,field_s *fieldp,void *str,int nfields,int header);
+int disp_field_s_list( const char *mesg, field_s *, int nfields);
+int disp_nt_opts     ( const char *mesg, nt_opts * opts);
+int disp_raw_data    (void * data, int type, int nvals, char space,int newline);
+int fill_cmd_string  (nt_opts * opts, int argc, char * argv[]);
+int fill_field       (field_s *fp, int type, int offset, int num, const char *name);
+int fill_hdr_field_array(field_s * nh_fields);
+int fill_nim_field_array(field_s * nim_fields);
+int fill_ana_field_array(field_s * ah_fields);
+int modify_all_fields(void *basep, nt_opts *opts, field_s *fields, int flen);
+int modify_field     (void * basep, field_s * field, const char * data);
+int process_opts     (int argc, char * argv[], nt_opts * opts);
+int remove_ext_list  (nifti_image * nim, const char ** elist, int len);
+int usage            (const char * prog, int level);
+int use_full         (const char * prog);
+int verify_opts      (nt_opts * opts, char * prog);
+int write_hdr_to_file(nifti_1_header * nhdr, const char * fname);
 
 /* wrappers for nifti reading functions (allow MAKE_IM) */
-NIO_API nifti_image    * nt_image_read (nt_opts * opts, const char * fname, int doread);
-NIO_API nifti_image    * nt_read_bricks(nt_opts * opts, const char * fname, int len,
-                                            int * list, nifti_brick_list * NBL);
-NIO_API nifti_1_header * nt_read_header(nt_opts * opts, const char * fname, int * swapped,
-                                            int check);
+nifti_image    * nt_image_read (nt_opts * opts, const char * fname, int doread);
+nifti_image    * nt_read_bricks(nt_opts * opts, const char * fname, int len,
+                                int * list, nifti_brick_list * NBL);
+nifti_1_header * nt_read_header(nt_opts * opts, const char * fname, int * swapped,
+                                int check);
 
 
 #endif  /* NIFTI1_TOOL_H */
