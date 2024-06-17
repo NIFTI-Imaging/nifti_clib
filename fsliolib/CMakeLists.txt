@@ -13,4 +13,6 @@ target_link_libraries( ${NIFTI_FSLIOLIB_NAME} PUBLIC ${NIFTI_PACKAGE_PREFIX}nift
 # Set lib version when buildung shared libs.
 if(BUILD_SHARED_LIBS)
   set_target_properties(${NIFTI_FSLIOLIB_NAME} PROPERTIES ${NIFTI_LIBRARY_PROPERTIES})
+  target_compile_definitions(${NIFTI_FSLIOLIB_NAME} PRIVATE NIFTI_FSL_BUILD_SHARED)
+  target_compile_definitions(${NIFTI_FSLIOLIB_NAME} INTERFACE NIFTI_FSL_USE_SHARED)
 endif()
