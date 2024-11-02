@@ -75,6 +75,7 @@ set_if_not_defined(NIFTI_INSTALL_ARCHIVE_DIR ${NIFTI_INSTALL_LIBRARY_DIR})
 set_if_not_defined(NIFTI_INSTALL_INCLUDE_DIR include/nifti)
 set_if_not_defined(NIFTI_INSTALL_MAN_DIR share/man/man1)
 set_if_not_defined(NIFTI_INSTALL_DOC_DIR share/doc/${PROJECT_NAME})
+set_if_not_defined(NIFTI_INSTALL_MODULE_DIR share/cmake/${PACKAGE_NAME})
 set_if_not_defined(NIFTI_ZLIB_LIBRARIES "")
 set_if_not_defined(ZNZ_COMPILE_DEF "")
 if(NOT NIFTI_ZLIB_LIBRARIES) # If using a custom zlib library, skip the find package
@@ -241,7 +242,7 @@ if(NIFTI_INSTALL_EXPORT_NAME STREQUAL "NIFTITargets")
   # NIFTI libraries into an external project
   include(CMakePackageConfigHelpers)
   set(CONFIG_SETUP_DIR ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME})
-  set(ConfigPackageLocation share/cmake/${PACKAGE_NAME})
+  set(ConfigPackageLocation ${NIFTI_INSTALL_MODULE_DIR})
 
   write_basic_package_version_file(
         ${CONFIG_SETUP_DIR}/${PACKAGE_NAME}ConfigVersion.cmake
