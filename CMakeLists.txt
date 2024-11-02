@@ -140,6 +140,7 @@ if (NIFTI_BUILD_TESTING )
   FetchContent_Declare( fetch_testing_data
           URL      https://github.com/NIFTI-Imaging/nifti-test-data/archive/v3.0.2.tar.gz
           URL_HASH SHA256=5dafec078151018da7aaf3c941bd31f246f590bc34fa3fef29ce77a773db16a6
+          DOWNLOAD_EXTRACT_TIMESTAMP TRUE
           )
   FetchContent_GetProperties(fetch_testing_data)
   if(NOT fetch_testing_data_POPULATED)
