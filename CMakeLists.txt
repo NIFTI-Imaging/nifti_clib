@@ -137,6 +137,7 @@ if (NIFTI_BUILD_TESTING )
   include(FetchContent) # fetch data a configure time to simplify tests
   # If new or changed data is needed, add that data to the https://github.com/NIFTI-Imaging/nifti-test-data repo
   # make a new release, and then update the URL and hash (shasum -a 256 <downloaded tarball>).
+  cmake_policy(SET CMP0169 OLD)
   FetchContent_Declare( fetch_testing_data
           URL      https://github.com/NIFTI-Imaging/nifti-test-data/archive/v3.0.2.tar.gz
           URL_HASH SHA256=5dafec078151018da7aaf3c941bd31f246f590bc34fa3fef29ce77a773db16a6
